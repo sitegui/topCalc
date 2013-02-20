@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<!--
+Calculadora prática e inteligente
+Versão 1.0 - 20/02/2013
+Guilherme de Oliveira Souza
+http://sitegui.com.br
+https://github.com/sitegui/topCalc
+-->
+<meta charset="utf-8">
+<meta name="description" content="Essa é uma calculadora prática e inteligente, feita para operações mais complexas">
+<meta name="keywords" content="contas com frações,números complexos,números grandes,calculadora,funções,variáveis,calculadora prática,calculadora inteligente">
+<title>Sitegui - Top!Calc (Versão 1.0 - 20/02/2013)</title>
+<style>
+.console {
+	background-color:black;
+	color:white;
+	font-family:"Courier New", Courier, monospace;
+	font-size:18px;
+}
+pre {
+	margin:0;
+}
+#historico {
+	white-space:pre-wrap;
+}
+#pre-input {
+	overflow:hidden;
+}
+.console-input {
+	width:90%;
+	border:none;
+	background-color:transparent;
+	color:white;
+	font-family:"Courier New", Courier, monospace;
+	font-size:18px;
+}
+.console-input {
+	outline:none;
+}
+.console-erro {
+	color:red;
+}
+.console-entrada {
+	color:rgba(255,255,255,.75);
+}
+.console-info {
+	color:rgba(255,255,255,.75);
+	font-size:16px;
+}
+</style>
+<script src="Console.js"></script>
+</head>
+
+<body class="console">
+<pre id="historico"><div>### Carregando ###</div></pre>
+<pre id="pre-input">&gt; <input class="console-input" id="input"></pre>
+</body>
+</html>
