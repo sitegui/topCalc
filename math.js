@@ -4,10 +4,12 @@ Console.oninput = function (input) {
 	try {
 		cmd = inflar(input)
 		cmd.expressoes.map(interpretar)
-		retornos = cmd.expressoes.map(executar)
-		Console.echo(retornos.join("\n"))
-		if (retornos.length)
-			Variavel.valores["ans"] = retornos.pop()
+		cmd.expressoes.forEach(function (x) {
+			var r
+			r = executar(x)
+			Variavel.valores["ans"] = r
+			Console.echo(r)
+		})
 	} catch (e) {
 		Console.echoErro(e)
 	}
@@ -23,13 +25,15 @@ Object.defineProperty(Array.prototype, "clonar", {value: function () {
 
 // Infla uma string, retorna um objeto Parenteses
 function inflar(str) {
-	var i, len, c, retorno, niveis, nivelAtual, novo, cache, salvarCache
+	var i, len, c, retorno, niveis, nivelAtual, novo, cache, salvarCache, matriz, posColuna, classe
 	retorno = new Parenteses
 	retorno.expressoes.push(new Expressao)
 	len = str.length
 	niveis = [retorno]
 	nivelAtual = retorno.expressoes[0]
 	cache = ""
+	matriz = false // Indica se está dentro de uma matriz
+	posColuna = 0 // Indica o número de expressões já validadas da coluna
 	
 	var salvarCache = function () {
 		if (cache.length > 0) {
@@ -38,65 +42,74 @@ function inflar(str) {
 		}
 	}
 	
+	// Valida o número de colunas na matriz
+	var validarColunas = function () {
+		var m = niveis[niveis.length-1]
+		var i, len = m.expressoes.length
+		if (m.colunas == 0)
+			m.colunas = posColuna = len
+		else if (posColuna+m.colunas != len)
+			throw "Número incorreto de expressões na matriz"
+		else
+			posColuna = len
+		for (i=len-m.colunas; i<len; i++)
+			if (m.expressoes[i].elementos.length == 0)
+				throw "Elemento vazio inesperado"
+	}
+	
 	for (i=0; i<len; i++) {
 		c = str[i]
-		if (c == "(") {
+		if (c == "(" || c == "{" || c == "[") {
 			salvarCache()
-			novo = new Parenteses
+			novo = c=="(" ? new Parenteses : (c=="{" ? new Lista : new Vetor)
 			novo.expressoes.push(new Expressao)
 			nivelAtual.elementos.push(novo)
 			niveis.push(nivelAtual)
 			niveis.push(novo)
 			nivelAtual = novo.expressoes[0]
-		} else if (c == "{") {
+		} else if (c == ")" || c == "}" || c == "]") {
 			salvarCache()
-			novo = new Lista
-			novo.expressoes.push(new Expressao)
-			nivelAtual.elementos.push(novo)
-			niveis.push(nivelAtual)
-			niveis.push(novo)
-			nivelAtual = novo.expressoes[0]
-		} else if (c == "[") {
-			salvarCache()
-			novo = new Vetor
-			novo.expressoes.push(new Expressao)
-			nivelAtual.elementos.push(novo)
-			niveis.push(nivelAtual)
-			niveis.push(novo)
-			nivelAtual = novo.expressoes[0]
-		} else if (c == ")") {
-			salvarCache()
-			if (niveis.length > 1 && niveis[niveis.length-1] instanceof Parenteses) {
+			classe = c==")" ? Parenteses : (c=="}" ? Lista : Vetor)
+			if (niveis.length > 1 && niveis[niveis.length-1] instanceof classe) {
 				niveis.pop()
 				nivelAtual = niveis.pop()
 			} else
-				throw "Aninhamento de parênteses inválido"
-		} else if (c == "}") {
+				throw "Aninhamento inválido, '"+c+"' inesperado"
+		} else if (c == "|") {
 			salvarCache()
-			if (niveis.length > 1 && niveis[niveis.length-1] instanceof Lista) {
-				niveis.pop()
+			if (!matriz) {
+				novo = new Matriz
+				novo.expressoes.push(new Expressao)
+				nivelAtual.elementos.push(novo)
+				niveis.push(nivelAtual)
+				niveis.push(novo)
+				nivelAtual = novo.expressoes[0]
+				colunas = 0
+			} else if (niveis.length <= 1 || !(niveis[niveis.length-1] instanceof Matriz))
+				throw "Aninhamento de matriz inválido"
+			else {
+				validarColunas()
+				novo = niveis.pop()
+				novo.linhas = novo.expressoes.length/novo.colunas
 				nivelAtual = niveis.pop()
-			} else
-				throw "Aninhamento de chaves inválido"
-		} else if (c == "]") {
+			}
+			matriz = !matriz
+		} else if (c == "," || c == ";") {
 			salvarCache()
-			if (niveis.length > 1 && niveis[niveis.length-1] instanceof Vetor) {
-				niveis.pop()
-				nivelAtual = niveis.pop()
-			} else
-				throw "Aninhamento de colchetes inválido"
-		} else if (c == ",") {
-			salvarCache()
+			if (c == ";") {
+				if (!matriz)
+					throw "Uso incorreto de ;"
+				validarColunas()
+			}
 			novo = new Expressao
 			niveis[niveis.length-1].expressoes.push(novo)
 			nivelAtual = novo
-		} else if (c == " ") {
+		} else if (c == " ")
 			salvarCache()
-		} else if (c == "'" && nivelAtual.elementos.length == 0 && cache == "") {
+		else if (c == "'" && nivelAtual.elementos.length == 0 && cache == "")
 			nivelAtual.puro = true
-		} else {
+		else
 			cache += c
-		}
 	}
 	salvarCache()
 	
@@ -189,7 +202,7 @@ function interpretar(expressao) {
 			args = [i, 1].concat(separar(el))
 			;[].splice.apply(expressao.elementos, args)
 			i += args.length-3
-		} else if (el instanceof Parenteses || el instanceof Lista || el instanceof Vetor) {
+		} else if (el instanceof Parenteses || el instanceof Lista || el instanceof Vetor || el instanceof Matriz) {
 			len = el.expressoes.length
 			for (j=0; j<len; j++)
 				interpretar(el.expressoes[j])
@@ -286,7 +299,7 @@ function eDeterminado(valor) {
 	var i, len
 	if (valor instanceof Expressao && valor.elementos.length == 0)
 		return true
-	if (valor instanceof Vetor || valor instanceof Lista || eNumerico(valor))
+	if (valor instanceof Vetor || valor instanceof Lista || valor instanceof Matriz || eNumerico(valor))
 		return true
 	return false
 }
@@ -306,24 +319,26 @@ function executar(expressao) {
 			if (obj.elementos.length == 0)
 				return new Expressao
 			return calc(obj.elementos[0])
-		} else if (obj instanceof Funcao) {
+		} else if (obj instanceof Funcao)
 			return obj.executar(vars)
-		} else if (obj instanceof Variavel) {
+		else if (obj instanceof Variavel) {
 			if (vars.indexOf(obj.nome) != -1)
 				return obj.clonar()
 			else
 				return obj.get(vars)
-		} else if (obj instanceof Fracao) {
+		} else if (obj instanceof Fracao)
 			return obj.clonar()
-		} else if (obj instanceof Parenteses) {
+		else if (obj instanceof Parenteses) {
 			if (obj.expressoes.length == 0)
 				throw "Parênteses vazio inesperado"
 			return obj.expressoes.map(calc).slice(-1)[0]
-		} else if (obj instanceof Lista) {
+		} else if (obj instanceof Lista)
 			return new Lista(obj.expressoes.map(calc))
-		} else if (obj instanceof Vetor) {
+		else if (obj instanceof Vetor)
 			return new Vetor(obj.expressoes.map(calc))
-		} else if (eNumerico(obj))
+		else if (obj instanceof Matriz)
+			return new Matriz(obj.expressoes.map(calc), obj.colunas)
+		else if (eNumerico(obj))
 			return obj
 		else
 			throw "Valor inválido"

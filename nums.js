@@ -114,7 +114,7 @@ function eIdentico(a, b) {
 	if (typeof a == "number" && typeof b == "number")
 		return a==b
 	if (a instanceof BigNum && b instanceof BigNum)
-		return a.zero==b.zero || (a.negativo==b.negativo && a.pequeno==b.pequeno && a.nivel==b.nivel && a.expoente==b.expoente)
+		return (a.zero && b.zero) || (a.negativo==b.negativo && a.pequeno==b.pequeno && a.nivel==b.nivel && a.expoente==b.expoente)
 	if (a instanceof Complexo && b instanceof Complexo)
 		return eIdentico(a.a, b.a) && eIdentico(a.b, b.b)
 	return false
@@ -125,6 +125,8 @@ function eIgual(a, b) {
 	var ca, cb
 	if (eIdentico(a, b))
 		return true
+	if (a instanceof b.constructor)
+		return false
 	if (a instanceof Complexo || b instanceof Complexo) {
 		ca = toComplexo(a)
 		cb = toComplexo(b)

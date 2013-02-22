@@ -17,7 +17,7 @@ Console.pos = 0
 // Arquivos a serem carregados
 Console.includes = [
 	"Fracao.js", "Number.js", "BigNum.js", "Complexo.js", "nums.js", // Objetos numéricos
-	"Variavel.js", "Expressao.js", "Operador.js", "Parenteses.js", "Lista.js", "Vetor.js", "Funcao.js", // Objetos core
+	"Variavel.js", "Expressao.js", "Operador.js", "Parenteses.js", "Lista.js", "Vetor.js", "Funcao.js", "Matriz.js", // Objetos core
 	"math.js", // Interpretador
 	"funcoes/math.js", "funcoes/array.js", "funcoes/operadores.js", "funcoes/misc.js" // Funções
 ]

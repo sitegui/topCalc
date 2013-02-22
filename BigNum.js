@@ -324,9 +324,7 @@ BigNum.prototype.pow10 = function () {
 	r = new BigNum
 	r.pequeno = this.negativo
 	if (this.pequeno) {
-		// TODO: deixar o expoente normalizado
-		r.expoente = this.abs().getNum()
-		r.nivel = 1
+		r.expoente = Math.pow(10, this.abs().getNum())
 		return r
 	}
 	r.nivel = this.nivel+1

@@ -1,13 +1,15 @@
 // Funções que são operadores
 Funcao.registrar("+", "", function (a, b) {
 	if (b === undefined) {
-		if (eNumerico(a))
+		if (eNumerico(a) || a instanceof Vetor)
 			return a
 		else if (eDeterminado(a))
 			throw 0
 	} else {
 		if (eNumerico(a) && eNumerico(b))
 			return somar(a, b)
+		else if (a instanceof Vetor && b instanceof Vetor)
+			return a.somar(b, this.escopo)
 		else if (eDeterminado(a) && eDeterminado(b))
 			throw 0
 	}
@@ -16,11 +18,15 @@ Funcao.registrar("-", "", function (a, b) {
 	if (b === undefined) {
 		if (eNumerico(a))
 			return subtrair(new Fracao(0, 1), a)
+		else if (a instanceof Vetor)
+			return a.oposto(this.escopo)
 		else if (eDeterminado(a))
 			throw 0
 	} else {
 		if (eNumerico(a) && eNumerico(b))
 			return subtrair(a, b)
+		else if (a instanceof Vetor && b instanceof Vetor)
+			return a.subtrair(b, this.escopo)
 		else if (eDeterminado(a) && eDeterminado(b))
 			throw 0
 	}
@@ -28,12 +34,20 @@ Funcao.registrar("-", "", function (a, b) {
 Funcao.registrar("*", "", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
 		return multiplicar(a, b)
+	else if (a instanceof Vetor && eNumerico(b))
+		return a.multiplicar(b)
+	else if (b instanceof Vetor && eNumerico(a))
+		return b.multiplicar(a)
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
 Funcao.registrar("/", "", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
 		return dividir(a, b)
+	else if (a instanceof Vetor && eNumerico(b))
+		return a.dividir(b)
+	else if (b instanceof Vetor && eNumerico(a))
+		return b.dividir(a)
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
@@ -41,11 +55,17 @@ Funcao.registrar("%", "", function (a, b) {
 	if (b === undefined) {
 		if (eNumerico(a))
 			return dividir(a, new Fracao(100, 1))
+		else if (a instanceof Vetor)
+			return a.dividir(new Fracao(100, 1), this.escopo)
 		else if (eDeterminado(a))
 			throw 0
 	} else {
 		if (eNumerico(a) && eNumerico(b))
 			return modulo(a, b)
+		else if (a instanceof Vetor && eNumerico(b))
+			return a.modulo(b, this.escopo)
+		else if (b instanceof Vetor && eNumerico(a))
+			return b.modulo(a, this.escopo)
 		else if (eDeterminado(a) && eDeterminado(b))
 			throw 0
 	}
@@ -57,12 +77,14 @@ Funcao.registrar("^", "", function (a, b) {
 		throw 0
 }, true)
 Funcao.registrar("factorial", "factorial(n)\nRetorna o resultado de n*(n-1)*...*1", function (a) {
-	var fact = function (n) {
-		return n==0 ? new Fracao(1, 1) : multiplicar(new Fracao(n, 1), fact(n-1))
-	}
+	var r, i
 	if (eNumerico(a)) {
-		if (eIntSeguro(a) && a>=0 && a<1000)
-			return fact(a)
+		if (eIntSeguro(a) && a>=0 && a<1e6) {
+			r = new Fracao(1, 1)
+			for (i=2; i<=a; i++)
+				r = multiplicar(r, new Fracao(i, 1))
+			return r
+		}
 	} else if (eDeterminado(a))
 		throw 0
 }, true)
@@ -146,12 +168,16 @@ Funcao.registrar(">=", "", function (a, b) {
 Funcao.registrar("==", "", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
 		return new Fracao(eIgual(a, b) ? 1 : 0, 1)
+	else if (a instanceof Vetor && b instanceof Vetor)
+		return a.igual(b)
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
 Funcao.registrar("!=", "", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
 		return new Fracao(eIgual(a, b) ? 0 : 1, 1)
+	else if (a instanceof Vetor && b instanceof Vetor)
+		return a.diferente(b)
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
