@@ -2,6 +2,7 @@
 function Funcao(nome, args) {
 	this.nome = nome
 	this.args = args
+	this.escopo = []
 }
 
 // Guarda as funções definidas
@@ -102,14 +103,77 @@ Funcao.gerar = function (params, definicao) {
 	return retorno
 }
 
+// Executa uma função diretamente, sem processar os argumentos
+Funcao.executar = function (nome, args) {
+	var funcao, retorno, copia
+	copia = new Funcao(nome, args)
+	if (nome in Funcao.funcoes) {
+		funcao = Funcao.funcoes[nome]
+		retorno = funcao.apply(copia, args)
+		return retorno===undefined ? copia : retorno
+	} else
+		return copia
+}
+
+// Pega todos os valores recebidos pela função, mesmo que dentro de listas
+// Exemplo: f(a,{b,c},{{d,e},f}) => a,b,c,d,e,f
+Funcao.getFlatArgs = function (args) {
+	var i, r = []
+	for (i=0; i<args.length; i++) {
+		if (args[i] instanceof Lista)
+			r = r.concat(Funcao.getFlatArgs(args[i].expressoes))
+		else
+			r.push(args[i])
+	}
+	return r
+}
+
 // Clona a função (não clona as argumentos em si)
 Funcao.prototype.clonar = function () {
 	return new Funcao(this.nome, this.args.clonar())
 }
 
 // Retorna uma representação em forma de string
+// TODO: corrigir a/(b*c) (levar em conta a associatividade)
 Funcao.prototype.toString = function () {
-	return this.nome+"<"+this.args.join(", ")+">"
+	var a, b
+	var operadores = {
+		"factorial": 0, "%": 0,
+		"!": 1, "+": 1, "-": 1
+	}
+	var operadores2 = {
+		"^": 0,
+		"*": 1, "/": 1, "%": 1,
+		"+": 2, "-": 2,
+		"<": 3, "<=": 3, ">": 3, ">=": 3,
+		"==": 4, "!=": 4,
+		"&&": 5,
+		"||": 6,
+		"=": 7
+	}
+	if (this.nome in operadores && this.args.length == 1) {
+		if (this.nome == "factorial")
+			return this.args[0]+"!"
+		if (this.nome == "%")
+			return this.args[0]+"%"
+		return this.nome+this.args[0]
+	}
+	if (this.nome in operadores2 && this.args.length == 2) {
+		a = unbox(this.args[0])
+		b = unbox(this.args[1])
+		if (a instanceof Funcao && ((a.nome in operadores && a.args.length == 1)
+			|| (a.nome in operadores2 && a.args.length == 2 && operadores2[a.nome]>operadores2[this.nome])))
+			a = "("+this.args[0]+")"
+		else
+			a = String(this.args[0])
+		if (b instanceof Funcao && ((b.nome in operadores && b.args.length == 1)
+			|| (b.nome in operadores2 && b.args.length == 2 && operadores2[b.nome]>operadores2[this.nome])))
+			b = "("+this.args[1]+")"
+		else
+			b = String(this.args[1])
+		return a+this.nome+b
+	}
+	return this.nome+"("+this.args.join(", ")+")"
 }
 
 // Executa uma função
@@ -121,7 +185,7 @@ Funcao.prototype.executar = function (vars) {
 			throw "Quantidade inválida de parâmetros para "+this.nome+", recebido "+this.args.length+" e esperado "+funcao.dim
 		if (!funcao.entradaPura)
 			copia = new Funcao(this.nome, this.args.map(function (x) {
-				if (Expressao.ePuro(x))
+				if (ePuro(x))
 					return x.clonar()
 				return executar(x, vars)
 			}))
@@ -139,7 +203,7 @@ Funcao.prototype.executar = function (vars) {
 		return retorno!==undefined ? retorno : copia
 	} else
 		return new Funcao(this.nome, this.args.map(function (x) {
-			if (Expressao.ePuro(x))
+			if (ePuro(x))
 				return x.clonar()
 			return executar(x, vars)
 		}))

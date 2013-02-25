@@ -23,9 +23,13 @@ Complexo.prototype.toString = function () {
 	var i
 	if (eZero(this.b))
 		return String(this.a)
-	if (eZero(this.a))
-		return String(this.b)+"i"
 	i = String(this.b)+"i"
+	if (i == "1i")
+		i = "i"
+	if (i == "-1i")
+		i = "-i"
+	if (eZero(this.a))
+		return i
 	return String(this.a)+(i.charAt(0)=="-" ? i : "+"+i)
 }
 

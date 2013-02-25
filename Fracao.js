@@ -268,7 +268,21 @@ Fracao.simplificar = function (n, d) {
 	return new Fracao(n, d)
 }
 
-// 
+// Cria uma fração com base em fatores
+Fracao.fromFatores = function (fatores) {
+	var i, n, f, r = new Fracao(1, 1)
+	for (i in fatores) {
+		f = new Fracao(Number(i), 1)
+		n = fatores[i]
+		if (n > 0)
+			while (n--)
+				r = multiplicar(r, f)
+		else if (n < 0)
+			while (n++)
+				r = dividir(r, f)
+	}
+	return r
+}
 
 // Tenta transformar um valor em fração
 Fracao.toFracao = function (num) {

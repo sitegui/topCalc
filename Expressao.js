@@ -19,12 +19,3 @@ Expressao.prototype.toString = function () {
 	else
 		return this.elementos.join(", ")
 }
-
-// Retorna se um dado objeto é uma expressão pura
-Expressao.ePuro = function (obj) {
-	if (obj instanceof Expressao && obj.puro)
-		return true
-	if (obj instanceof Parenteses && obj.expressoes.length == 1 && obj.expressoes[0].puro)
-		return true
-	return false
-}

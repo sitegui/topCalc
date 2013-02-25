@@ -12,5 +12,5 @@ Parenteses.prototype.clonar = function () {
 
 // Retorna a representação em string
 Parenteses.prototype.toString = function () {
-	return this.expressoes.join(", ")
+	return "("+this.expressoes.join(", ")+")"
 }

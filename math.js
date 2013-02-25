@@ -5,10 +5,19 @@ Console.oninput = function (input) {
 		cmd = inflar(input)
 		cmd.expressoes.map(interpretar)
 		cmd.expressoes.forEach(function (x) {
-			var r
-			r = executar(x)
-			Variavel.valores["ans"] = r
-			Console.echo(r)
+			var r, inicio, fim
+			inicio = Date.now()
+			try {
+				executar.logId = ""
+				r = executar(x)
+				Variavel.valores["ans"] = r
+				Console.echo(r)
+			} catch (e) {
+				Console.echoErro(e)
+			}
+			fim = Date.now()
+			if (_debug)
+				Console.echoInfo("Executado em "+(fim-inicio)+" ms")
 		})
 	} catch (e) {
 		Console.echoErro(e)
@@ -222,8 +231,8 @@ function interpretar(expressao) {
 		el = expressao.elementos[i]
 		elDepois = expressao.elementos[i+1]
 		if (!(el instanceof Operador) && !(elDepois instanceof Operador)) {
-			if (elDepois instanceof Vetor && elDepois.expressoes.length == 1) {
-				expressao.elementos.splice(i, 2, new Funcao("[]", [el, elDepois.expressoes[0]]))
+			if (elDepois instanceof Vetor && (elDepois.expressoes.length == 1 || elDepois.expressoes.length == 2)) {
+				expressao.elementos.splice(i, 2, new Funcao("getAt", [el].concat(elDepois.expressoes)))
 				i--
 			} else {
 				expressao.elementos.splice(i+1, 0, new Operador("*"))
@@ -304,6 +313,15 @@ function eDeterminado(valor) {
 	return false
 }
 
+// Retorna se um dado objeto é uma expressão pura
+function ePuro(obj) {
+	if (obj instanceof Expressao && obj.puro)
+		return true
+	if (obj instanceof Parenteses && obj.expressoes.length == 1 && obj.expressoes[0].puro)
+		return true
+	return false
+}
+
 // Executa um objeto matemático (sem alterar o argumento)
 // Retorna um outro objeto matemático (sem referências ao argumento)
 function executar(expressao) {
@@ -350,6 +368,3 @@ function executar(expressao) {
 	}
 	return r
 }
-setInterval(function () {
-	executar.logId = ""
-}, 1e3)

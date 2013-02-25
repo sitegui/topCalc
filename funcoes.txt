@@ -1,13 +1,8 @@
 == Lista ==
-sum(lista)
-sum(var, ini, fim, exp)
-product(lista)
-product(var, ini, fim, exp)
 pop(lista)
 push(lista, arg1, ...)
 reverse(lista)
 shift(lista)
-sort(lista)
 splice(lista, pos, delCount, arg1, ...)
 unshift(lista, arg1, ...)
 concat(arg1, ...)
@@ -27,18 +22,27 @@ complement(b,a) = b-a
 shuffle(lista)
 
 == Vetor ==
-+(v1,v2)
--(v1,v2)
-*(n,v), *(v,n)
-/(v,n)
-abs(v)
-dot(v1,v2)
-cross(v1,v2)
-proj(v1,v2)
+ang(v1,v2)
 args(v)
 make(abs, args)
 
 == Matriz ==
+identidade(n)
+rotacao(n)
+inversa(m)
+fatorarLUP(m)
+makem(nL, nC, func)
+det(m)
+trace(m)
+transpor(m)
+trocarLinhas()
+somarLinhas()
+multiplicarLinha()
+getLinha()
+getColuna()
+justapor()
+separar()
+elimacaoGauss()
 
 == Hyper-trigo ==
 sinh
@@ -47,23 +51,3 @@ tanh
 asinh
 acosh
 atanh
-
-== Num ==
-prime(n)
-isprime(n)
-factor(n)
-mdc(arg1, ...)
-mmc(arg1, ...)
-fatorar(n)
-sign(n)
-re(x)
-img(x)
-arg(c)
-conj(c)
-
-== Comb ==
-comb(a,b)=a!/(b!*(a-b)!)
-perm(a,b)=a!/(a-b)!
-
-== Misc ==
-if(what, yes, no)

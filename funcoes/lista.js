@@ -1,17 +1,4 @@
-// Funções para listas e vetores
-Funcao.registrar("[]", "", function (lista, pos) {
-	if (lista instanceof Lista || lista instanceof Vetor)
-		if (eNumerico(pos)) {
-			pos = getNum(pos)
-			if (eIntSeguro(pos) && pos >=0 && pos < lista.expressoes.length)
-				return lista.expressoes[pos]
-			else
-				throw 0
-		} else if (eDeterminado(pos))
-			throw 0
-	else if (eDeterminado(lista))
-		throw 0
-})
+// Funções para listas
 
 Funcao.registrar("for", "for(variavel, inicio, fim, expressao)\nRetorna uma lista dos valores da expressão executada para os diferentes valores inteiros da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao) {
 	var lista, i, antes
@@ -23,7 +10,7 @@ Funcao.registrar("for", "for(variavel, inicio, fim, expressao)\nRetorna uma list
 	this.args[2] = fim = this.executarNoEscopo(fim)
 	
 	variavel = variavel.nome
-	if (!Expressao.ePuro(expressao))
+	if (!ePuro(expressao))
 		this.args[3] = expressao = this.executarNoEscopo(expressao, [variavel])
 	
 	if (eNumerico(inicio) && eNumerico(fim)) {
@@ -119,17 +106,19 @@ Funcao.registrar("shift", "shift(lista)\nRemove o primeiro termo da lista ou vet
 }, false, true)
 
 Funcao.registrar("sort", "sort(lista)\nOrdena uma lista numérica", function (lista) {
-	var retorno, i
+	var args
 	lista = unbox(lista)
 	if (lista instanceof Lista) {
-		retorno = new Lista
-		for (i=0; i<lista.expressoes.length; i++)
-			if (!eNumerico(unbox(lista.expressoes[i])))
-				return
-		return retorno
+		args = lista.expressoes.map(unbox)
+		if (args.every(eNumerico)) {
+			args.sort(function (a, b) {
+				return eIdentico(max(a, b), a) ? 1 : -1
+			})
+			return new Lista(args)
+		}
 	} else if (eDeterminado(lista))
 		throw 0
-}, false, true)
+}, false)
 
 Funcao.registrar("push", "push(lista, a1, a2, ...)\nAdiciona os valores na lista e retorna seu novo tamanho", function (lista /*, ...args*/) {
 	var variavel, valor
@@ -173,41 +162,44 @@ Funcao.registrar("delta", "delta(lista)\nRetorna uma lista com as diferenças en
 	if (lista instanceof Lista && lista.expressoes.length > 0) {
 		retorno = new Lista
 		for (i=0; i<lista.expressoes.length-1; i++)
-			retorno.expressoes.push(this.executarNoEscopo(new Funcao("-", [lista.expressoes[i+1], lista.expressoes[i]])))
+			retorno.expressoes.push(Funcao.executar("-", [lista.expressoes[i+1], lista.expressoes[i]]))
 		return retorno
 	} else if (eDeterminado(lista))
 		throw 0
 })
 
-Funcao.registrar("sum", "sum(lista)\nRetorna a soma de todos os elementos da lista", function (lista) {
-	var retorno, i
-	if (lista instanceof Lista) {
-		retorno = new Fracao(0, 1)
-		for (i=0; i<lista.expressoes.length; i++)
-			retorno = this.executarNoEscopo(new Funcao("+", [retorno, lista.expressoes[i]]))
-		return retorno
-	} else if (eDeterminado(lista))
+Funcao.registrar("sum", "sum(n1, n2, ...)\nRetorna a soma de todos os elementos", function () {
+	var args, i, r
+	args = Funcao.getFlatArgs(arguments)
+	if (args.every(eNumerico)) {
+		r = new Fracao(0, 1)
+		for (i=0; i<args.length; i++)
+			r = Funcao.executar("+", [r, args[i]])
+		return r
+	} else if (args.every(eDeterminado))
 		throw 0
-})
+}, false, false, true)
 
-Funcao.registrar("avg", "avg(lista)\nRetorna a média dos elementos da lista", function (lista) {
-	var soma, i
-	if (lista instanceof Lista) {
-		soma = new Fracao(0, 1)
-		for (i=0; i<lista.expressoes.length; i++)
-			soma = this.executarNoEscopo(new Funcao("+", [soma, lista.expressoes[i]]))
-		return this.executarNoEscopo(new Funcao("/", [soma, new Fracao(lista.expressoes.length, 1)]))
-	} else if (eDeterminado(lista))
+Funcao.registrar("avg", "avg(n1, n2, ...)\nRetorna a média de todos os elementos", function () {
+	var args, i, r
+	args = Funcao.getFlatArgs(arguments)
+	if (args.every(eNumerico)) {
+		r = new Fracao(0, 1)
+		for (i=0; i<args.length; i++)
+			r = Funcao.executar("+", [r, args[i]])
+		return Funcao.executar("/", [r, new Fracao(args.length, 1)])
+	} else if (args.every(eDeterminado))
 		throw 0
-})
+}, false, false, true)
 
-Funcao.registrar("product", "product(lista)\nRetorna o produto de todos os elementos da lista", function (lista) {
-	var retorno, i
-	if (lista instanceof Lista) {
-		retorno = new Fracao(1, 1)
-		for (i=0; i<lista.expressoes.length; i++)
-			retorno = this.executarNoEscopo(new Funcao("*", [retorno, lista.expressoes[i]]))
-		return retorno
-	} else if (eDeterminado(lista))
+Funcao.registrar("product", "product(n1, n2, ...)\nRetorna o produto de todos os elementos", function () {
+	var args, i, r
+	args = Funcao.getFlatArgs(arguments)
+	if (args.every(eNumerico)) {
+		r = new Fracao(1, 1)
+		for (i=0; i<args.length; i++)
+			r = Funcao.executar("*", [r, args[i]])
+		return r
+	} else if (args.every(eDeterminado))
 		throw 0
-})
+}, false, false, true)

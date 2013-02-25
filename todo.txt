@@ -2,7 +2,6 @@ verificar trig para complexos
 
 seta pra baixo => fim da entrada
 
-a={1,2,3},a[x]
-3[1]
+validar valores antes
 
-Eliminar executar duplo com operações de vetor
+[a,b]=[1,0]

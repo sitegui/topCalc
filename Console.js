@@ -19,7 +19,7 @@ Console.includes = [
 	"Fracao.js", "Number.js", "BigNum.js", "Complexo.js", "nums.js", // Objetos numéricos
 	"Variavel.js", "Expressao.js", "Operador.js", "Parenteses.js", "Lista.js", "Vetor.js", "Funcao.js", "Matriz.js", // Objetos core
 	"math.js", // Interpretador
-	"funcoes/math.js", "funcoes/array.js", "funcoes/operadores.js", "funcoes/misc.js" // Funções
+	"funcoes/lista.js", "funcoes/matriz.js", "funcoes/misc.js", "funcoes/num.js", "funcoes/operadores.js", "funcoes/vetor.js" // Funções
 ]
 Console.includes.pos = 0
 
