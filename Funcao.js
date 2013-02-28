@@ -8,6 +8,9 @@ function Funcao(nome, args) {
 // Guarda as funções definidas
 Funcao.funcoes = {}
 
+// Guarda o módulo atual
+Funcao.moduloAtual = ""
+
 // Registra uma nova função
 Funcao.registrar = function (nome, definicao, funcao, aceitaListas, entradaPura, dimVariavel) {
 	aceitaListas = Boolean(aceitaListas)
@@ -19,6 +22,7 @@ Funcao.registrar = function (nome, definicao, funcao, aceitaListas, entradaPura,
 	funcao.definicao = definicao
 	funcao.entradaPura = Boolean(entradaPura)
 	funcao.dimVariavel = Boolean(dimVariavel)
+	funcao.modulo = Funcao.moduloAtual
 	Funcao.funcoes[nome] = funcao
 }
 
@@ -30,6 +34,9 @@ Funcao.fazerAceitarListas = function (funcaoBase) {
 		temLista = false
 		tamLista = 0
 		for (i=0; i<len; i++) {
+			if (ePuro(arguments[i]))
+				continue
+			arguments[i] = unbox(arguments[i])
 			if (arguments[i] instanceof Lista) {
 				if (!temLista)
 					tamLista = arguments[i].expressoes.length
@@ -100,6 +107,7 @@ Funcao.gerar = function (params, definicao) {
 	retorno.entradaPura = false
 	retorno.dimVariavel = false
 	retorno.dim = params.length
+	retorno.modulo = "usuario"
 	return retorno
 }
 

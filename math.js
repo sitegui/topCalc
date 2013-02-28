@@ -32,6 +32,9 @@ Object.defineProperty(Array.prototype, "clonar", {value: function () {
 	return this.slice(0)
 }})
 
+// Liga ou desliga o debug
+var _debug = false
+
 // Infla uma string, retorna um objeto Parenteses
 function inflar(str) {
 	var i, len, c, retorno, niveis, nivelAtual, novo, cache, salvarCache, matriz, posColuna, classe
@@ -308,6 +311,8 @@ function eDeterminado(valor) {
 	var i, len
 	if (valor instanceof Expressao && valor.elementos.length == 0)
 		return true
+	if (valor instanceof Expressao && valor.elementos.length == 1)
+		return eDeterminado(valor.elementos[0])
 	if (valor instanceof Vetor || valor instanceof Lista || valor instanceof Matriz || eNumerico(valor))
 		return true
 	return false

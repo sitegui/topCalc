@@ -13,7 +13,7 @@ Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou
 	} else if (variavel instanceof Funcao) {
 		valor = variavel.getDefinicao()
 		if (valor !== null) {
-			Console.echoInfo(valor)
+			Console.echoInfo("Módulo "+Funcao.funcoes[variavel.nome].modulo+"\n"+valor)
 			return new Expressao
 		}
 	} else if (eDeterminado(variavel))
@@ -115,15 +115,36 @@ Funcao.registrar("vars", "vars()\nMostra uma lista de todas as variáveis defini
 })
 
 // Exibe as variáveis definidas
-Funcao.registrar("funcs", "funcs()\nMostra uma lista de todas as funções definidas", function () {
-	setTimeout(function () {
-		Console.echoInfo(Object.keys(Funcao.funcoes).sort().join("\n"))
-	}, 250)
+Funcao.registrar("funcs", "funcs() ou funcs(modulo)\nMostra uma lista de todas as funções definidas num módulo", function (modulo) {
+	var itens, i
+	if (modulo === undefined) {
+		// Lista os módulos
+		itens = {}
+		for (i in Funcao.funcoes)
+			itens["- "+Funcao.funcoes[i].modulo] = true
+		itens = Object.keys(itens)
+		setTimeout(function () {
+			Console.echoInfo("Para listar as funções de um dos módulos abaixo, use funcs(modulo):\n")
+			Console.echoInfo(itens.sort().join("\n"))
+		}, 250)
+	} else {
+		// Lista as funções do módulo
+		modulo = unbox(modulo)
+		if (!(modulo instanceof Variavel))
+			throw 0
+		itens = []
+		for (i in Funcao.funcoes)
+			if (Funcao.funcoes[i].modulo == modulo.nome)
+				itens.push("- "+Funcao.funcoes[i].definicao.replace(/\n/, "\n\t"))
+		setTimeout(function () {
+			Console.echoInfo("Funções do módulo "+modulo.nome+":\n")
+			Console.echoInfo(itens.sort().join("\n"))
+		}, 250)
+	}
 	return new Expressao
-})
+}, false, true, true)
 
 // Liga ou desliga o debug
-var _debug = false
 Funcao.registrar("debug", "debug(estado)\nLiga ou desliga informações de debug", function (estado) {
 	if (eNumerico(estado)) {
 		_debug = !eZero(estado)

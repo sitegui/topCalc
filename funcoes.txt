@@ -27,22 +27,9 @@ args(v)
 make(abs, args)
 
 == Matriz ==
-identidade(n)
 rotacao(n)
-inversa(m)
-fatorarLUP(m)
-makem(nL, nC, func)
-det(m)
-trace(m)
-transpor(m)
-trocarLinhas()
-somarLinhas()
-multiplicarLinha()
-getLinha()
-getColuna()
-justapor()
-separar()
-elimacaoGauss()
+autovalores()
+autovetores()
 
 == Hyper-trigo ==
 sinh

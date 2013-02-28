@@ -268,6 +268,8 @@ BigNum.fromNumber = function (valor) {
 		r.zero = true
 		return r
 	}
+	if (Math.abs(valor) == Infinity)
+		return valor
 	if (valor < 0) {
 		valor = -valor
 		r.negativo = true

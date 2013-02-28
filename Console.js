@@ -14,15 +14,6 @@ var introInfo =
 Console.historico = []
 Console.pos = 0
 
-// Arquivos a serem carregados
-Console.includes = [
-	"Fracao.js", "Number.js", "BigNum.js", "Complexo.js", "nums.js", // Objetos numéricos
-	"Variavel.js", "Expressao.js", "Operador.js", "Parenteses.js", "Lista.js", "Vetor.js", "Funcao.js", "Matriz.js", // Objetos core
-	"math.js", // Interpretador
-	"funcoes/lista.js", "funcoes/matriz.js", "funcoes/misc.js", "funcoes/num.js", "funcoes/operadores.js", "funcoes/vetor.js" // Funções
-]
-Console.includes.pos = 0
-
 addEventListener("load", function () {
 	var mX, mY, input
 	input = document.getElementById("input")
@@ -59,33 +50,79 @@ addEventListener("load", function () {
 			Console.focar()
 	}
 	
-	// Carrega os arquivos
-	var carregar = function () {
-		var script, src
-		src = Console.includes[Console.includes.pos++]
+	Console.echoInfo("Console ok")
+	Console.carregarCore()
+})
+
+// Carrega os arquivos do core
+Console.carregarCore = function () {
+	var includes, pos, carregar
+	
+	includes = [
+		"Fracao", "Number", "BigNum", "Complexo", "nums", // Objetos numéricos
+		"Variavel", "Expressao", "Operador", "Parenteses", "Lista", "Vetor", "Funcao", "Matriz", // Objetos core
+		"math" // Interpretador
+	]
+	pos = 0
+	carregar = function () {
+		var script, include, div
 		script = document.createElement("script")
-		script.src = src+"?rand="+Math.random()
+		include = includes[pos++]
+		script.src = include+".js?rand="+Math.random()
 		script.onload = function () {
-			Console.echo(src.substr(0, src.length-3)+" ok")
-			if (Console.includes.pos < Console.includes.length)
+			div.textContent += " ok"
+			if (pos < includes.length)
 				carregar()
-			else {
-				Console.echo("### Iniciado ###")
-				setTimeout(function () {
-					Console.limpar()
-					Console.echo(introInfo)
-				}, 500)
-			}
+			else
+				Console.carregarFuncoes()
 		}
 		script.onerror = function () {
-			Console.echoErro(src.substr(0, src.length-3)+" erro")
+			Console.echoErro("Erro ao carregar "+include)
 			Console.echoErro("### Abortado ###")
 		}
 		document.head.appendChild(script)
+		div = Console.echoInfo(include)
 	}
-	Console.echo("Console ok")
 	carregar()
-})
+}
+
+// Carrega os arquivos de função
+Console.carregarFuncoes = function () {
+	var includes, pos, carregar
+	
+	includes = ["lista", "matriz", "misc", "num", "operadores", "vetor"]
+	pos = 0
+	carregar = function () {
+		var script, include, div
+		if (pos == includes.length) {
+			setTimeout(function () {
+				Console.limpar()
+				Console.echo(introInfo)
+			}, 1e3)
+			return
+		}
+		script = document.createElement("script")
+		include = includes[pos++]
+		script.src = "funcoes/"+include+".js?rand="+Math.random()
+		script.onload = function () {
+			var i, n = 0
+			for (i in Funcao.funcoes)
+				if (Funcao.funcoes[i].modulo == include)
+					n++
+			div.textContent += " ok ("+n+" funções)"
+			carregar()
+		}
+		script.onerror = function () {
+			Console.echoErro("Erro ao carregar módulo "+include)
+			carregar()
+		}
+		Funcao.moduloAtual = include
+		document.head.appendChild(script)
+		div = Console.echoInfo(include)
+	}
+	Console.echo("### Carregando módulos ###")
+	carregar()
+}
 
 // Executado quando o usuário entra algum dado
 Console.oninput = null

@@ -123,6 +123,32 @@ Funcao.registrar("isPrime", "isPrime(n)\nRetorna se um dado número é primo", f
 		throw 0
 }, true)
 
+Funcao.registrar("nextPrime", "nextPrime(n)\nRetorna o menor primo maior que n", function (n) {
+	if (eNumerico(n)) {
+		n = getNum(floor(n))+1
+		while (eIntSeguro(n)) {
+			if (ePrimo(Math.abs(n)))
+				return new Fracao(n, 1)
+			n++
+		}
+		throw 0
+	} else if (eDeterminado(n))
+		throw 0
+}, true)
+
+Funcao.registrar("prevPrime", "prevPrime(n)\nRetorna o maior primo menor que n", function (n) {
+	if (eNumerico(n)) {
+		n = getNum(ceil(n))-1
+		while (eIntSeguro(n)) {
+			if (ePrimo(Math.abs(n)))
+				return new Fracao(n, 1)
+			n--
+		}
+		throw 0
+	} else if (eDeterminado(n))
+		throw 0
+}, true)
+
 Funcao.registrar("factor", "factor(n)\nRetorna a fatoração da fração n", function (n) {
 	var fatores, i, r, grupo
 	if (n instanceof Fracao) {
@@ -318,6 +344,7 @@ Variavel.valores.log10e = Math.LOG10E
 Variavel.valores.pi = Math.PI
 Variavel.valores.sqrt12 = Math.SQRT1_2
 Variavel.valores.sqrt2 = Math.SQRT2
+Variavel.valores.g = 9.807
 
 Variavel.valores.maxvalue = Number.MAX_VALUE
 Variavel.valores.minvalue = Number.MIN_VALUE
