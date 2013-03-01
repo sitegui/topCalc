@@ -56,7 +56,7 @@ var ajudaInfo = {
 	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como x+x = 2x)\n"+
 	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
-	"- numeros\n- operadores\n- variaveis\n- funcoes",
+	"- numeros\n- operadores\n- variaveis\n- funcoes\n- listas\n- vetores\n- matrizes",
 "numeros": "Os valores numéricos são representados de 4 formas:\n"+
 	"- Fracao: um valor racional exato, com numerador e denominador inteiros\n"+
 	"- Number: um valor real aproximado, armazenado como double\n"+
@@ -74,7 +74,7 @@ var ajudaInfo = {
 	"- aritméticos: a+b, a-b, a*b, a/b, a^b (elevado), a%b (resto da divisão), +n, -n\n"+
 	"- comparação: a<b, a>b, a<=b, a>=b, a==b, a!=b (diferente)\n"+
 	"- lógicos: !a (not), a&&b (e), a||b (ou)\n"+
-	"- outros: n! (fatorial), n% (porcentagem, a=b (definição)",
+	"- outros: n! (fatorial), n% (porcentagem, a=b (definição), v[n] (entrada do vetor), m[i, j] (entrada da matriz)",
 "variaveis": "Variáveis são definidas na forma x=valor (como x=2 ou x=a+1)\n"+
 	"Algumas variáveis já existem por padrão, como pi, e, inf, i\n"+
 	"Para pegar o valor direto de uma variável, use get(x)\n"+
@@ -84,7 +84,20 @@ var ajudaInfo = {
 	"Várias funções já existem por padrão, como os operadores, sqrt(x), for(var,ini,fim,exp), num(valor)\n"+
 	"Para pegar a definição de uma função, use get(f())\n"+
 	"Para remover uma função, use unset(f())\n"+
-	"Para ver a lista de todas as funções definidas, use funcs()"
+	"Para ver a lista de todas as funções definidas, use funcs()",
+"listas": "Uma lista é escrita na forma {a, b, c} e pode ter quantos elementos desejar\n"+
+	"A grande maioria das funções e operadores distribuem sobre listas:\n"+
+	"{3, 14}+15 = {18, 29}\n"+
+	"{1, 2}+{3, 4}={4, 6}\n"+
+	"Use lista[n] para acessar o nº termo da lista\n"+
+	"Use funcs(lista) para ver as funções especiais para listas",
+"vetores": "Um vetor é escrito na forma [a, b, c] e pode ter quantas dimensões desejar\n"+
+	"Use vetor[n] para acessar o nº componente do vetor\n"+
+	"Use funcs(vetor) para ver as funções especiais para lidar com vetores",
+"matrizes": "Uma matriz 3x3 é escrita na forma |a,b,c;d,e,f;g,h,i|\n"+
+	"Uma matriz não pode ser vazia (zero entradas)\n"+
+	"Use matriz[i, j] para obter a entrada na linha i e coluna j da matriz\n"+
+	"Use funcs(matriz) para ver as funções específicas para lidar com matrizes"
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {

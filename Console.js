@@ -6,7 +6,7 @@ var introInfo =
 "+-----------------------------------+\n"+
 "| Calculadora prática e inteligente |\n"+
 "|    Digite help para saber mais    |\n"+
-"|      Versão 1.0 - 20/02/2013      |\n"+
+"|      Versão 1.1 - 01/03/2013      |\n"+
 "|       http://sitegui.com.br       |\n"+
 "+-----------------------------------+"
 

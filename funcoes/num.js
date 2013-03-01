@@ -92,7 +92,7 @@ Funcao.registrar("num", "num(x)\nRetorna o valor numérico de x", function (x) {
 		throw 0
 }, true)
 
-Funcao.registrar("prime", "prime(n)\nRetorna o nº primo", function (n) {
+Funcao.registrar("primo", "primo(n)\nRetorna o nº primo", function (n) {
 	var r, i
 	if (eNumerico(n)) {
 		n = getNum(n)
@@ -113,7 +113,7 @@ Funcao.registrar("prime", "prime(n)\nRetorna o nº primo", function (n) {
 		throw 0
 }, true)
 
-Funcao.registrar("isPrime", "isPrime(n)\nRetorna se um dado número é primo", function (n) {
+Funcao.registrar("ePrimo", "ePrimo(n)\nRetorna se um dado número é primo", function (n) {
 	if (eNumerico(n)) {
 		n = getNum(n)
 		if (!eIntSeguro(n))
@@ -123,7 +123,7 @@ Funcao.registrar("isPrime", "isPrime(n)\nRetorna se um dado número é primo", f
 		throw 0
 }, true)
 
-Funcao.registrar("nextPrime", "nextPrime(n)\nRetorna o menor primo maior que n", function (n) {
+Funcao.registrar("proxPrimo", "proxPrimo(n)\nRetorna o menor primo maior que n", function (n) {
 	if (eNumerico(n)) {
 		n = getNum(floor(n))+1
 		while (eIntSeguro(n)) {
@@ -136,7 +136,7 @@ Funcao.registrar("nextPrime", "nextPrime(n)\nRetorna o menor primo maior que n",
 		throw 0
 }, true)
 
-Funcao.registrar("prevPrime", "prevPrime(n)\nRetorna o maior primo menor que n", function (n) {
+Funcao.registrar("primoAntes", "primoAntes(n)\nRetorna o maior primo menor que n", function (n) {
 	if (eNumerico(n)) {
 		n = getNum(ceil(n))-1
 		while (eIntSeguro(n)) {
@@ -149,7 +149,7 @@ Funcao.registrar("prevPrime", "prevPrime(n)\nRetorna o maior primo menor que n",
 		throw 0
 }, true)
 
-Funcao.registrar("factor", "factor(n)\nRetorna a fatoração da fração n", function (n) {
+Funcao.registrar("fatorar", "fatorar(n)\nRetorna a fatoração da fração n", function (n) {
 	var fatores, i, r, grupo
 	if (n instanceof Fracao) {
 		if (eZero(n))
@@ -167,7 +167,7 @@ Funcao.registrar("factor", "factor(n)\nRetorna a fatoração da fração n", fun
 		throw 0
 }, true)
 
-Funcao.registrar("sign", "sign(x)\nRetorna o sinal de x (-1, 0 ou 1)", function (x) {
+Funcao.registrar("sinal", "sinal(x)\nRetorna o sinal de x (-1, 0 ou 1)", function (x) {
 	if (eNumerico(x)) {
 		if (x instanceof Fracao)
 			return new Fracao(x.n==0 ? 0 : (x.n<0 ? -1 : 1), 1)

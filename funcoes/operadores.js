@@ -98,11 +98,23 @@ Funcao.registrar("%", "a% ou a%b\nRetorna o valor em porcentagem ou o resto da d
 			throw 0
 	}
 }, true, false, true)
-// TODO: matriz^n
 Funcao.registrar("^", "a^b\nRetorna um valor elevado a outro", function (a, b) {
+	var retorno, i
 	if (eNumerico(a) && eNumerico(b))
 		return pow(a, b)
-	else if (eDeterminado(a) && eDeterminado(b))
+	else if (a instanceof Matriz && eNumerico(b)) {
+		b = getNum(b)
+		if (!eIntSeguro(b))
+			throw 0
+		if (a.linhas != a.colunas)
+			throw 0
+		retorno = Matriz.identidade(a.linhas)
+		for (i=Math.abs(b); i>0; i--)
+			retorno = retorno.multiplicar(a)
+		if (b<0)
+			return Funcao.executar("inverter", [retorno])
+		return retorno
+	} else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
 Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", function (a) {
@@ -117,7 +129,7 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 	} else if (eDeterminado(a))
 		throw 0
 }, true)
-Funcao.registrar("=", "x=... ou f(x)=...\nDefine uma variável ou função", function (a, b) {
+Funcao.registrar("=", "x=... ou f(x)=... ou {x,y}=...\nDefine uma variável ou função", function (a, b) {
 	var that = this
 	var definir = function (a, b) {
 		var retorno, i, len, params = [], temp, funcao
@@ -148,6 +160,7 @@ Funcao.registrar("=", "x=... ou f(x)=...\nDefine uma variável ou função", fun
 	if (a instanceof Lista) {
 		len = a.expressoes.length
 		retorno = new Lista
+		b = this.executarNoEscopo(b)
 		if (b instanceof Lista) {
 			if (b.expressoes.length != len)
 				throw "Tamanhos incompatíveis de listas"

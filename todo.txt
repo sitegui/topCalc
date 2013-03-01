@@ -8,6 +8,4 @@ validar valores antes
 
 Constantes físicas com unidade
 
-{L,U,P}=fatorarLU(|1,2;3,4|)
-
-{f(x),f(y)}=x*y
+Funcao.toString() para casos como a/(b*c)
