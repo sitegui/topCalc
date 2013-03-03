@@ -142,43 +142,56 @@ Funcao.prototype.clonar = function () {
 }
 
 // Retorna uma representação em forma de string
-// TODO: corrigir a/(b*c) (levar em conta a associatividade)
 Funcao.prototype.toString = function () {
-	var a, b
+	var a, b, op, pre
 	var operadores = {
-		"factorial": 0, "%": 0,
-		"!": 1, "+": 1, "-": 1
+		"factorial": 0, "%": 0, // rtl
+		"!": 1, "+": 1, "-": 1 // ltr
 	}
 	var operadores2 = {
-		"^": 0,
-		"*": 1, "/": 1, "%": 1,
-		"+": 2, "-": 2,
-		"<": 3, "<=": 3, ">": 3, ">=": 3,
-		"==": 4, "!=": 4,
-		"&&": 5,
-		"||": 6,
-		"=": 7
+		"^": 0, // ltr
+		"*": 1, "/": 1, "%": 1, // rtl
+		"+": 2, "-": 2, // rtl
+		"<": 3, "<=": 3, ">": 3, ">=": 3, // rtl
+		"==": 4, "!=": 4, // rtl
+		"&&": 5, // rtl
+		"||": 6, // rtl
+		"=": 7 // ltr
 	}
-	if (this.nome in operadores && this.args.length == 1) {
-		if (this.nome == "factorial")
-			return this.args[0]+"!"
-		if (this.nome == "%")
-			return this.args[0]+"%"
-		return this.nome+this.args[0]
+	var sentidos = [-1, 1, 1, 1, 1, 1, 1, -1]
+	var eOperador = function (x) {
+		return x instanceof Funcao && x.nome in operadores && x.args.length == 1
 	}
-	if (this.nome in operadores2 && this.args.length == 2) {
+	var eOperador2 = function (x) {
+		return x instanceof Funcao && x.nome in operadores2 && x.args.length == 2
+	}
+	if (eOperador(this)) {
+		a = unbox(this.args[0])
+		if (operadores[this.nome] == 0) {
+			op = this.nome=="factorial" ? "!" : this.nome
+			if (eOperador2(a) || (eOperador(a) && operadores[a.nome] > 0))
+				return "("+a+")"+op
+			return String(a)+op
+		} else {
+			if (eOperador2(a))
+				return this.nome+"("+a+")"
+			return this.nome+a
+		}
+	}
+	if (eOperador2(this)) {
 		a = unbox(this.args[0])
 		b = unbox(this.args[1])
-		if (a instanceof Funcao && ((a.nome in operadores && a.args.length == 1)
-			|| (a.nome in operadores2 && a.args.length == 2 && operadores2[a.nome]>operadores2[this.nome])))
-			a = "("+this.args[0]+")"
+		pre = operadores2[this.nome]
+		if (eOperador2(a) && (operadores2[a.nome]>pre || (operadores2[a.nome]==pre && sentidos[pre]==-1)))
+			a = "("+a+")"
 		else
-			a = String(this.args[0])
-		if (b instanceof Funcao && ((b.nome in operadores && b.args.length == 1)
-			|| (b.nome in operadores2 && b.args.length == 2 && operadores2[b.nome]>operadores2[this.nome])))
-			b = "("+this.args[1]+")"
+			a = String(a)
+		if (eOperador2(b) && (operadores2[b.nome]>pre || (operadores2[b.nome]==pre && sentidos[pre]==1)))
+			b = "("+b+")"
 		else
-			b = String(this.args[1])
+			b = String(b)
+		if (pre > 2)
+			return a+" "+this.nome+" "+b
 		return a+this.nome+b
 	}
 	return this.nome+"("+this.args.join(", ")+")"
@@ -243,22 +256,4 @@ Funcao.prototype.getDefinicao = function () {
 		return Funcao.funcoes[this.nome].definicao
 	else
 		return null
-}
-
-// Segue os caminhos das variáveis até a condição ser atingida
-// Retorna a variável cujo conteúdo bateu com a condição (ou quando está indefinida)
-// Retorna null caso no caminho não se ache nada
-Funcao.prototype.acharVariavel = function(expressao, condicao) {
-	var abertas = [], valor
-	while ((expressao = unbox(expressao)) instanceof Variavel) {
-		if (abertas.indexOf(expressao.nome) == -1) {
-			abertas.push(expressao.nome)
-			valor = expressao.getDireto(this.escopo)
-			if (valor === null || condicao(valor))
-				return expressao
-			expressao = valor
-		} else
-			return null
-	}
-	return null
 }

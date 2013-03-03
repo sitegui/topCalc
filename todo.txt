@@ -2,10 +2,4 @@ verificar trig para complexos
 
 seta pra baixo => fim da entrada
 
-validar valores antes
-
-[a,b]=[1,0]
-
 Constantes físicas com unidade
-
-Funcao.toString() para casos como a/(b*c)

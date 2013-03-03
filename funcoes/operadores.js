@@ -129,7 +129,7 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 	} else if (eDeterminado(a))
 		throw 0
 }, true)
-Funcao.registrar("=", "x=... ou f(x)=... ou {x,y}=...\nDefine uma variável ou função", function (a, b) {
+Funcao.registrar("=", "x=... ou f(x)=... ou {x,y}=... ou [x,y]=...\nDefine uma variável ou função", function (a, b) {
 	var that = this
 	var definir = function (a, b) {
 		var retorno, i, len, params = [], temp, funcao
@@ -157,13 +157,13 @@ Funcao.registrar("=", "x=... ou f(x)=... ou {x,y}=...\nDefine uma variável ou f
 	}
 	var i, len, retorno
 	
-	if (a instanceof Lista) {
+	if (a instanceof Lista || a instanceof Vetor) {
 		len = a.expressoes.length
-		retorno = new Lista
+		retorno = new a.constructor
 		b = this.executarNoEscopo(b)
-		if (b instanceof Lista) {
+		if (b instanceof a.constructor) {
 			if (b.expressoes.length != len)
-				throw "Tamanhos incompatíveis de listas"
+				throw "Tamanhos incompatíveis"
 			for (i=0; i<len; i++)
 				retorno.expressoes.push(definir(a.expressoes[i], b.expressoes[i]))
 		} else {

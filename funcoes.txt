@@ -1,18 +1,6 @@
 == Lista ==
-pop(lista)
-push(lista, arg1, ...)
-reverse(lista)
-shift(lista)
-splice(lista, pos, delCount, arg1, ...)
-unshift(lista, arg1, ...)
-concat(arg1, ...)
-slice(lista, ini, fim)
 indexOf(lista, valor)
 lastIndexOf(lista, valor)
-every(lista, func(x))
-some(lista, func(x))
-filter(lista, func(x))
-map(lista, func(x))
 reduce(lista, func(a,b))
 reduceRight(lista, func(a,b))
 intersect(a,b)
@@ -22,7 +10,6 @@ complement(b,a) = b-a
 shuffle(lista)
 
 == Vetor ==
-ang(v1,v2)
 args(v)
 make(abs, args)
 

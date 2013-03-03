@@ -88,6 +88,12 @@ function inflar(str) {
 			} else
 				throw "Aninhamento inválido, '"+c+"' inesperado"
 		} else if (c == "|") {
+			if (str[i+1] == "|") {
+				// Operador ||
+				cache += "||"
+				i++
+				continue
+			}
 			salvarCache()
 			if (!matriz) {
 				novo = new Matriz
