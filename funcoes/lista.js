@@ -21,18 +21,14 @@ Funcao.registrar("for", "for(variavel, inicio, fim, expressao)\nRetorna uma list
 		if (!eIntSeguro(inicio) || !eIntSeguro(fim))
 			throw 0
 		lista = new Lista
-		antes = Variavel.valores[variavel]
+		antes = Variavel.backup(variavel)
 		
 		for (i=inicio; i<=fim; i++) {
 			Variavel.valores[variavel] = new Fracao(i, 1)
 			lista.expressoes.push(this.executarNoEscopo(expressao))
 		}
 		
-		if (antes === undefined)
-			delete Variavel.valores[variavel]
-		else
-			Variavel.valores[variavel] = antes
-		
+		Variavel.restaurar(antes)
 		return lista
 	} else if (eDeterminado(inicio) && eDeterminado(fim))
 		throw 0
@@ -99,7 +95,7 @@ Funcao.registrar("sort", "sort(lista)\nOrdena uma lista numérica", function (li
 		throw 0
 })
 
-Funcao.registrar("juntar", "juntar(lista1, lista2, ...)\nRetorna a lista resultante da junção dos argumentos", function () {
+Funcao.registrar("concat", "concat(lista1, lista2, ...)\nRetorna a lista resultante da junção dos argumentos", function () {
 	var args, lista, determinado
 	args = [].slice.call(arguments, 0)
 	lista = args.every(function (x) {
@@ -116,7 +112,7 @@ Funcao.registrar("juntar", "juntar(lista1, lista2, ...)\nRetorna a lista resulta
 		throw 0
 }, false, false, true)
 
-Funcao.registrar("fatiar", "fatiar(lista, inicio) ou fatiar(lista, inicio, tamanho)\nRetorna uma fatia da lista", function (lista, inicio, tamanho) {
+Funcao.registrar("slice", "slice(lista, inicio) ou fatiar(lista, inicio, tamanho)\nRetorna uma fatia da lista", function (lista, inicio, tamanho) {
 	if (arguments.length < 2 || arguments.length > 3)
 		throw 0
 	if (lista instanceof Lista && eNumerico(inicio) && (tamanho === undefined || eNumerico(tamanho))) {
@@ -144,7 +140,7 @@ Funcao.registrar("fatiar", "fatiar(lista, inicio) ou fatiar(lista, inicio, taman
 		throw 0
 }, false, false, true)
 
-Funcao.registrar("reverter", "reverter(lista)\nRetorna a lista invertida", function (lista) {
+Funcao.registrar("reverse", "reverse(lista)\nRetorna a lista invertida", function (lista) {
 	if (lista instanceof Lista)
 		return new Lista(lista.expressoes.clonar().reverse())
 	else if (eDeterminado(lista))
@@ -162,7 +158,7 @@ Funcao.registrar("delta", "delta(lista)\nRetorna uma lista com as diferenças en
 		throw 0
 })
 
-Funcao.registrar("soma", "soma(n1, n2, ...)\nRetorna a soma de todos os elementos", function () {
+Funcao.registrar("sum", "sum(n1, n2, ...)\nRetorna a soma de todos os elementos", function () {
 	var args, i, r
 	args = Funcao.getFlatArgs(arguments)
 	if (args.every(eNumerico)) {
@@ -174,7 +170,7 @@ Funcao.registrar("soma", "soma(n1, n2, ...)\nRetorna a soma de todos os elemento
 		throw 0
 }, false, false, true)
 
-Funcao.registrar("media", "media(n1, n2, ...)\nRetorna a média de todos os elementos", function () {
+Funcao.registrar("avg", "avg(n1, n2, ...)\nRetorna a média de todos os elementos", function () {
 	var args, i, r
 	args = Funcao.getFlatArgs(arguments)
 	if (args.every(eNumerico)) {
@@ -186,7 +182,7 @@ Funcao.registrar("media", "media(n1, n2, ...)\nRetorna a média de todos os elem
 		throw 0
 }, false, false, true)
 
-Funcao.registrar("produto", "produto(n1, n2, ...)\nRetorna o produto de todos os elementos", function () {
+Funcao.registrar("product", "product(n1, n2, ...)\nRetorna o produto de todos os elementos", function () {
 	var args, i, r
 	args = Funcao.getFlatArgs(arguments)
 	if (args.every(eNumerico)) {
@@ -198,14 +194,21 @@ Funcao.registrar("produto", "produto(n1, n2, ...)\nRetorna o produto de todos os
 		throw 0
 }, false, false, true)
 
-Funcao.registrar("todos", "todos(lista, funcao)\nRetorna zero se funcao(lista[i]) retorna zero para algum i", function (lista, funcao) {
-	var i, cada, retorno
+Funcao.registrar("every", "every(lista, variavel, expressao)\nRetorna zero se expressao avalia para zero para algum elemento", function (lista, variavel, expressao) {
+	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = funcao = unbox(funcao)
-	if (lista instanceof Lista && funcao instanceof Variavel) {
+	this.args[1] = variavel = unbox(variavel)
+	if (!(variavel instanceof Variavel))
+		throw 0
+	variavel = variavel.nome
+	if (!ePuro(expressao))
+		this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	if (lista instanceof Lista) {
 		retorno = null
+		antes = Variavel.backup(variavel)
 		for (i=0; i<lista.expressoes.length; i++) {
-			cada = Funcao.executar(funcao.nome, [lista.expressoes[i]])
+			Variavel.valores[variavel] = lista.expressoes[i]
+			cada = this.executarNoEscopo(expressao)
 			if (eNumerico(cada))
 				if (eZero(cada))
 					return new Fracao(0, 1)
@@ -213,21 +216,29 @@ Funcao.registrar("todos", "todos(lista, funcao)\nRetorna zero se funcao(lista[i]
 					continue
 			retorno = retorno===null ? cada : Funcao.executar("&&", [retorno, cada])
 		}
+		Variavel.restaurar(antes)
 		if (retorno === null)
 			return new Fracao(1, 1)
 		return retorno
-	} else if (eDeterminado(lista) && eDeterminado(funcao))
+	} else if (eDeterminado(lista))
 		throw 0
 }, false, true)
 
-Funcao.registrar("algum", "algum(lista, funcao)\nRetorna zero se funcao(lista[i]) não retorna zero para todo i", function (lista, funcao) {
-	var i, cada, retorno
+Funcao.registrar("some", "some(lista, variavel, expressao)\nRetorna zero se expressao não avalia para zero para todos os elementos", function (lista, variavel, expressao) {
+	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = funcao = unbox(funcao)
-	if (lista instanceof Lista && funcao instanceof Variavel) {
+	this.args[1] = variavel = unbox(variavel)
+	if (!(variavel instanceof Variavel))
+		throw 0
+	variavel = variavel.nome
+	if (!ePuro(expressao))
+		this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	if (lista instanceof Lista) {
 		retorno = null
+		antes = Variavel.backup(variavel)
 		for (i=0; i<lista.expressoes.length; i++) {
-			cada = Funcao.executar(funcao.nome, [lista.expressoes[i]])
+			Variavel.valores[variavel] = lista.expressoes[i]
+			cada = this.executarNoEscopo(expressao)
 			if (eNumerico(cada))
 				if (!eZero(cada))
 					return new Fracao(1, 1)
@@ -235,40 +246,126 @@ Funcao.registrar("algum", "algum(lista, funcao)\nRetorna zero se funcao(lista[i]
 					continue
 			retorno = retorno===null ? cada : Funcao.executar("||", [retorno, cada])
 		}
+		Variavel.restaurar(antes)
 		if (retorno === null)
 			return new Fracao(0, 1)
 		return retorno
-	} else if (eDeterminado(lista) && eDeterminado(funcao))
+	} else if (eDeterminado(lista))
 		throw 0
 }, false, true)
 
-Funcao.registrar("filtrar", "filtrar(lista, funcao)\nRetorna uma lista somente com os elementos que funcao(lista[i]) é não nulo", function (lista, funcao) {
-	var i, cada, retorno
+Funcao.registrar("filter", "filter(lista, variavel, expressao)\nRetorna uma lista somente com os elementos que expressao não avalia como nulo", function (lista, variavel, expressao) {
+	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = funcao = unbox(funcao)
-	if (lista instanceof Lista && funcao instanceof Variavel) {
+	this.args[1] = variavel = unbox(variavel)
+	if (!(variavel instanceof Variavel))
+		throw 0
+	variavel = variavel.nome
+	if (!ePuro(expressao))
+		this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	if (lista instanceof Lista) {
 		retorno = new Lista
+		antes = Variavel.backup(variavel)
 		for (i=0; i<lista.expressoes.length; i++) {
-			cada = Funcao.executar(funcao.nome, [lista.expressoes[i]])
+			Variavel.valores[variavel] = lista.expressoes[i]
+			cada = this.executarNoEscopo(expressao)
 			if (!eNumerico(cada))
 				return
 			if (!eZero(cada))
 				retorno.expressoes.push(lista.expressoes[i])
 		}
+		Variavel.restaurar(antes)
 		return retorno
-	} else if (eDeterminado(lista) && eDeterminado(funcao))
+	} else if (eDeterminado(lista))
 		throw 0
 }, false, true)
 
-Funcao.registrar("aplicar", "aplicar(lista, funcao)\nRetorna uma lista com os retornos da função aplicada sobre os elementos da lista", function (lista, funcao) {
-	var i, retorno
+Funcao.registrar("map", "map(lista, variavel, expressao)\nRetorna uma lista com os valores de expressao avaliado sobre cada elemento da lista", function (lista, variavel, expressao) {
+	var i, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = funcao = unbox(funcao)
-	if (lista instanceof Lista && funcao instanceof Variavel) {
+	this.args[1] = variavel = unbox(variavel)
+	if (!(variavel instanceof Variavel))
+		throw 0
+	variavel = variavel.nome
+	if (!ePuro(expressao))
+		this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	if (lista instanceof Lista) {
 		retorno = new Lista
-		for (i=0; i<lista.expressoes.length; i++)
-			retorno.expressoes.push(Funcao.executar(funcao.nome, [lista.expressoes[i]]))
+		antes = Variavel.backup(variavel)
+		for (i=0; i<lista.expressoes.length; i++) {
+			Variavel.valores[variavel] = lista.expressoes[i]
+			retorno.expressoes.push(this.executarNoEscopo(expressao))
+		}
+		Variavel.restaurar(antes)
 		return retorno
-	} else if (eDeterminado(lista) && eDeterminado(funcao))
+	} else if (eDeterminado(lista))
 		throw 0
 }, false, true)
+
+Funcao.registrar("reduce", "reduce(lista, varA, varB, expressao) ou reduce(lista, varA, varB, expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
+	var i, ini, antes
+	if (arguments.length < 4 || arguments.length > 5)
+		throw 0
+	this.args[0] = lista = this.executarNoEscopo(lista)
+	this.args[1] = varA = unbox(varA)
+	this.args[2] = varB = unbox(varB)
+	if (!(varA instanceof Variavel) || !(varB instanceof Variavel))
+		throw 0
+	varA = varA.nome
+	varB = varB.nome
+	if (!ePuro(expressao))
+		this.args[3] = expressao = this.executarNoEscopo(expressao, [varA, varB])
+	if (inicio !== undefined)
+		this.args[4] = inicio = this.executarNoEscopo(inicio)
+	if (lista instanceof Lista) {
+		ini = inicio==undefined ? 1 : 0
+		if (inicio === undefined)
+			if (lista.expressoes.length)
+				inicio = lista.expressoes[0]
+			else
+				throw 0
+		antes = Variavel.backup([varA, varB])
+		for (i=ini; i<lista.expressoes.length; i++) {
+			Variavel.valores[varA] = inicio
+			Variavel.valores[varB] = lista.expressoes[i]
+			inicio = this.executarNoEscopo(expressao)
+		}
+		Variavel.restaurar(antes)
+		return inicio
+	} else if (eDeterminado(lista))
+		throw 0
+}, false, true, true)
+
+Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, expressao) ou reduce(lista, varA, varB, expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
+	var i, ini, antes
+	if (arguments.length < 4 || arguments.length > 5)
+		throw 0
+	this.args[0] = lista = this.executarNoEscopo(lista)
+	this.args[1] = varA = unbox(varA)
+	this.args[2] = varB = unbox(varB)
+	if (!(varA instanceof Variavel) || !(varB instanceof Variavel))
+		throw 0
+	varA = varA.nome
+	varB = varB.nome
+	if (!ePuro(expressao))
+		this.args[3] = expressao = this.executarNoEscopo(expressao, [varA, varB])
+	if (inicio !== undefined)
+		this.args[4] = inicio = this.executarNoEscopo(inicio)
+	if (lista instanceof Lista) {
+		ini = inicio==undefined ? lista.expressoes.length-2 : lista.expressoes.length-1
+		if (inicio === undefined)
+			if (lista.expressoes.length)
+				inicio = lista.expressoes[lista.expressoes.length-1]
+			else
+				throw 0
+		antes = Variavel.backup([varA, varB])
+		for (i=ini; i>=0; i--) {
+			Variavel.valores[varA] = inicio
+			Variavel.valores[varB] = lista.expressoes[i]
+			inicio = this.executarNoEscopo(expressao)
+		}
+		Variavel.restaurar(antes)
+		return inicio
+	} else if (eDeterminado(lista))
+		throw 0
+}, false, true, true)

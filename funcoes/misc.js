@@ -58,7 +58,7 @@ var ajudaInfo = {
 	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como x+x = 2x)\n"+
 	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
-	"- numeros\n- operadores\n- variaveis\n- funcoes\n- listas\n- vetores\n- matrizes",
+	"- numeros\n- operadores\n- variaveis\n- funcoes\n- listas\n- vetores\n- matrizes\n- graficos",
 "numeros": "Os valores numéricos são representados de 4 formas:\n"+
 	"- Fracao: um valor racional exato, com numerador e denominador inteiros\n"+
 	"- Number: um valor real aproximado, armazenado como double\n"+
@@ -99,7 +99,12 @@ var ajudaInfo = {
 "matrizes": "Uma matriz 3x3 é escrita na forma |a,b,c;d,e,f;g,h,i|\n"+
 	"Uma matriz não pode ser vazia (zero entradas)\n"+
 	"Use matriz[i, j] para obter a entrada na linha i e coluna j da matriz\n"+
-	"Use funcs(matriz) para ver as funções específicas para lidar com matrizes"
+	"Use funcs(matriz) para ver as funções específicas para lidar com matrizes",
+"graficos": "Para plotar gráficos, use a função plot, exemplos:\n"+
+	"plot(x, -3, 5, x*sin(x^2))\n"+
+	"plot(x, -pi, pi, {sin(x), cos(x)})\n"+
+	"plot(t, -3, 3, {abs(asin(t)), arg(asin(t))})\n"+
+	"plot(x, 0, 3, {re(x^i), img(x^i)})"
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {
@@ -170,7 +175,7 @@ Funcao.registrar("debug", "debug(estado)\nLiga ou desliga informações de debug
 })
 
 // Limpa o console
-Funcao.registrar("limpar", "limpar()\nLimpa o console", function () {
+Funcao.registrar("clear", "clear()\nLimpa o console", function () {
 	setTimeout(Console.limpar, 250)
 	return new Expressao
 })

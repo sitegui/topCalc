@@ -1,8 +1,6 @@
 == Lista ==
 indexOf(lista, valor)
 lastIndexOf(lista, valor)
-reduce(lista, func(a,b))
-reduceRight(lista, func(a,b))
 intersect(a,b)
 union(a,b)
 cartesian(a,b)

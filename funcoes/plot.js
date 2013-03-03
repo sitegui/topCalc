@@ -2,22 +2,26 @@
 
 // Módulo para desenhar gráficos no console
 
-Funcao.registrar("plotar", "plotar(funcao, vMin, vMax)\nDesenha uma função (ou várias) na tela", function (funcao, vMin, vMax) {
-	var funcs, variavel, determinado, i, j, valores, xss, yss, yMax, yMin, canvas, w, h, passos, cntxt, dX, dY, x, y, div, retorno
+Funcao.registrar("plot", "plot(variavel, inicio, fim, expressao)\nDesenha uma função (ou várias) na tela", function (variavel, inicio, fim, expressao) {
+	var funcs, xMin, xMax, passos, xss, yss, yMax, yMin, i, j, canvas, cntxt, w, h, dX, dY, that, valores, x, y, div
 	
 	// Calcula os valores para uma função
 	// Retorna [xs, ys, yMax, yMin]
-	var calcularValores = function (funcao) {
-		var xs, ys, x, y, ys2, i, salto, yMax, yMin
+	that = this
+	var calcularValores = function (exp) {
+		var xs, ys, x, y, ys2, i, salto, yMax, yMin, antes
 		xs = []
 		ys = []
-		for (x=vMin; x<=vMax; x+=(vMax-vMin)/passos) {
-			y = Funcao.executar(funcao.nome, [x])
+		antes = Variavel.backup(variavel)
+		for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
+			Variavel.valores[variavel] = x
+			y = that.executarNoEscopo(exp)
 			if (eNumerico(y) && !(y instanceof Complexo)) {
 				xs.push(x)
 				ys.push(getNum(y))
 			}
 		}
+		Variavel.restaurar(antes)
 		ys2 = []
 		for (i=1; i<ys.length; i++) {
 			salto = (ys[i]-ys[i-1])/(xs[i]-xs[i-1])
@@ -36,30 +40,32 @@ Funcao.registrar("plotar", "plotar(funcao, vMin, vMax)\nDesenha uma função (ou
 		return [xs, ys, yMax, yMin]
 	}
 	
-	this.args[0] = funcao = unbox(funcao)
-	this.args[1] = vMin = this.executarNoEscopo(vMin)
-	this.args[2] = vMax = this.executarNoEscopo(vMax)
-	funcs = funcao instanceof Lista ? funcao.expressoes.map(unbox) : [funcao]
-	variavel = funcs.every(function (x) {
-		return x instanceof Variavel
-	})
-	determinado = funcs.every(eDeterminado)
-	if (funcs.length && variavel && eNumerico(vMin) && eNumerico(vMax)) {
+	// Trata os argumentos
+	this.args[0] = variavel = unbox(variavel)
+	if (!(variavel instanceof Variavel))
+		throw 0
+	this.args[1] = inicio = this.executarNoEscopo(inicio)
+	this.args[2] = fim = this.executarNoEscopo(fim)
+	variavel = variavel.nome
+	if (!ePuro(expressao))
+		this.args[3] = expressao = this.executarNoEscopo(expressao, [variavel])
+	else
+		expressao = unbox(expressao)
+	
+	funcs = expressao instanceof Lista ? expressao.expressoes : [expressao]
+	if (eNumerico(inicio) && eNumerico(fim)) {
 		// Calcula os valores
-		vMin = getNum(vMin)
-		vMax = getNum(vMax)
-		if (vMin >= vMax)
+		xMin = getNum(inicio)
+		xMax = getNum(fim)
+		if (xMin >= xMax)
 			throw 0
 		passos = 300
 		xss = []
 		yss = []
 		yMax = -Infinity
 		yMin = Infinity
-		retorno = new Lista
+		
 		for (i=0; i<funcs.length; i++) {
-			if (!(funcs[i].nome in Funcao.funcoes))
-				return
-			retorno.expressoes.push(Funcao.executar(funcs[i].nome, [new Variavel("_x")]))
 			valores = calcularValores(funcs[i])
 			xss.push(valores[0])
 			yss.push(valores[1])
@@ -69,13 +75,13 @@ Funcao.registrar("plotar", "plotar(funcao, vMin, vMax)\nDesenha uma função (ou
 		
 		// Cria o canvas
 		canvas = document.createElement("canvas")
-		w = canvas.width = 4*Math.round(document.documentElement.clientWidth/8)
+		w = canvas.width = 4*Math.round(document.body.clientWidth/8)
 		h = canvas.height = 9*w/16
 		
 		// Ajusta os valores
-		dX = (vMax-vMin)*1.1
-		vMax = (2.1*vMax-.1*vMin)/2
-		vMin = vMax-dX
+		dX = (xMax-xMin)*1.1
+		xMax = (2.1*xMax-.1*xMin)/2
+		xMin = xMax-dX
 		dY = (yMax-yMin)*1.1
 		yMax = (2.1*yMax-.1*yMin)/2
 		yMin = yMax-dY
@@ -99,9 +105,9 @@ Funcao.registrar("plotar", "plotar(funcao, vMin, vMax)\nDesenha uma função (ou
 			cntxt.lineTo(w, y)
 			cntxt.stroke()
 		}
-		if (vMin<0 && vMax>0) {
+		if (xMin<0 && xMax>0) {
 			cntxt.beginPath()
-			x = -w*vMin/(vMax-vMin)
+			x = -w*xMin/(xMax-xMin)
 			cntxt.moveTo(x, h)
 			cntxt.lineTo(x, 0)
 			cntxt.moveTo(x-5, 5)
@@ -117,7 +123,7 @@ Funcao.registrar("plotar", "plotar(funcao, vMin, vMax)\nDesenha uma função (ou
 			cntxt.strokeStyle = "rgba(255,255,255,"+(1-i/xss.length)+")"
 			cntxt.beginPath()
 			for (j=0; j<xss[i].length; j++) {
-				x = w*(xss[i][j]-vMin)/(vMax-vMin)
+				x = w*(xss[i][j]-xMin)/(xMax-xMin)
 				y = h*(yMax-yss[i][j])/(yMax-yMin)
 				if (j)
 					cntxt.lineTo(x, y)
@@ -131,7 +137,7 @@ Funcao.registrar("plotar", "plotar(funcao, vMin, vMax)\nDesenha uma função (ou
 		div = document.createElement("div")
 		div.appendChild(canvas)
 		Console.echoDiv(div)
-		return funcao instanceof Lista ? retorno : retorno.expressoes[0]
-	} else if (determinado && eDeterminado(vMin) && eDeterminado(vMax))
+		return expressao
+	} else if (determinado && eDeterminado(xMin) && eDeterminado(xMax))
 		throw 0
 }, false, true)

@@ -114,7 +114,7 @@ Funcao.registrar("^", "a^b\nRetorna um valor elevado a outro", function (a, b) {
 		for (i=Math.abs(b); i>0; i--)
 			retorno = retorno.multiplicar(a)
 		if (b<0)
-			return Funcao.executar("inverter", [retorno])
+			return Funcao.executar("inverse", [retorno])
 		return retorno
 	} else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
@@ -282,4 +282,3 @@ Funcao.registrar("||", "a||b\nRetorna se a ou b são não nulos", function (a, b
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
-

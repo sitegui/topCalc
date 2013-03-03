@@ -90,9 +90,8 @@ Funcao.gerar = function (params, definicao) {
 		params[i] = "_"+params[i]
 	
 	var retorno = function () {
-		var escopoPai = {}, i, retorno
-		for (i in Variavel.valores)
-			escopoPai[i] = Variavel.valores[i]
+		var escopoPai, i, retorno
+		escopoPai = Variavel.backup(params)
 		
 		if (arguments.length != params.length)
 			throw "Número incorreto de parâmetros"
@@ -102,7 +101,7 @@ Funcao.gerar = function (params, definicao) {
 		
 		retorno = this.executarNoEscopo(definicao)
 		
-		Variavel.valores = escopoPai
+		Variavel.restaurar(escopoPai)
 		return retorno
 	}
 	retorno.aceitaListas = false

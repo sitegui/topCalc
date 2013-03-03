@@ -3,3 +3,7 @@ verificar trig para complexos
 seta pra baixo => fim da entrada
 
 Constantes físicas com unidade
+
+Operadores de comparação (ao comparar number com fração):
+g(x)=if(x<=1,1,'x*g(x-1)),plotar(g,1,3)
+max(a,b) não deve retornar toNumber(b) caso b seja maior!

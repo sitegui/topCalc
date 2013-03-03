@@ -39,14 +39,14 @@ Funcao.registrar("trace", "trace(m)\nRetorna o traço de uma matriz quadrada", f
 		throw 0
 }, true)
 
-Funcao.registrar("justapor", "justapor(mA, mB)\nJustapõe duas matrizes com o mesmo número de linhas", function (mA, mB) {
+Funcao.registrar("glue", "glue(mA, mB)\nJustapõe duas matrizes com o mesmo número de linhas", function (mA, mB) {
 	if (mA instanceof Matriz && mB instanceof Matriz)
 		return Matriz.justapor(mA, mB)
 	else if (eDeterminado(mA) && eDeterminado(mB))
 		throw 0
 }, true)
 
-Funcao.registrar("separar", "separar(m, n)\nRetorna as primeiras n colunas da matriz m (n últimas para n<0)", function (m, n) {
+Funcao.registrar("cut", "cut(m, n)\nRetorna as primeiras n colunas da matriz m (n últimas para n<0)", function (m, n) {
 	if (m instanceof Matriz && eNumerico(n)) {
 		n = getNum(n)
 		return m.separar(n)
@@ -54,7 +54,7 @@ Funcao.registrar("separar", "separar(m, n)\nRetorna as primeiras n colunas da ma
 		throw 0
 }, true)
 
-Funcao.registrar("eliminar", "eliminar(m)\nAplica o método de eliminação de Gauss na matriz", function (m) {
+Funcao.registrar("gauss", "gauss(m)\nAplica o método de eliminação de Gauss na matriz", function (m) {
 	var info, retorno, i
 	if (m instanceof Matriz) {
 		info = {}
@@ -69,7 +69,7 @@ Funcao.registrar("eliminar", "eliminar(m)\nAplica o método de eliminação de G
 		throw 0
 }, true)
 
-Funcao.registrar("fatorarLU", "fatorarLU(m)\nAplica a fatoração LU na matriz m e retorna uma lista {L, U, P} com L*U==P*m", function (m) {
+Funcao.registrar("LU", "LU(m)\nAplica a fatoração LU na matriz m e retorna uma lista {L, U, P} com L*U==P*m", function (m) {
 	var info, retorno, i
 	if (m instanceof Matriz)
 		return new Lista(m.fatorarLU())
@@ -77,7 +77,7 @@ Funcao.registrar("fatorarLU", "fatorarLU(m)\nAplica a fatoração LU na matriz m
 		throw 0
 }, true)
 
-Funcao.registrar("identidade", "identidade(n)\nRetorna uma matriz identidade de ordem n", function (n) {
+Funcao.registrar("identity", "identity(n)\nRetorna uma matriz identidade de ordem n", function (n) {
 	if (eNumerico(n)) {
 		n = getNum(n)
 		if (!eIntSeguro(n) || n < 1)
@@ -87,7 +87,7 @@ Funcao.registrar("identidade", "identidade(n)\nRetorna uma matriz identidade de 
 		throw 0
 }, true)
 
-Funcao.registrar("inverter", "inverter(m)\nRetorna a matriz quadrada m invertida", function (m) {
+Funcao.registrar("inverse", "inverse(m)\nRetorna a matriz quadrada m invertida", function (m) {
 	var info, i
 	if (m instanceof Matriz) {
 		if (m.linhas != m.colunas)
@@ -105,7 +105,7 @@ Funcao.registrar("inverter", "inverter(m)\nRetorna a matriz quadrada m invertida
 		throw 0
 }, true)
 
-Funcao.registrar("transpor", "transpor(m)\nRetorna a matriz transposta de m", function (m) {
+Funcao.registrar("transpose", "transpose(m)\nRetorna a matriz transposta de m", function (m) {
 	var retorno, i, j
 	if (m instanceof Matriz) {
 		retorno = m.clonar()
@@ -119,7 +119,7 @@ Funcao.registrar("transpor", "transpor(m)\nRetorna a matriz transposta de m", fu
 		throw 0
 }, true)
 
-Funcao.registrar("getLinha", "getLinha(m, i)\nRetorna uma lista com os elementos da linha da matriz", function (m, i) {
+Funcao.registrar("getRow", "getRow(m, i)\nRetorna uma lista com os elementos da linha da matriz", function (m, i) {
 	var retorno, j
 	if (m instanceof Matriz && eNumerico(i)) {
 		i = getNum(i)
@@ -135,7 +135,7 @@ Funcao.registrar("getLinha", "getLinha(m, i)\nRetorna uma lista com os elementos
 		throw 0
 }, true)
 
-Funcao.registrar("getColuna", "getColuna(m, j)\nRetorna uma lista com os elementos da coluna da matriz", function (m, j) {
+Funcao.registrar("getCol", "getCol(m, j)\nRetorna uma lista com os elementos da coluna da matriz", function (m, j) {
 	var retorno, i
 	if (m instanceof Matriz && eNumerico(j)) {
 		j = getNum(j)
@@ -151,22 +151,22 @@ Funcao.registrar("getColuna", "getColuna(m, j)\nRetorna uma lista com os element
 		throw 0
 }, true)
 
-Funcao.registrar("linhas", "linhas(m)\nRetorna o número de linhas da matriz", function (m) {
+Funcao.registrar("rows", "rows(m)\nRetorna o número de linhas da matriz", function (m) {
 	if (m instanceof Matriz)
 		return new Fracao(m.linhas, 1)
 	else if (eDeterminado(m))
 		throw 0
 }, true)
 
-Funcao.registrar("colunas", "colunas(m)\nRetorna o número de colunas da matriz", function (m) {
+Funcao.registrar("cols", "cols(m)\nRetorna o número de colunas da matriz", function (m) {
 	if (m instanceof Matriz)
 		return new Fracao(m.colunas, 1)
 	else if (eDeterminado(m))
 		throw 0
 }, true)
 
-Funcao.registrar("matriz", "matriz(nLinhas, nColunas, varI, varJ, exp)\nMonta uma matriz com nLinhas por nColunas, com exp sendo uma expressão com as variáveis varI e varJ", function (nLinhas, nColunas, varI, varJ, exp) {
-	var retorno, i, j, varIAntes, varJAntes
+Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, exp)\nMonta uma matriz com nLinhas por nColunas, com exp sendo uma expressão com as variáveis varI e varJ", function (nLinhas, nColunas, varI, varJ, exp) {
+	var retorno, i, j, antes
 	
 	// Trata os argumentos
 	this.args[0] = nLinhas = this.executarNoEscopo(nLinhas)
@@ -184,22 +184,14 @@ Funcao.registrar("matriz", "matriz(nLinhas, nColunas, varI, varJ, exp)\nMonta um
 		if (!eIntSeguro(nLinhas) || !eIntSeguro(nColunas) || nLinhas <= 0 || nColunas <= 0)
 			throw 0
 		retorno = new Matriz
-		varIAntes = Variavel.valores[varI.nome]
-		varJAntes = Variavel.valores[varJ.nome]
+		antes = Variavel.backup([varI.nome, varJ.nome])
 		for (i=1; i<=nLinhas; i++)
 			for (j=1; j<=nColunas; j++) {
 				Variavel.valores[varI.nome] = new Fracao(i, 1)
 				Variavel.valores[varJ.nome] = new Fracao(j, 1)
 				retorno.expressoes.push(this.executarNoEscopo(exp))
 			}
-		if (varIAntes === undefined)
-			delete Variavel.valores[varI.nome]
-		else
-			Variavel.valores[varI.nome] = varIAntes
-		if (varJAntes === undefined)
-			delete Variavel.valores[varJ.nome]
-		else
-			Variavel.valores[varJ.nome] = varJAntes
+		Variavel.restaurar(antes)
 		retorno.colunas = nColunas
 		retorno.linhas = nLinhas
 		return retorno

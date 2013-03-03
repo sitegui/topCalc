@@ -8,6 +8,31 @@ function Variavel(nome) {
 // Guarda as variáveis
 Variavel.valores = {}
 
+// Faz backup de uma variável com o nome dado
+// variavel pode ser uma string, um vetor de strings ou omitido para backup geral
+// Retorna um valor que deve ser passado à Variavel.restaurar()
+Variavel.backup = function (variavel) {
+	var i, retorno = {}
+	if (variavel === undefined)
+		variavel = Object.keys(Variavel.valores)
+	else if (typeof variavel == "string")
+		variavel = [variavel]
+	for (i=0; i<variavel.length; i++)
+		retorno[variavel[i]] = Variavel.valores[variavel[i]]
+	return retorno
+}
+
+// Restaura os valores salvos com Variavel.backup
+Variavel.restaurar = function (backup) {
+	var i
+	for (i in backup) {
+		if (backup[i] === undefined)
+			delete Variavel.valores[i]
+		else
+			Variavel.valores[i] = backup[i]
+	}
+}
+
 // Clona um objeto variável
 Variavel.prototype.clonar = function () {
 	return new Variavel(this.nome)
