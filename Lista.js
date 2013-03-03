@@ -1,3 +1,5 @@
+"use strict";
+
 // Representa uma lista (sequência de expressões)
 function Lista() {
 	this.expressoes = arguments.length>0 ? arguments[0] : []

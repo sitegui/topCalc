@@ -1,3 +1,5 @@
+"use strict";
+
 /*
 
 Trabalha com números double, expandindo o objeto nativo Number

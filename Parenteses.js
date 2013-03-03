@@ -1,3 +1,5 @@
+"use strict";
+
 // Representa um parênteses (sequência de expressões)
 function Parenteses() {
 	this.expressoes = []

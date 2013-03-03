@@ -1,3 +1,5 @@
+"use strict";
+
 // Representa um operador (usado temporariamente, depois é transformado em função)
 function Operador(valor) {
 	this.valor = valor

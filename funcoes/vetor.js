@@ -1,3 +1,5 @@
+"use strict";
+
 // Funções para lidar com vetores
 
 Funcao.registrar("dot", "dot(a,b)\nRetorna o produto escalar/interno de dois vetores", function (a, b) {

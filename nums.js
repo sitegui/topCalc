@@ -1,3 +1,5 @@
+"use strict";
+
 /*
 
 Trabalha com os valores numéricos

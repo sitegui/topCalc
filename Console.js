@@ -1,3 +1,5 @@
+"use strict";
+
 // Controla a interface de console
 var Console = {}
 
@@ -90,7 +92,7 @@ Console.carregarCore = function () {
 Console.carregarFuncoes = function () {
 	var includes, pos, carregar
 	
-	includes = ["lista", "matriz", "misc", "num", "operadores", "vetor"]
+	includes = ["lista", "matriz", "misc", "num", "operadores", "plot", "vetor"]
 	pos = 0
 	carregar = function () {
 		var script, include, div
@@ -136,39 +138,32 @@ Console.limpar = function () {
 Console.echo = function (str) {
 	var div = document.createElement("div")
 	div.textContent = str
-	document.getElementById("historico").appendChild(div)
-	Console.focar()
+	Console.echoDiv(div)
 	return div
 }
-Console.echoHTML = function (str) {
-	var div = document.createElement("div")
-	div.innerHTML = str
+Console.echoDiv = function (div) {
 	document.getElementById("historico").appendChild(div)
 	Console.focar()
-	return div
 }
 Console.echoErro = function (str) {
 	var div = document.createElement("div")
 	div.className = "console-erro"
 	div.textContent = str
-	document.getElementById("historico").appendChild(div)
-	Console.focar()
+	Console.echoDiv(div)
 	return div
 }
 Console.echoEntrada = function (str) {
 	var div = document.createElement("div")
 	div.className = "console-entrada"
 	div.textContent = str
-	document.getElementById("historico").appendChild(div)
-	Console.focar()
+	Console.echoDiv(div)
 	return div
 }
 Console.echoInfo = function (str) {
 	var div = document.createElement("div")
 	div.className = "console-info"
 	div.textContent = str
-	document.getElementById("historico").appendChild(div)
-	Console.focar()
+	Console.echoDiv(div)
 	return div
 }
 

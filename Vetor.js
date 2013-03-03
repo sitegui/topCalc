@@ -1,3 +1,5 @@
+"use strict";
+
 // Representa um vetor (sequência de expressões)
 function Vetor() {
 	this.expressoes = arguments.length>0 ? arguments[0] : []

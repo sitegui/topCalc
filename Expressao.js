@@ -1,3 +1,5 @@
+"use strict";
+
 // Representa uma expressão matemática (sequência de outros objetos)
 function Expressao() {
 	this.elementos = []

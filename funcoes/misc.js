@@ -1,3 +1,5 @@
+"use strict";
+
 // Funções diversas
 
 // Retorna o valor de uma variável

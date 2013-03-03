@@ -1,3 +1,5 @@
+"use strict";
+
 /*
 
 Trabalha com frações com precisão infinita

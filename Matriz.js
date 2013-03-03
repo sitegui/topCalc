@@ -1,3 +1,5 @@
+"use strict";
+
 // Representa uma matriz (tabela de expressões)
 // Para construir uma matriz vazia, use new Matriz()
 function Matriz(expressoes, colunas) {

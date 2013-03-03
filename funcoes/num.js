@@ -1,3 +1,5 @@
+"use strict";
+
 // Funções para lidar com números
 
 Funcao.registrar("random", "random()\nRetorna um valor pseudo-aleatório 0 <= x < 1", Math.random)
@@ -151,9 +153,15 @@ Funcao.registrar("primoAntes", "primoAntes(n)\nRetorna o maior primo menor que n
 
 Funcao.registrar("fatorar", "fatorar(n)\nRetorna a fatoração da fração n", function (n) {
 	var fatores, i, r, grupo
-	if (n instanceof Fracao) {
+	if (eNumerico(n)) {
 		if (eZero(n))
 			throw 0
+		if (!(n instanceof Fracao)) {
+			n = getNum(n)
+			if (!eIntSeguro(n))
+				throw 0
+			n = new Fracao(n, 1)
+		}
 		fatores = n.fatorar()
 		r = new Lista
 		for (i in fatores) {

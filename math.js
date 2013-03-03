@@ -1,3 +1,5 @@
+"use strict";
+
 // Executa o comando do usuário
 Console.oninput = function (input) {
 	var cmd, retornos
@@ -102,7 +104,6 @@ function inflar(str) {
 				niveis.push(nivelAtual)
 				niveis.push(novo)
 				nivelAtual = novo.expressoes[0]
-				colunas = 0
 			} else if (niveis.length <= 1 || !(niveis[niveis.length-1] instanceof Matriz))
 				throw "Aninhamento de matriz inválido"
 			else {

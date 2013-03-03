@@ -1,3 +1,5 @@
+"use strict";
+
 // Representa uma variável
 function Variavel(nome) {
 	this.nome = nome

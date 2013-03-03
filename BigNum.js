@@ -1,3 +1,5 @@
+"use strict";
+
 /*
 
 Representa números realmente muito grandes com uma precisão razoável

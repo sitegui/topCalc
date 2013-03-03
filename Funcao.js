@@ -1,3 +1,5 @@
+"use strict";
+
 // Representa uma função (args é uma Array de objetos matemáticos)
 function Funcao(nome, args) {
 	this.nome = nome

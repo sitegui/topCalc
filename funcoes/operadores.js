@@ -1,3 +1,5 @@
+"use strict";
+
 // Funções que são operadores
 Funcao.registrar("+", "+a ou a+b\nRetorna o valor ou a soma de dois valores", function (a, b) {
 	if (b === undefined) {

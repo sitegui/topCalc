@@ -1,3 +1,5 @@
+"use strict";
+
 // Funções para lidar com matrizes
 
 Funcao.registrar("det", "det(m)\nRetorna o determinante de uma matriz quadrada", function (m) {
