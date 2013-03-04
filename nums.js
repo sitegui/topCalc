@@ -319,7 +319,7 @@ function log(a, b) {
 	return toBigNum(a).log(toBigNum(b))
 }
 function max(a, b) {
-	var infa, infb
+	var infa, infb, vA, vB
 	
 	// Trata valores infinitos
 	infa = eInfinito(a)
@@ -332,13 +332,27 @@ function max(a, b) {
 		return a.clonar()
 	}
 	
-	if (a instanceof Complexo || b instanceof Complexo)
-		return toComplexo(a).max(toComplexo(b))
+	if (a instanceof Complexo || b instanceof Complexo) {
+		vA = toComplexo(a)
+		vB = toComplexo(b)
+		if (vA.max(vB) === vA)
+			return a
+		return b
+	}
 	if (a instanceof Fracao && b instanceof Fracao)
 		return a.max(b)
-	if (!(a instanceof BigNum) && !(b instanceof BigNum))
-		return toNumber(a).max(toNumber(b))
-	return toBigNum(a).max(toBigNum(b))
+	if (!(a instanceof BigNum) && !(b instanceof BigNum)) {
+		vA = toNumber(a)
+		vB = toNumber(b)
+		if (vA.max(vB) === vA)
+			return a
+		return b
+	}
+	vA = toBigNum(a)
+	vB = toBigNum(b)
+	if (vA.max(vB) === vA)
+		return a
+	return b
 }
 function min(a, b) {
 	var infa, infb
@@ -354,13 +368,27 @@ function min(a, b) {
 		return a.clonar()
 	}
 	
-	if (a instanceof Complexo || b instanceof Complexo)
-		return toComplexo(a).min(toComplexo(b))
+	if (a instanceof Complexo || b instanceof Complexo) {
+		vA = toComplexo(a)
+		vB = toComplexo(b)
+		if (vA.min(vB) === vA)
+			return a
+		return b
+	}
 	if (a instanceof Fracao && b instanceof Fracao)
 		return a.min(b)
-	if (!(a instanceof BigNum) && !(b instanceof BigNum))
-		return toNumber(a).min(toNumber(b))
-	return toBigNum(a).min(toBigNum(b))
+	if (!(a instanceof BigNum) && !(b instanceof BigNum)) {
+		vA = toNumber(a)
+		vB = toNumber(b)
+		if (vA.min(vB) === vA)
+			return a
+		return b
+	}
+	vA = toBigNum(a)
+	vB = toBigNum(b)
+	if (vA.min(vB) === vA)
+		return a
+	return b
 }
 
 /*

@@ -104,7 +104,8 @@ var ajudaInfo = {
 	"plot(x, -3, 5, x*sin(x^2))\n"+
 	"plot(x, -pi, pi, {sin(x), cos(x)})\n"+
 	"plot(t, -3, 3, {abs(asin(t)), arg(asin(t))})\n"+
-	"plot(x, 0, 3, {re(x^i), img(x^i)})"
+	"plot(x, -3, 2, x^x)\n"+
+	"animate(a,1/10,10,x,0,pi,sin(x)^a)"
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {

@@ -119,11 +119,12 @@ Fracao.prototype.pow = function (outro) {
 	if (tn < 0 && pot.d != 2 && pot.d%2 == 0)
 		return toComplexo(Number(this)).pow(toComplexo(outro))
 	pn = intPow(tn, pot)
-	if (pn === null)
-		return this.getNum().pow(outro.getNum())
 	pd = intPow(td, pot)
-	if (pd === null)
-		return this.getNum().pow(outro.getNum())
+	if (pn === null || pd === null)
+		if (tn < 0 && pot.d%2 == 1)
+			return subtrair(0, this.abs().getNum().pow(outro.getNum()))
+		else
+			return this.getNum().pow(outro.getNum())
 	if (tn < 0 && pot.d == 2)
 		return new Complexo(new Fracao(0, 1), new Fracao(-pn, pd))
 	else
