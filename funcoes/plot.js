@@ -39,7 +39,7 @@ Funcao.registrar("plot", "plot(variavel, inicio, fim, expressao)\nDesenha uma fu
 }, false, true)
 
 Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, fimX, expressao)\nMostra uma animação dos gráficos gerados com plot(variavelX, inicioX, fimX, expressao)", function (variavel, inicio, fim, variavelX, inicioX, fimX, expressao) {
-	var funcs, xMin, xMax, canvas, that, div, quadros, antes, i, datas, img, pos, trocar, t0, iniciarTrocas
+	var funcs, xMin, xMax, canvas, that, div, quadros, antes, i, datas, img, pos, trocar, t0, iniciarTrocas, funcs2
 	
 	// Trata os argumentos
 	this.args[0] = variavel = unbox(variavel)
@@ -74,7 +74,12 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 		for (i=inicio; i<=fim; i+=(fim-inicio)/quadros) {
 			// Plota
 			Variavel.valores[variavel] = i
-			canvas = plot2canvas(that, variavelX, xMin, xMax, funcs)
+			funcs2 = funcs.map(function (x) {
+				if (ePuro(x))
+					return x
+				return that.executarNoEscopo(x, [variavelX])
+			})
+			canvas = plot2canvas(that, variavelX, xMin, xMax, funcs2)
 			canvas.getContext("2d").fillStyle = "white"
 			canvas.getContext("2d").font = "15px sans-serif"
 			canvas.getContext("2d").fillText(variavel+" = "+i.toPrecision(2), 7, 15)
@@ -202,6 +207,7 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 	yMax = -Infinity
 	yMin = Infinity
 	
+	funcs = Funcao.getFlatArgs(funcs)
 	for (i=0; i<funcs.length; i++) {
 		valores = calcularValores(funcs[i])
 		valores[0].i = i

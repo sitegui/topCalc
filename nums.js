@@ -62,6 +62,24 @@ function toNumber(x) {
 		throw "Erro em toNumber()"
 }
 
+// Converte para um valor acompanhado de unidade
+function toValorComUnidade(x) {
+	if (x instanceof ValorComUnidade)
+		return x
+	return new ValorComUnidade(x, new Unidade())
+}
+
+// Converte o valor (com ou sem unidade) para radiano (retorna somente o valor, sem unidade)
+function toRadiano(x) {
+	var rad
+	if (x instanceof ValorComUnidade) {
+		rad = new Unidade
+		rad.unidades["rad"] = {"": 1}
+		return x.converter(rad).valor
+	}
+	return x
+}
+
 // Pega o valor numérico real (pode dar overflow)
 function getNum(x) {
 	if (typeof x == "number")
@@ -96,6 +114,8 @@ function eZero(x) {
 		return x.zero
 	if (x instanceof Complexo)
 		return eZero(x.a) && eZero(x.b)
+	if (x instanceof ValorComUnidade)
+		return eZero(x.valor)
 	return x == 0
 }
 
@@ -106,7 +126,7 @@ function eUm(x) {
 
 // Verifica se um valor é numérico
 function eNumerico(valor) {
-	return typeof valor == "number" || valor instanceof Fracao || valor instanceof BigNum || valor instanceof Complexo
+	return typeof valor == "number" || valor instanceof Fracao || valor instanceof BigNum || valor instanceof Complexo || valor instanceof ValorComUnidade
 }
 
 // Verifica se dois valores são idênticos (mesmo valor e tipo)
@@ -119,20 +139,32 @@ function eIdentico(a, b) {
 		return (a.zero && b.zero) || (a.negativo==b.negativo && a.pequeno==b.pequeno && a.nivel==b.nivel && a.expoente==b.expoente)
 	if (a instanceof Complexo && b instanceof Complexo)
 		return eIdentico(a.a, b.a) && eIdentico(a.b, b.b)
+	if (a instanceof ValorComUnidade && b instanceof ValorComUnidade)
+		return eIdentico(a.valor, b.valor) && a.unidade.eIdentico(b.unidade)
 	return false
 }
 
 // Verifica se dois valores são iguais (mesmo valor)
 function eIgual(a, b) {
-	var ca, cb
+	var ca, cb, va, vb
 	if (eIdentico(a, b))
 		return true
-	if (a instanceof b.constructor)
+	if (a instanceof b.constructor && !(a instanceof ValorComUnidade))
 		return false
 	if (a instanceof Complexo || b instanceof Complexo) {
 		ca = toComplexo(a)
 		cb = toComplexo(b)
 		return getNum(ca.a)==getNum(cb.a) && getNum(ca.b)==getNum(cb.b)
+	}
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade) {
+		va = toValorComUnidade(a)
+		vb = toValorComUnidade(b)
+		try {
+			vb = vb.converter(va.unidade)
+			return eIgual(va.valor, vb.valor)
+		} catch (e) {
+			return false
+		}
 	}
 	return getNum(a)==getNum(b)
 }
@@ -159,6 +191,8 @@ function somar(a, b) {
 		return -Infinity
 	}
 	
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade)
+		return toValorComUnidade(a).somar(toValorComUnidade(b))
 	if (a instanceof Complexo || b instanceof Complexo)
 		return toComplexo(a).somar(toComplexo(b))
 	if (a instanceof Fracao && b instanceof Fracao)
@@ -181,6 +215,8 @@ function subtrair(a, b) {
 		return -Infinity
 	}
 	
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade)
+		return toValorComUnidade(a).subtrair(toValorComUnidade(b))
 	if (a instanceof Complexo || b instanceof Complexo)
 		return toComplexo(a).subtrair(toComplexo(b))
 	if (a instanceof Fracao && b instanceof Fracao)
@@ -203,6 +239,8 @@ function multiplicar(a, b) {
 		return Infinity
 	}
 	
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade)
+		return toValorComUnidade(a).multiplicar(toValorComUnidade(b))
 	if (a instanceof Complexo || b instanceof Complexo)
 		return toComplexo(a).multiplicar(toComplexo(b))
 	if (a instanceof Fracao && b instanceof Fracao)
@@ -229,6 +267,8 @@ function dividir(a, b) {
 		return -Infinity
 	}
 	
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade)
+		return toValorComUnidade(a).dividir(toValorComUnidade(b))
 	if (a instanceof Complexo || b instanceof Complexo)
 		return toComplexo(a).dividir(toComplexo(b))
 	if (a instanceof Fracao && b instanceof Fracao)
@@ -257,7 +297,8 @@ function atan2(a, b) {
 			return 0
 		return Math.PI
 	}
-	
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade)
+		return toValorComUnidade(a).atan2(toValorComUnidade(b))
 	if (a instanceof Complexo || b instanceof Complexo)
 		return toComplexo(a).atan2(toComplexo(b))
 	if (a instanceof Fracao && b instanceof Fracao)
@@ -268,6 +309,9 @@ function atan2(a, b) {
 }
 function pow(a, b) {
 	var infa, infb
+	
+	if (b instanceof ValorComUnidade)
+		throw "Valor indefinido"
 	
 	// Trata valores infinitos
 	if (eZero(a) && eZero(b))
@@ -283,6 +327,8 @@ function pow(a, b) {
 	if (infa || infb)
 		return Infinity
 	
+	if (a instanceof ValorComUnidade)
+		return a.pow(b)
 	if (a instanceof Complexo || b instanceof Complexo)
 		return toComplexo(a).pow(toComplexo(b))
 	if (a instanceof Fracao && b instanceof Fracao)
@@ -310,6 +356,8 @@ function log(a, b) {
 		return 0
 	}
 	
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade)
+		throw "Operação indefinida"
 	if (a instanceof Complexo || b instanceof Complexo)
 		return toComplexo(a).log(toComplexo(b))
 	if (a instanceof Fracao && b instanceof Fracao)
@@ -332,27 +380,26 @@ function max(a, b) {
 		return a.clonar()
 	}
 	
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade) {
+		vA = toValorComUnidade(a)
+		vB = toValorComUnidade(b)
+		return (eIdentico(vA.max(vB), vA) ? a : b).clonar()
+	}
 	if (a instanceof Complexo || b instanceof Complexo) {
 		vA = toComplexo(a)
 		vB = toComplexo(b)
-		if (vA.max(vB) === vA)
-			return a
-		return b
+		return (eIdentico(vA.max(vB), vA) ? a : b).clonar()
 	}
 	if (a instanceof Fracao && b instanceof Fracao)
 		return a.max(b)
 	if (!(a instanceof BigNum) && !(b instanceof BigNum)) {
 		vA = toNumber(a)
 		vB = toNumber(b)
-		if (vA.max(vB) === vA)
-			return a
-		return b
+		return (eIdentico(vA.max(vB), vA) ? a : b).clonar()
 	}
 	vA = toBigNum(a)
 	vB = toBigNum(b)
-	if (vA.max(vB) === vA)
-		return a
-	return b
+	return (eIdentico(vA.max(vB), vA) ? a : b).clonar()
 }
 function min(a, b) {
 	var infa, infb
@@ -368,27 +415,26 @@ function min(a, b) {
 		return a.clonar()
 	}
 	
+	if (a instanceof ValorComUnidade || b instanceof ValorComUnidade) {
+		vA = toValorComUnidade(a)
+		vB = toValorComUnidade(b)
+		return (eIdentico(vA.min(vB), vA) ? a : b).clonar()
+	}
 	if (a instanceof Complexo || b instanceof Complexo) {
 		vA = toComplexo(a)
 		vB = toComplexo(b)
-		if (vA.min(vB) === vA)
-			return a
-		return b
+		return (eIdentico(vA.min(vB), vA) ? a : b).clonar()
 	}
 	if (a instanceof Fracao && b instanceof Fracao)
 		return a.min(b)
 	if (!(a instanceof BigNum) && !(b instanceof BigNum)) {
 		vA = toNumber(a)
 		vB = toNumber(b)
-		if (vA.min(vB) === vA)
-			return a
-		return b
+		return (eIdentico(vA.min(vB), vA) ? a : b).clonar()
 	}
 	vA = toBigNum(a)
 	vB = toBigNum(b)
-	if (vA.min(vB) === vA)
-		return a
-	return b
+	return (eIdentico(vA.min(vB), vA) ? a : b).clonar()
 }
 
 /*
@@ -399,33 +445,39 @@ function min(a, b) {
 function acos(x) {
 	if (eInfinito(x))
 		throw "acos(inf) é indefinido"
+	if (x instanceof ValorComUnidade)
+		throw "Operação indefinida"
 	return x.acos()
 }
 function asin(x) {
 	if (eInfinito(x))
 		throw "asin(inf) é indefinido"
+	if (x instanceof ValorComUnidade)
+		throw "Operação indefinida"
 	return x.asin()
 }
 function atan(x) {
 	var inf = eInfinito(x)
 	if (inf)
 		return inf*Math.PI/2
+	if (x instanceof ValorComUnidade)
+		throw "Operação indefinida"
 	return x.atan()
 }
 function cos(x) {
 	if (eInfinito(x))
 		throw "cos(inf) é indefinido"
-	return x.cos()
+	return toRadiano(x).cos()
 }
 function sin(x) {
 	if (eInfinito(x))
 		throw "sin(inf) é indefinido"
-	return x.sin()
+	return toRadiano(x).sin()
 }
 function tan(x) {
 	if (eInfinito(x))
 		throw "tan(inf) é indefinido"
-	return x.tan()
+	return toRadiano(x).tan()
 }
 function exp(x) {
 	var inf = eInfinito(x)
@@ -433,11 +485,15 @@ function exp(x) {
 		return Infinity
 	if (inf == -1)
 		return 0
+	if (x instanceof ValorComUnidade)
+		throw "Operação indefinida"
 	return x.exp()
 }
 function ln(x) {
 	if (eInfinito(x))
 		return Infinity
+	if (x instanceof ValorComUnidade)
+		throw "Operação indefinida"
 	return x.ln()
 }
 function abs(x) {

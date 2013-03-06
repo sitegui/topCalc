@@ -59,7 +59,7 @@ var ajudaInfo = {
 	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
 	"- numeros\n- operadores\n- variaveis\n- funcoes\n- listas\n- vetores\n- matrizes\n- graficos",
-"numeros": "Os valores numéricos são representados de 4 formas:\n"+
+numeros: "Os valores numéricos são representados de 4 formas:\n"+
 	"- Fracao: um valor racional exato, com numerador e denominador inteiros\n"+
 	"- Number: um valor real aproximado, armazenado como double\n"+
 	"- BigNum: um valor real muito aproximado e capaz de representar números muito grandes\n"+
@@ -71,41 +71,42 @@ var ajudaInfo = {
 	"- inteiro hexadecimal, exemplo: 0x2F805B Formalmente: 0x[0-9a-f]+\n"+
 	"- inteiro binário, exemplo: 0b10101001 Formalmente: 0b[01]+\n"+
 	"- inteiro em outra base, exemplo: gui_36 Formalmente: [0-9a-z]+_\\d+",
-"operadores": "Os operadores são internamente tratados como funções normais\n"+
+operadores: "Os operadores são internamente tratados como funções normais\n"+
 	"Os operadores disponíveis são:\n"+
 	"- aritméticos: a+b, a-b, a*b, a/b, a^b (elevado), a%b (resto da divisão), +n, -n\n"+
 	"- comparação: a<b, a>b, a<=b, a>=b, a==b, a!=b (diferente)\n"+
 	"- lógicos: !a (not), a&&b (e), a||b (ou)\n"+
 	"- outros: n! (fatorial), n% (porcentagem, a=b (definição), v[n] (entrada do vetor), m[i, j] (entrada da matriz)",
-"variaveis": "Variáveis são definidas na forma x=valor (como x=2 ou x=a+1)\n"+
+variaveis: "Variáveis são definidas na forma x=valor (como x=2 ou x=a+1)\n"+
 	"Algumas variáveis já existem por padrão, como pi, e, inf, i\n"+
 	"Para pegar o valor direto de uma variável, use get(x)\n"+
 	"Para remover uma variável, use unset(x)\n"+
 	"Para ver a lista de todas as variáveis definidas, use vars()",
-"funcoes": "Funções podem ser definidas na forma f(x)=valor (como f(x)=x^2 ou g(a,b)=a!/b!)\n"+
+funcoes: "Funções podem ser definidas na forma f(x)=valor (como f(x)=x^2 ou g(a,b)=a!/b!)\n"+
 	"Várias funções já existem por padrão, como os operadores, sqrt(x), for(var,ini,fim,exp), num(valor)\n"+
 	"Para pegar a definição de uma função, use get(f())\n"+
 	"Para remover uma função, use unset(f())\n"+
 	"Para ver a lista de todas as funções definidas, use funcs()",
-"listas": "Uma lista é escrita na forma {a, b, c} e pode ter quantos elementos desejar\n"+
+listas: "Uma lista é escrita na forma {a, b, c} e pode ter quantos elementos desejar\n"+
 	"A grande maioria das funções e operadores distribuem sobre listas:\n"+
 	"{3, 14}+15 = {18, 29}\n"+
 	"{1, 2}+{3, 4}={4, 6}\n"+
 	"Use lista[n] para acessar o nº termo da lista\n"+
 	"Use funcs(lista) para ver as funções especiais para listas",
-"vetores": "Um vetor é escrito na forma [a, b, c] e pode ter quantas dimensões desejar\n"+
+vetores: "Um vetor é escrito na forma [a, b, c] e pode ter quantas dimensões desejar\n"+
 	"Use vetor[n] para acessar o nº componente do vetor\n"+
 	"Use funcs(vetor) para ver as funções especiais para lidar com vetores",
-"matrizes": "Uma matriz 3x3 é escrita na forma |a,b,c;d,e,f;g,h,i|\n"+
+matrizes: "Uma matriz 3x3 é escrita na forma |a,b,c;d,e,f;g,h,i|\n"+
 	"Uma matriz não pode ser vazia (zero entradas)\n"+
 	"Use matriz[i, j] para obter a entrada na linha i e coluna j da matriz\n"+
 	"Use funcs(matriz) para ver as funções específicas para lidar com matrizes",
-"graficos": "Para plotar gráficos, use a função plot, exemplos:\n"+
+graficos: "Para plotar gráficos, use a função plot, exemplos:\n"+
 	"plot(x, -3, 5, x*sin(x^2))\n"+
 	"plot(x, -pi, pi, {sin(x), cos(x)})\n"+
 	"plot(t, -3, 3, {abs(asin(t)), arg(asin(t))})\n"+
 	"plot(x, -3, 2, x^x)\n"+
-	"animate(a,1/10,10,x,0,pi,sin(x)^a)"
+	"animate(a,1/10,10,x,0,pi,sin(x)^a)\n"+
+	"animate(a,1,10,x,-2,2,for(i,1,round(a^2),i*x))"
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {

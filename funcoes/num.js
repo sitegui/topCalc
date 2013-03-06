@@ -89,6 +89,8 @@ Funcao.registrar("num", "num(x)\nRetorna o valor numérico de x", function (x) {
 	if (eNumerico(x)) {
 		if (x instanceof Complexo)
 			return new Complexo(getNum(x.a), getNum(x.b))
+		if (x instanceof ValorComUnidade)
+			return Funcao.executar("num", [x.valor])
 		return getNum(x)
 	} else if (eDeterminado(x))
 		throw 0

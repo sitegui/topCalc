@@ -154,7 +154,7 @@ function inflar(str) {
 
 // Separa uma string em Operadores, Variáveis e Números
 function separar(str) {
-	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||"]
+	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_"]
 	var getOperador = function (str) {
 		if (operadores.indexOf(str) != -1)
 			return new Operador(str)
@@ -162,7 +162,7 @@ function separar(str) {
 			return null
 	}
 	var getVariavel = function (str) {
-		if (str.match(/^[a-z][a-z0-9]*$/i))
+		if (str.match(/^[a-zº][a-z0-9º]*$/i))
 			return new Variavel(str)
 		else
 			return null
@@ -294,6 +294,7 @@ function interpretar(expressao) {
 	aplicarUnarios(["!", "+", "-"], -1)
 	aplicarBinarios(["^"], -1)
 	aplicarBinarios(["*", "/", "%"], 1)
+	aplicarBinarios(["_"], 1)
 	aplicarBinarios(["+", "-"], 1)
 	aplicarBinarios(["<", "<=", ">", ">="], 1)
 	aplicarBinarios(["==", "!="], 1)

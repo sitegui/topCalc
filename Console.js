@@ -61,8 +61,8 @@ Console.carregarCore = function () {
 	var includes, pos, carregar
 	
 	includes = [
-		"Fracao", "Number", "BigNum", "Complexo", "nums", // Objetos numéricos
-		"Variavel", "Expressao", "Operador", "Parenteses", "Lista", "Vetor", "Funcao", "Matriz", // Objetos core
+		"Fracao", "Number", "BigNum", "Complexo", "ValorComUnidade", "nums", // Objetos numéricos
+		"Variavel", "Expressao", "Operador", "Parenteses", "Lista", "Vetor", "Funcao", "Matriz", "Unidade", // Objetos core
 		"math" // Interpretador
 	]
 	pos = 0

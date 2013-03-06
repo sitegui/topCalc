@@ -215,6 +215,19 @@ Funcao.registrar("getAt", "lista[i] ou matriz[i, j]\nRetorna o elemento na posi�
 		throw 0
 }, false, false, true)
 
+Funcao.registrar("_", "valor_unidade\nConverter o valor para a unidade desejada", function (valor, unidade) {
+	this.args[0] = valor = this.executarNoEscopo(valor)
+	unidade = Unidade.interpretar(unidade)
+	
+	if (eNumerico(valor)) {
+		if (eInfinito(valor))
+			return valor
+		if (valor instanceof ValorComUnidade)
+			return valor.converter(unidade)
+		return new ValorComUnidade(valor, unidade)
+	}
+}, true, true)
+
 // Funções lógicas
 Funcao.registrar("!", "!a\nRetorna 1 para valores nulos, 0 para o restante", function (a) {
 	if (eNumerico(a))

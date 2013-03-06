@@ -146,24 +146,27 @@ Funcao.prototype.clonar = function () {
 Funcao.prototype.toString = function () {
 	var a, b, op, pre
 	var operadores = {
-		"factorial": 0, "%": 0, // rtl
+		factorial: 0, "%": 0, // rtl
 		"!": 1, "+": 1, "-": 1 // ltr
 	}
 	var operadores2 = {
 		"^": 0, // ltr
-		"*": 1, "/": 1, "%": 1, // rtl
-		"+": 2, "-": 2, // rtl
-		"<": 3, "<=": 3, ">": 3, ">=": 3, // rtl
-		"==": 4, "!=": 4, // rtl
-		"&&": 5, // rtl
-		"||": 6, // rtl
-		"=": 7 // ltr
+		"*": 1, "/": 1, "%": 1, "undefined": 1, // rtl
+		"_": 2, // rtl
+		"+": 3, "-": 3, // rtl
+		"<": 4, "<=": 4, ">": 4, ">=": 4, // rtl
+		"==": 5, "!=": 5, // rtl
+		"&&": 6, // rtl
+		"||": 7, // rtl
+		"=": 8 // ltr
 	}
-	var sentidos = [-1, 1, 1, 1, 1, 1, 1, -1]
+	var sentidos = [-1, 1, 1, 1, 1, 1, 1, 1, -1]
 	var eOperador = function (x) {
 		return x instanceof Funcao && x.nome in operadores && x.args.length == 1
 	}
 	var eOperador2 = function (x) {
+		if (x instanceof Fracao && x.d != 1)
+			return true
 		return x instanceof Funcao && x.nome in operadores2 && x.args.length == 2
 	}
 	if (eOperador(this)) {
@@ -191,7 +194,7 @@ Funcao.prototype.toString = function () {
 			b = "("+b+")"
 		else
 			b = String(b)
-		if (pre > 2)
+		if (pre > 3)
 			return a+" "+this.nome+" "+b
 		return a+this.nome+b
 	}

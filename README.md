@@ -11,13 +11,10 @@ Essa é uma calculadora simples de se usar, rápida e prática para operações 
 * Uso de variáveis, como a=x+1
 * Funções criadas pelo usuário, exemplo: f(a,b)=a!/b!
 * Plotagem de gráficos de funções reais
+* Cálculos com unidades
 
 ## Limitações
 Essa calculadora não é simbólica, ou seja, não consegue fazer operações e simplificações como x+x = 2x
 
 ## Exemplo de funcionamento
 Acesse http://sitegui.com.br/topCalc
-
-## Futuro
-Essa é primeira versão. Os próximos passos serão:
-* suporte para unidades (operações e conversões)
