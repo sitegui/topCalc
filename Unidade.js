@@ -100,7 +100,10 @@ Unidade.unidades = {
 	bbl: [{L: 3}, new Fracao(1, 1)],
 	pk: [{L: 3}, new Fracao(1, 1)],
 	// Ângulo
-	"º": [{}, Math.PI/180]
+	"º": [{}, Math.PI/180],
+	// Temperatura
+	"ºF": [{θ: 1}, new Fracao(5, 9)],
+	"R": [{θ: 1}, new Fracao(5, 9)]
 }
 
 // Interpreta as unidades numa expressão
@@ -292,4 +295,28 @@ Unidade.prototype.getBases = function () {
 			delete r[i]
 	
 	return r
+}
+
+// Verifica se a unidade é uma temperatura simples
+// Retorna false caso não seja
+// Retorna o nome da unidade caso seja
+Unidade.prototype.eTemperatura = function () {
+	var i, j, um = false, unidades = ["K", "ºC", "ºF", "R"]
+	
+	// Verifica se tem alguma outra unidade (ou mais de uma)
+	for (i in this.unidades) {
+		if (um || unidades.indexOf(i) == -1)
+			return false
+		um = true
+	}
+	
+	// Verifica se tem somente um fator de temperatura
+	for (j in this.unidades[i])
+		if (j != "")
+			return false
+	
+	// Verifica se o expoente é 1
+	if (!eUm(this.unidades[i][""]))
+		return false
+	return i
 }

@@ -225,7 +225,8 @@ Funcao.registrar("_", "valor_unidade\nConverter o valor para a unidade desejada"
 		if (valor instanceof ValorComUnidade)
 			return valor.converter(unidade)
 		return new ValorComUnidade(valor, unidade)
-	}
+	} else if (eDeterminado(valor))
+		throw 0
 }, true, true)
 
 // Funções lógicas

@@ -58,7 +58,7 @@ var ajudaInfo = {
 	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como x+x = 2x)\n"+
 	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
-	"- numeros\n- operadores\n- variaveis\n- funcoes\n- listas\n- vetores\n- matrizes\n- graficos",
+	"- numeros\n- operadores\n- variaveis\n- funcoes\n- listas\n- vetores\n- matrizes\n- graficos\n- unidades",
 numeros: "Os valores numéricos são representados de 4 formas:\n"+
 	"- Fracao: um valor racional exato, com numerador e denominador inteiros\n"+
 	"- Number: um valor real aproximado, armazenado como double\n"+
@@ -76,7 +76,7 @@ operadores: "Os operadores são internamente tratados como funções normais\n"+
 	"- aritméticos: a+b, a-b, a*b, a/b, a^b (elevado), a%b (resto da divisão), +n, -n\n"+
 	"- comparação: a<b, a>b, a<=b, a>=b, a==b, a!=b (diferente)\n"+
 	"- lógicos: !a (not), a&&b (e), a||b (ou)\n"+
-	"- outros: n! (fatorial), n% (porcentagem, a=b (definição), v[n] (entrada do vetor), m[i, j] (entrada da matriz)",
+	"- outros: n! (fatorial), n% (porcentagem, a=b (definição), v[n] (entrada do vetor), m[i, j] (entrada da matriz), a_b (aplicador de unidade)",
 variaveis: "Variáveis são definidas na forma x=valor (como x=2 ou x=a+1)\n"+
 	"Algumas variáveis já existem por padrão, como pi, e, inf, i\n"+
 	"Para pegar o valor direto de uma variável, use get(x)\n"+
@@ -106,7 +106,11 @@ graficos: "Para plotar gráficos, use a função plot, exemplos:\n"+
 	"plot(t, -3, 3, {abs(asin(t)), arg(asin(t))})\n"+
 	"plot(x, -3, 2, x^x)\n"+
 	"animate(a,1/10,10,x,0,pi,sin(x)^a)\n"+
-	"animate(a,1,10,x,-2,2,for(i,1,round(a^2),i*x))"
+	"animate(a,1,10,x,-2,2,for(i,1,round(a^2),i*x))",
+unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
+	"1_s, pi_rad, x_N*m, 17_kW/m^2\n"+
+	"O operador _ aplica e transforma unidades, por exemplo: 20_ºC_ºF = 68_ºF\n"+
+	"Para ver todas as unidades e prefixos disponíveis, use units()"
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {
@@ -179,5 +183,27 @@ Funcao.registrar("debug", "debug(estado)\nLiga ou desliga informações de debug
 // Limpa o console
 Funcao.registrar("clear", "clear()\nLimpa o console", function () {
 	setTimeout(Console.limpar, 250)
+	return new Expressao
+})
+
+Funcao.registrar("units", "units()\nMostra todas as unidades e prefixos válidos", function () {
+	var i, str = "Prefixos:\n", base
+	var base2Str = function (base) {
+		var i, str = []
+		for (i in base)
+			if (base[i] == 1)
+				str.push(i)
+			else
+				str.push(i+"^"+base[i])
+		return str.join("*")
+	}
+	for (i in Unidade.prefixos)
+		str += i+" → "+Unidade.prefixos[i]+"\n"
+	str += "\nUnidades:\n"
+	for (i in Unidade.unidades) {
+		base = base2Str(Unidade.unidades[i][0])
+		str += i+" → "+Unidade.unidades[i][1]+(base ? "*"+base : "")+"\n"
+	}
+	Console.echoInfo(str)
 	return new Expressao
 })
