@@ -8,7 +8,7 @@ var introInfo =
 "+-----------------------------------+\n"+
 "| Calculadora prática e inteligente |\n"+
 "|    Digite help para saber mais    |\n"+
-"|      Versão 1.2 - 03/03/2013      |\n"+
+"|      Versão 1.3 - 07/03/2013      |\n"+
 "|       http://sitegui.com.br       |\n"+
 "+-----------------------------------+"
 
@@ -43,11 +43,11 @@ addEventListener("load", function () {
 	}
 	input.value = ""
 	Console.focar()
-	onmousedown = function (evento) {
+	window.onmousedown = function (evento) {
 		mX = evento.clientX
 		mY = evento.clientY
 	}
-	onmouseup = function (evento) {
+	window.onmouseup = function (evento) {
 		if (evento.clientX == mX && evento.clientY == mY)
 			Console.focar()
 	}

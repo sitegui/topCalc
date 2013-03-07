@@ -7,7 +7,8 @@ function Unidade() {
 
 // Guarda os prefixos aceitos e seus valores
 Unidade.prefixos = (function () {
-	var i, r = {
+	var i, r, r2
+	r = {
 		Y: 24,
 		Z: 21,
 		E: 18,
@@ -30,46 +31,56 @@ Unidade.prefixos = (function () {
 		z: -21,
 		y: -24
 	}
+	r2 = {
+		Yi: 90,
+		Zi: 70,
+		Ei: 60,
+		Pi: 50,
+		Ti: 40,
+		Gi: 30,
+		Mi: 20,
+		ki: 10
+	}
 	for (i in r)
 		r[i] = pow(new Fracao(10, 1), new Fracao(r[i], 1))
+	for (i in r2)
+		r[i] = pow(new Fracao(2, 1), new Fracao(r2[i], 1))
 	return r
 })()
 
 // Guarda todas as unidades aceitas
-// TODO: verificar grafia das bases A, mol e cd
-// TODO: verificar os valores
 Unidade.unidades = {
 	// Básicas
 	m: [{L: 1}, new Fracao(1, 1)],
 	g: [{M: 1}, new Fracao(1, 1000)],
 	s: [{T: 1}, new Fracao(1, 1)],
-	A: [{A: 1}, new Fracao(1, 1)],
+	A: [{I: 1}, new Fracao(1, 1)],
 	K: [{θ: 1}, new Fracao(1, 1)],
-	mol: [{mol: 1}, new Fracao(1, 1)],
-	cd: [{cd: 1}, new Fracao(1, 1)],
+	mol: [{N: 1}, new Fracao(1, 1)],
+	cd: [{J: 1}, new Fracao(1, 1)],
 	// Compostas
 	rad: [{}, new Fracao(1, 1)],
 	sr: [{}, new Fracao(1, 1)],
-	kat: [{mol: 1, T: -1}, new Fracao(1, 1)],
+	kat: [{N: 1, T: -1}, new Fracao(1, 1)],
 	Bq: [{T: -1}, new Fracao(1, 1)],
-	F: [{A: 2, T: 4, M: -1, L: -2}, new Fracao(1, 1)],
-	C: [{A: 1, T: 1}, new Fracao(1, 1)],
-	S: [{A: 2, T: 3, M: -1, L: -2}, new Fracao(1, 1)],
+	F: [{I: 2, T: 4, M: -1, L: -2}, new Fracao(1, 1)],
+	C: [{I: 1, T: 1}, new Fracao(1, 1)],
+	S: [{I: 2, T: 3, M: -1, L: -2}, new Fracao(1, 1)],
 	Gy: [{L: 2, T: -2}, new Fracao(1, 1)],
 	Sv: [{L: 2, T: -2}, new Fracao(1, 1)],
 	J: [{M: 1, L: 2, T: -2}, new Fracao(1, 1)],
-	lm: [{cd:1}, new Fracao(1, 1)],
-	Wb: [{M: 1, L: 2, T: -2, A: -1}, new Fracao(1, 1)],
+	lm: [{J: 1}, new Fracao(1, 1)],
+	Wb: [{M: 1, L: 2, T: -2, I: -1}, new Fracao(1, 1)],
 	N: [{M: 1, L: 1, T: -2}, new Fracao(1, 1)],
 	Hz: [{T: -1}, new Fracao(1, 1)],
-	H: [{M: 1, L: 2, T: -2, A: -2}, new Fracao(1, 1)],
-	T: [{M: 1, T: -2, A: -1}, new Fracao(1, 1)],
-	lx: [{cd:1, T: -2}, new Fracao(1, 1)],
+	H: [{M: 1, L: 2, T: -2, I: -2}, new Fracao(1, 1)],
+	T: [{M: 1, T: -2, I: -1}, new Fracao(1, 1)],
+	lx: [{J: 1, T: -2}, new Fracao(1, 1)],
 	W: [{M: 1, L: 2, T: -3}, new Fracao(1, 1)],
 	Pa: [{M: 1, L: -1, T: -2}, new Fracao(1, 1)],
-	ohm: [{M: 1, L: 2, T: -3, A: -2}, new Fracao(1, 1)],
+	ohm: [{M: 1, L: 2, T: -3, I: -2}, new Fracao(1, 1)],
 	"ºC": [{θ: 1}, new Fracao(1, 1)],
-	V: [{M: 1, L: 2, T: -3, A: -1}, new Fracao(1, 1)],
+	V: [{M: 1, L: 2, T: -3, I: -1}, new Fracao(1, 1)],
 	// Comprimento
 	yd: [{L: 1}, new Fracao(1143, 1250)],
 	ft: [{L: 1}, new Fracao(381, 1250)],
@@ -81,29 +92,59 @@ Unidade.unidades = {
 	rd: [{L: 1}, new Fracao(12573, 2500)],
 	ftUS: [{L: 1}, new Fracao(1200, 3937)],
 	mil: [{L: 1}, new Fracao(127, 5000000)],
-	u: [{L: 1}, new Fracao(1, 1000000)],
 	Ao: [{L: 1}, new Fracao(1, 10000000000)],
 	// Área
 	b: [{L: 2}, 1e-28],
 	ha: [{L: 2}, new Fracao(10000, 1)],
 	a: [{L: 2}, new Fracao(100, 1)],
-	acre: [{L: 2}, 4046.8564223999933],
+	acre: [{L: 2}, new Fracao(316160658, 78125)],
 	// Volume
-	L: [{L: 3}, new Fracao(1000, 1)],
-	galUK: [{L: 3}, new Fracao(1, 1)],
-	gal: [{L: 3}, new Fracao(1, 1)],
-	qt: [{L: 3}, new Fracao(1, 1)],
-	pt: [{L: 3}, new Fracao(1, 1)],
-	c: [{L: 3}, new Fracao(1, 1)],
-	ozfl: [{L: 3}, new Fracao(1, 1)],
-	ozUK: [{L: 3}, new Fracao(1, 1)],
-	bbl: [{L: 3}, new Fracao(1, 1)],
-	pk: [{L: 3}, new Fracao(1, 1)],
+	L: [{L: 3}, new Fracao(1, 1000)],
+	galUK: [{L: 3}, new Fracao(454609, 100000000)],
+	gal: [{L: 3}, 4.40488377086e-3],
+	qt: [{L: 3}, 946.352946e-6],
+	pt: [{L: 3}, 568.26125e-6],
+	c: [{L: 3}, 236.5882365e-6],
+	ozfl: [{L: 3}, 29.5735295625e-6],
+	ozUK: [{L: 3}, 28.4130625e-6],
+	bbl: [{L: 3}, 0.158987294928],
+	pk: [{L: 3}, 9.09218e-3],
 	// Ângulo
 	"º": [{}, Math.PI/180],
+	grad: [{}, Math.PI/200],
 	// Temperatura
 	"ºF": [{θ: 1}, new Fracao(5, 9)],
-	"R": [{θ: 1}, new Fracao(5, 9)]
+	"R": [{θ: 1}, new Fracao(5, 9)],
+	// Massa
+	lb: [{M: 1}, new Fracao(45359237, 100000)],
+	oz: [{M: 1}, new Fracao(45359237, 1600000)],
+	slug: [{M: 1}, 14593.903],
+	lbt: [{M: 1}, new Fracao(58319019, 156250)],
+	ton: [{M: 1}, new Fracao(45359237, 50)],
+	tonUK: [{M: 1}, new Fracao(635029318, 625)],
+	t: [{M: 1}, new Fracao(1000000, 1)],
+	ozt: [{M: 1}, new Fracao(19439673, 625000)],
+	kt: [{M: 1}, 0.205196548333],
+	gr: [{M: 1}, new Fracao(6479891, 100000000)],
+	u: [{M: 1}, 1.66053873e-27],
+	// Tempo
+	min: [{T: 1}, new Fracao(60, 1)],
+	h: [{T: 1}, new Fracao(3600, 1)],
+	d: [{T: 1}, new Fracao(86400, 1)],
+	yr: [{T: 1}, new Fracao(31557600, 1)],
+	// Frequência
+	rpm: [{T: -1}, new Fracao(1, 60)],
+	// Pressão
+	atm: [{M: 1, L: -1, T: -2}, new Fracao(101325, 1)],
+	bar: [{M: 1, L: -1, T: -2}, new Fracao(100000, 1)],
+	mmHg: [{M: 1, L: -1, T: -2}, 133.3224],
+	// Energia
+	BTU: [{M: 1, L: 2, T: -2}, 1.05505585262e3],
+	cal: [{M: 1, L: 2, T: -2}, new Fracao(10467, 2500)],
+	eV: [{M: 1, L: 2, T: -2}, 1.60217733e-19],
+	// Informação
+	B: [{}, new Fracao(1, 1)]
+	
 }
 
 // Interpreta as unidades numa expressão
@@ -136,6 +177,14 @@ Unidade.interpretar = function (expressao) {
 		}
 		arg0 = expressao.nome.charAt(0)
 		arg1 = expressao.nome.substr(1)
+		if (arg0 in Unidade.prefixos && arg1 in Unidade.unidades) {
+			r = new Unidade
+			r.unidades[arg1] = {}
+			r.unidades[arg1][arg0] = new Fracao(1, 1)
+			return r
+		}
+		arg0 = expressao.nome.substr(0, 2)
+		arg1 = expressao.nome.substr(2)
 		if (arg0 in Unidade.prefixos && arg1 in Unidade.unidades) {
 			r = new Unidade
 			r.unidades[arg1] = {}

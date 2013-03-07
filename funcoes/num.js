@@ -354,7 +354,48 @@ Variavel.valores.log10e = Math.LOG10E
 Variavel.valores.pi = Math.PI
 Variavel.valores.sqrt12 = Math.SQRT1_2
 Variavel.valores.sqrt2 = Math.SQRT2
-Variavel.valores.g = 9.807
+Variavel.valores.g = (function () {
+	var u = new Unidade
+	u.unidades["m"] = {"": new Fracao(1, 1)}
+	u.unidades["s"] = {"": new Fracao(-2, 1)}
+	return new ValorComUnidade(9.807, u)
+})()
+Variavel.valores.c = (function () {
+	var u = new Unidade
+	u.unidades["m"] = {"": new Fracao(1, 1)}
+	u.unidades["s"] = {"": new Fracao(-1, 1)}
+	return new ValorComUnidade(299792458, u)
+})()
+Variavel.valores.G = (function () {
+	var u = new Unidade
+	u.unidades["m"] = {"": new Fracao(3, 1)}
+	u.unidades["g"] = {"k": new Fracao(-1, 1)}
+	u.unidades["s"] = {"": new Fracao(-2, 1)}
+	return new ValorComUnidade(6.6738480e-11, u)
+})()
+Variavel.valores.h = (function () {
+	var u = new Unidade
+	u.unidades["J"] = {"": new Fracao(1, 1)}
+	u.unidades["s"] = {"": new Fracao(1, 1)}
+	return new ValorComUnidade(6.6260695729e-34, u)
+})()
+Variavel.valores.q = (function () {
+	var u = new Unidade
+	u.unidades["C"] = {"": new Fracao(1, 1)}
+	return new ValorComUnidade(1.60217656535e-19, u)
+})()
+Variavel.valores.Na = (function () {
+	var u = new Unidade
+	u.unidades["mol"] = {"": new Fracao(-1, 1)}
+	return new ValorComUnidade(6.0221412927e23, u)
+})()
+Variavel.valores.R = (function () {
+	var u = new Unidade
+	u.unidades["J"] = {"": new Fracao(1, 1)}
+	u.unidades["K"] = {"": new Fracao(-1, 1)}
+	u.unidades["mol"] = {"": new Fracao(-1, 1)}
+	return new ValorComUnidade(8.314462175, u)
+})()
 
 Variavel.valores.maxvalue = Number.MAX_VALUE
 Variavel.valores.minvalue = Number.MIN_VALUE

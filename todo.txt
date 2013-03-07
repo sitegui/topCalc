@@ -1,7 +1,3 @@
 verificar trig para complexos
 
 seta pra baixo => fim da entrada
-
-Unidades
-
-Constantes físicas com unidade
