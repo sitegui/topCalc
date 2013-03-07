@@ -15,11 +15,3 @@ make(abs, args)
 rotacao(n)
 autovalores()
 autovetores()
-
-== Hyper-trigo ==
-sinh
-cosh
-tanh
-asinh
-acosh
-atanh

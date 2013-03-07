@@ -95,27 +95,26 @@ Complexo.prototype.min = function (outro) {
 = Operações unárias =
 
 */
-// TODO: validar expressões trigonométricas
 Complexo.prototype.acos = function () {
 	var a, b
-	// acos(x) = -i*ln(x+sqrt(x^2-1))
-	a = pow(subtrair(this.multiplicar(this), 1), .5)
-	b = ln(somar(this, a))
-	return multiplicar(new Complexo(0, -1), b)
+	// acos(x) = pi/2+i*ln(i*x+sqrt(1-x^2))
+	a = pow(subtrair(1, this.multiplicar(this)), .5)
+	b = ln(somar(this.multiplicar(new Complexo(0, 1)), a))
+	return somar(Math.PI/2, multiplicar(new Complexo(0, 1), b))
 }
 Complexo.prototype.asin = function () {
 	var a, b
-	// asin(x) = -i*ln(x*i+sqrt(1-x^2))
+	// asin(x) = -i*ln(i*x+sqrt(1-x^2))
 	a = pow(subtrair(1, this.multiplicar(this)), .5)
 	b = ln(somar(this.multiplicar(new Complexo(0, 1)), a))
 	return multiplicar(new Complexo(0, -1), b)
 }
 Complexo.prototype.atan = function () {
 	var a, b, c
-	// atan(x) = -i/2*(ln(1+x*i)-ln(1-x*i))
-	a = ln(somar(1, this.multiplicar(new Complexo(0, 1))))
-	b = ln(subtrair(1, this.multiplicar(new Complexo(0, 1))))
-	return multiplicar(new Complexo(0, -1/2), subtrair(a, b))
+	// atan(x) = i/2*(ln(1-i*x)-ln(1+i*x))
+	a = ln(subtrair(1, this.multiplicar(new Complexo(0, 1))))
+	b = ln(somar(1, this.multiplicar(new Complexo(0, 1))))
+	return multiplicar(new Complexo(0, 1/2), subtrair(a, b))
 }
 Complexo.prototype.cos = function () {
 	var a, b

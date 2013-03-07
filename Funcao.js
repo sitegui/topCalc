@@ -70,9 +70,9 @@ Funcao.fazerAceitarListas = function (funcaoBase) {
 }
 
 // Gera uma função com base nos parâmetros e sua definição
-Funcao.gerar = function (params, definicao) {
+Funcao.gerar = function (params, unidades, definicao) {
 	// Renomeia as variáveis para evitar conflito com variáveis externas
-	var i
+	var i, temp
 	var tratar = function (obj) {
 		var r = obj.clonar()
 		if (r instanceof Expressao)
@@ -88,6 +88,10 @@ Funcao.gerar = function (params, definicao) {
 	definicao = tratar(definicao)
 	for (i=0; i<params.length; i++)
 		params[i] = "_"+params[i]
+	temp = {}
+	for (i in unidades)
+		temp["_"+i] = unidades[i]
+	unidades = temp
 	
 	var retorno = function () {
 		var escopoPai, i, retorno
@@ -96,8 +100,12 @@ Funcao.gerar = function (params, definicao) {
 		if (arguments.length != params.length)
 			throw "Número incorreto de parâmetros"
 		
-		for (i=0; i<arguments.length; i++)
-			Variavel.valores[params[i]] = arguments[i]
+		for (i=0; i<arguments.length; i++) {
+			if (params[i] in unidades)
+				Variavel.valores[params[i]] = Funcao.executar("_", [arguments[i], unidades[params[i]]])
+			else
+				Variavel.valores[params[i]] = arguments[i]
+		}
 		
 		retorno = this.executarNoEscopo(definicao)
 		

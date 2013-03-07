@@ -43,6 +43,56 @@ Funcao.registrar("abs", "abs(x)\nRetorna o módulo (ou norma) de x", function (x
 			throw 0
 	}, true)
 })
+Funcao.registrar("cosh", "cosh(x)\nRetorna o cosseno hiperbólico de x", function (x) {
+	var ex
+	if (eNumerico(x)) {
+		ex = exp(x)
+		return dividir(somar(ex, dividir(1, ex)), 2)
+	} else if (eDeterminado(x))
+		throw 0
+}, true)
+Funcao.registrar("sinh", "sinh(x)\nRetorna o seno hiperbólico de x", function (x) {
+	var ex
+	if (eNumerico(x)) {
+		ex = exp(x)
+		return dividir(subtrair(ex, dividir(1, ex)), 2)
+	} else if (eDeterminado(x))
+		throw 0
+}, true)
+Funcao.registrar("tanh", "tanh(x)\nRetorna a tangente hiperbólico de x", function (x) {
+	var e2x
+	if (eNumerico(x)) {
+		e2x = exp(multiplicar(2, x))
+		return dividir(subtrair(e2x, 1), somar(e2x, 1))
+	} else if (eDeterminado(x))
+		throw 0
+}, true)
+Funcao.registrar("acosh", "acosh(x)\nRetorna o arco cosseno hiperbólico de x", function (x) {
+	var a, b
+	if (eNumerico(x)) {
+		a = pow(somar(x, 1), .5)
+		b = pow(subtrair(x, 1), .5)
+		return ln(somar(x, multiplicar(a, b)))
+	} else if (eDeterminado(x))
+		throw 0
+}, true)
+Funcao.registrar("asinh", "asinh(x)\nRetorna o arco sino hiperbólico de x", function (x) {
+	var a
+	if (eNumerico(x)) {
+		a = pow(somar(1, multiplicar(x, x)), .5)
+		return ln(somar(x, a))
+	} else if (eDeterminado(x))
+		throw 0
+}, true)
+Funcao.registrar("atanh", "atanh(x)\nRetorna o arco tangente hiperbólico de x", function (x) {
+	var a, b
+	if (eNumerico(x)) {
+		a = ln(somar(1, x))
+		b = ln(subtrair(1, x))
+		return dividir(subtrair(a, b), 2)
+	} else if (eDeterminado(x))
+		throw 0
+}, true)
 Funcao.registrar("max", "max(n1, n2, ...)\nRetorna o maior valor dentre os argumentos", function () {
 	var args, numerico, determinado, i, r
 	args = Funcao.getFlatArgs(arguments)

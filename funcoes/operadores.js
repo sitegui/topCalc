@@ -134,7 +134,7 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 Funcao.registrar("=", "x=... ou f(x)=... ou {x,y}=... ou [x,y]=...\nDefine uma variável ou função", function (a, b) {
 	var that = this
 	var definir = function (a, b) {
-		var retorno, i, len, params = [], temp, funcao
+		var retorno, i, len, params = [], unidades = {}, temp, funcao
 		a = unbox(a)
 		if (a instanceof Variavel) {
 			retorno = ePuro(b) ? b.clonar() : that.executarNoEscopo(b)
@@ -144,13 +144,16 @@ Funcao.registrar("=", "x=... ou f(x)=... ou {x,y}=... ou [x,y]=...\nDefine uma v
 			
 			for (i=0; i<len; i++) {
 				temp = unbox(a.args[i])
-				if (temp instanceof Variavel)
+				if (temp instanceof Funcao && temp.nome == "_" && temp.args[0] instanceof Variavel) {
+					params.push(temp.args[0].nome)
+					unidades[temp.args[0].nome] = Unidade.interpretar(temp.args[1])
+				} else if (temp instanceof Variavel)
 					params.push(temp.nome)
 				else
 					throw "Parâmetro inválido na declaração da função"
 			}
 			retorno = ePuro(b) ? b.clonar() : that.executarNoEscopo(b, params)
-			funcao = Funcao.gerar(params, retorno)
+			funcao = Funcao.gerar(params, unidades, retorno)
 			funcao.definicao = String(that)
 			Funcao.funcoes[a.nome] = funcao
 		} else
@@ -217,7 +220,8 @@ Funcao.registrar("getAt", "lista[i] ou matriz[i, j]\nRetorna o elemento na posi�
 
 Funcao.registrar("_", "valor_unidade\nConverter o valor para a unidade desejada", function (valor, unidade) {
 	this.args[0] = valor = this.executarNoEscopo(valor)
-	unidade = Unidade.interpretar(unidade)
+	if (!(unidade instanceof Unidade))
+		unidade = Unidade.interpretar(unidade)
 	
 	if (eNumerico(valor)) {
 		if (eInfinito(valor))
@@ -296,3 +300,13 @@ Funcao.registrar("||", "a||b\nRetorna se a ou b são não nulos", function (a, b
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
+
+// Operadores de atribuição compostos
+;(function () {
+	var ops = ["+", "-", "*", "/", "%", "&&", "||", "_"]
+	ops.forEach(function (op) {
+		Funcao.registrar(op+"=", "a"+op+"=b\nMesmo que a = a"+op+"b", function (a, b) {
+			return this.executarNoEscopo(new Funcao("=", [a, new Funcao(op, [a, b])]))
+		}, false, true)
+	})
+})()
