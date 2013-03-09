@@ -358,6 +358,8 @@ Unidade.prototype.eTemperatura = function () {
 			return false
 		um = true
 	}
+	if (!um)
+		return false
 	
 	// Verifica se tem somente um fator de temperatura
 	for (j in this.unidades[i])

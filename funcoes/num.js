@@ -13,6 +13,22 @@ Funcao.registrar("rand", "rand(min, max)\nRetorna um valor pseudo-aleatório int
 	} else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 })
+Funcao.registrar("q", "q(x)\nRetorna, se possível, o formato exato do número em forma de fração", function (x) {
+	var toFracao = function (x) {
+		if (x instanceof Fracao || x instanceof BigNum)
+			return x.clonar()
+		else if (typeof x == "number")
+			return Fracao.toFracao(x)
+		else if (x instanceof Complexo)
+			return new Complexo(toFracao(x.a), toFracao(x.b))
+		else if (x instanceof ValorComUnidade)
+			return new Unidade(toFracao(x.valor), x.unidade.clonar())
+	}
+	if (eNumerico(x))
+		return toFracao(x)
+	else if (eDeterminado(x))
+		throw 0
+}, true)
 Funcao.registrar("sqrt", "sqrt(x)\nRetorna x^(1/2)", function (x) {
 	if (eNumerico(x))
 		return pow(x, new Fracao(1, 2))

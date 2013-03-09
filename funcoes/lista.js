@@ -81,13 +81,27 @@ Funcao.registrar("unshift", "unshift(lista, a1, a2, ...)\nAdiciona os termos no 
 		throw 0
 }, false, false, true)
 
-Funcao.registrar("sort", "sort(lista)\nOrdena uma lista numérica", function (lista) {
+Funcao.registrar("sort", "sort(lista)\nOrdena uma lista numérica do menor para o maior", function (lista) {
 	var args
 	if (lista instanceof Lista) {
 		args = lista.expressoes.map(unbox)
 		if (args.every(eNumerico)) {
 			args.sort(function (a, b) {
 				return eIdentico(max(a, b), a) ? 1 : -1
+			})
+			return new Lista(args)
+		}
+	} else if (eDeterminado(lista))
+		throw 0
+})
+
+Funcao.registrar("rsort", "rsort(lista)\nOrdena uma lista numérica do maior para o menor", function (lista) {
+	var args
+	if (lista instanceof Lista) {
+		args = lista.expressoes.map(unbox)
+		if (args.every(eNumerico)) {
+			args.sort(function (a, b) {
+				return eIdentico(min(a, b), a) ? 1 : -1
 			})
 			return new Lista(args)
 		}
@@ -112,7 +126,7 @@ Funcao.registrar("concat", "concat(lista1, lista2, ...)\nRetorna a lista resulta
 		throw 0
 }, false, false, true)
 
-Funcao.registrar("slice", "slice(lista, inicio) ou fatiar(lista, inicio, tamanho)\nRetorna uma fatia da lista", function (lista, inicio, tamanho) {
+Funcao.registrar("slice", "slice(lista, inicio) ou slice(lista, inicio, tamanho)\nRetorna uma fatia da lista", function (lista, inicio, tamanho) {
 	if (arguments.length < 2 || arguments.length > 3)
 		throw 0
 	if (lista instanceof Lista && eNumerico(inicio) && (tamanho === undefined || eNumerico(tamanho))) {
@@ -126,7 +140,7 @@ Funcao.registrar("slice", "slice(lista, inicio) ou fatiar(lista, inicio, tamanho
 			inicio = 0
 		if (tamanho < 0)
 			tamanho += lista.expressoes.length-inicio
-		return new Lista(lista.expressoes.slice(inicio-1, inicio+tamanho))
+		return new Lista(lista.expressoes.slice(inicio-1, inicio+tamanho-1))
 	} else if (eDeterminado(lista) && eDeterminado(inicio) && (tamanho === undefined || eDeterminado(tamanho)))
 		throw 0
 	
@@ -336,7 +350,7 @@ Funcao.registrar("reduce", "reduce(lista, varA, varB, expressao) ou reduce(lista
 		throw 0
 }, false, true, true)
 
-Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, expressao) ou reduce(lista, varA, varB, expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
+Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, expressao) ou reduceRight(lista, varA, varB, expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
 	var i, ini, antes
 	if (arguments.length < 4 || arguments.length > 5)
 		throw 0

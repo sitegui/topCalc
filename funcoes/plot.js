@@ -39,7 +39,7 @@ Funcao.registrar("plot", "plot(variavel, inicio, fim, expressao)\nDesenha uma fu
 }, false, true)
 
 Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, fimX, expressao)\nMostra uma animação dos gráficos gerados com plot(variavelX, inicioX, fimX, expressao)", function (variavel, inicio, fim, variavelX, inicioX, fimX, expressao) {
-	var funcs, xMin, xMax, canvas, that, div, quadros, antes, i, datas, img, pos, trocar, t0, iniciarTrocas, funcs2
+	var funcs, xMin, xMax, canvas, that, div, quadros, antes, i, datas, img, pos, trocar, t0, iniciarTrocas, funcs2, tempo
 	
 	// Trata os argumentos
 	this.args[0] = variavel = unbox(variavel)
@@ -82,7 +82,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 			canvas = plot2canvas(that, variavelX, xMin, xMax, funcs2)
 			canvas.getContext("2d").fillStyle = "white"
 			canvas.getContext("2d").font = "15px sans-serif"
-			canvas.getContext("2d").fillText(variavel+" = "+i.toPrecision(2), 7, 15)
+			canvas.getContext("2d").fillText(variavel+" = "+i.toPrecision(3), 7, 15)
 			datas.push(canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height))
 		}
 		Variavel.restaurar(antes)
@@ -94,8 +94,10 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 		
 		// Troca a cada quadro
 		pos = 0
+		tempo = 0
 		iniciarTrocas = function (evento) {
 			t0 = Date.now()
+			tempo += 7e3
 			canvas.onclick = null
 			canvas.title = ""
 			canvas.style.cursor = ""
@@ -106,7 +108,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 		}
 		trocar = function () {
 			var p = pos/3, len = datas.length
-			if (Date.now()-t0 > 10e3) {
+			if (Date.now()-t0 > tempo) {
 				canvas.title = "Clique para continuar"
 				canvas.style.cursor = "pointer"
 				canvas.onclick = iniciarTrocas
@@ -115,7 +117,12 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 			if (pos%3 == 0)
 				canvas.getContext("2d").putImageData(datas[p<len ? p : len-p%len-1], 0, 0)
 			pos = (pos+1)%(6*len)
-			window.mozRequestAnimationFrame(trocar)
+			if ("mozRequestAnimationFrame" in window)
+				window.mozRequestAnimationFrame(trocar)
+			else if ("webkitRequestAnimationFrame" in window)
+				window.webkitRequestAnimationFrame(trocar)
+			else
+				window.requestAnimationFrame(trocar)
 		}
 		iniciarTrocas()
 		

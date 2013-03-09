@@ -168,10 +168,11 @@ function separar(str) {
 			return null
 	}
 	var getNumero = function (str) {
-		var partes, retorno
-		if (partes = str.match(/^\d*(\.\d+)?(e[+-]?\d+)?$/i))
+		var partes, retorno, exato = true
+		if (partes = str.match(/^\d*(\.\d+)?(e[+-]?\d+)?$/i)) {
+			exato = str.indexOf(".") == -1
 			retorno = Number(str)
-		else if (partes = str.match(/^0x([0-9a-f]+)$/i))
+		} else if (partes = str.match(/^0x([0-9a-f]+)$/i))
 			retorno = parseInt(partes[1], 16)
 		else if (partes = str.match(/^0b([01]+)$/i))
 			retorno = parseInt(partes[1], 2)
@@ -181,8 +182,9 @@ function separar(str) {
 			return null
 		if (isNaN(retorno))
 			throw "Número inválido"
-		else
+		else if (exato)
 			return Fracao.toFracao(retorno)
+		return retorno
 	}
 	
 	var i, sub, valor, partes = [], ini = str
@@ -211,8 +213,7 @@ function separar(str) {
 
 // Interpreta uma expressão (in-place)
 function interpretar(expressao) {
-	var i, el, len, j, args
-	var elAntes, elDepois, args
+	var i, el, len, j, args, elAntes, elDepois, comando
 	
 	// Faz uma expansão básica
 	for (i=0; i<expressao.elementos.length; i++) {

@@ -58,7 +58,16 @@ var ajudaInfo = {
 	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como x+x = 2x)\n"+
 	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
-	"- numeros\n- operadores\n- variaveis\n- funcoes\n- listas\n- vetores\n- matrizes\n- graficos\n- unidades",
+	"- numeros\n"+
+	"- operadores\n"+
+	"- variaveis\n"+
+	"- funcoes\n"+
+	"- expressoes\n"+
+	"- listas\n"+
+	"- vetores\n"+
+	"- matrizes\n"+
+	"- graficos\n"+
+	"- unidades",
 numeros: "Os valores numéricos são representados de 4 formas:\n"+
 	"- Fracao: um valor racional exato, com numerador e denominador inteiros\n"+
 	"- Number: um valor real aproximado, armazenado como double\n"+
@@ -87,10 +96,15 @@ funcoes: "Funções podem ser definidas na forma f(x)=valor (como f(x)=x^2 ou g(
 	"Para pegar a definição de uma função, use get(f())\n"+
 	"Para remover uma função, use unset(f())\n"+
 	"Para ver a lista de todas as funções definidas, use funcs()",
+expressoes: "Uma expressão é um conjunto de números, variáveis, operadores e funções\n\n"+
+	"Uma expressão \"pura\" começa com uma aspas simples (') e indica que ela deve ser executada depois. Exemplos:\n"+
+	"for(i, 1, 3, rand(1, 6)) → {4, 4, 4}\nfor(i, 1, 3, 'rand(1, 6)) → {4, 5, 3}\n\n"+
+	"f(x) = {x, 2x}\nf(rand(1, 6)) → {2, 4}\nf('rand(1, 6)) → {1, 10}\n\n"+
+	"a = 2, f(x) = x+a, g(x) = ('x+a), a = 3\nf(7), g(7) → 9, 10",
 listas: "Uma lista é escrita na forma {a, b, c} e pode ter quantos elementos desejar\n"+
 	"A grande maioria das funções e operadores distribuem sobre listas:\n"+
-	"{3, 14}+15 = {18, 29}\n"+
-	"{1, 2}+{3, 4}={4, 6}\n"+
+	"{3, 14}+15 → {18, 29}\n"+
+	"{1, 2}+{3, 4} → {4, 6}\n"+
 	"Use lista[n] para acessar o nº termo da lista\n"+
 	"Use funcs(lista) para ver as funções especiais para listas",
 vetores: "Um vetor é escrito na forma [a, b, c] e pode ter quantas dimensões desejar\n"+
@@ -105,8 +119,8 @@ graficos: "Para plotar gráficos, use a função plot, exemplos:\n"+
 	"plot(x, -pi, pi, {sin(x), cos(x)})\n"+
 	"plot(t, -3, 3, {abs(asin(t)), arg(asin(t))})\n"+
 	"plot(x, -3, 2, x^x)\n"+
-	"animate(a,1/10,10,x,0,pi,sin(x)^a)\n"+
-	"animate(a,1,10,x,-2,2,for(i,1,round(a^2),i*x))",
+	"animate(a, 1/10, 10, x, 0, pi, sin(x)^a)\n"+
+	"animate(a, 1, 10, x, -2, 2, for(i, 1, round(a^2), i*x))",
 unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
 	"1_s, pi_rad, x_N*m, 17_kW/m^2\n"+
 	"O operador _ aplica e transforma unidades, por exemplo: 20_ºC_ºF = 68_ºF\n"+
@@ -206,4 +220,30 @@ Funcao.registrar("units", "units()\nMostra todas as unidades e prefixos válidos
 	}
 	Console.echoInfo(str)
 	return new Expressao
+})
+
+Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
+	var agora, uH, uMin, uS, uMs, vH, vMin, vS, vMs, h, min, s, ms
+	agora = new Date
+	
+	uH = new Unidade
+	uH.unidades["h"] = {"": new Fracao(1, 1)}
+	vH = new Fracao(agora.getHours(), 1)
+	h = new ValorComUnidade(vH, uH)
+	
+	uMin = new Unidade
+	uMin.unidades["min"] = {"": new Fracao(1, 1)}
+	vMin = new Fracao(agora.getMinutes(), 1)
+	min = new ValorComUnidade(vMin, uMin)
+	
+	uS = new Unidade
+	uS.unidades["s"] = {"": new Fracao(1, 1)}
+	vS = new Fracao(agora.getSeconds(), 1)
+	s = new ValorComUnidade(vS, uS)
+	
+	uMs = new Unidade
+	uMs.unidades["s"] = {"m": new Fracao(1, 1)}
+	vMs = new Fracao(agora.getMilliseconds(), 1)
+	ms = new ValorComUnidade(vMs, uMs)
+	return new Funcao("+", [new Funcao("+", [new Funcao("+", [h, min]), s]), ms])
 })

@@ -8,7 +8,7 @@ var introInfo =
 "+-----------------------------------+\n"+
 "| Calculadora prática e inteligente |\n"+
 "|    Digite help para saber mais    |\n"+
-"|      Versão 1.3 - 07/03/2013      |\n"+
+"|      Versão 1.4 - 09/03/2013      |\n"+
 "|       http://sitegui.com.br       |\n"+
 "+-----------------------------------+"
 
@@ -58,25 +58,26 @@ addEventListener("load", function () {
 
 // Carrega os arquivos do core
 Console.carregarCore = function () {
-	var includes, pos, carregar
+	var includes, iniciados, terminados, carregar
 	
 	includes = [
 		"Fracao", "Number", "BigNum", "Complexo", "ValorComUnidade", "nums", // Objetos numéricos
 		"Variavel", "Expressao", "Operador", "Parenteses", "Lista", "Vetor", "Funcao", "Matriz", "Unidade", // Objetos core
 		"math" // Interpretador
 	]
-	pos = 0
+	iniciados = terminados = 0
 	carregar = function () {
 		var script, include, div
 		script = document.createElement("script")
-		include = includes[pos++]
-		script.src = include+".js?rand="+Math.random()
+		include = includes[iniciados++]
+		script.src = include+".js?hora="+Math.floor(Date.now()/(1e3*60*60))
 		script.onload = function () {
 			div.textContent += " ok"
-			if (pos < includes.length)
-				carregar()
-			else
+			terminados++
+			if (terminados == includes.length)
 				Console.carregarFuncoes()
+			else if (iniciados < includes.length)
+				carregar()
 		}
 		script.onerror = function () {
 			Console.echoErro("Erro ao carregar "+include)
@@ -85,6 +86,7 @@ Console.carregarCore = function () {
 		document.head.appendChild(script)
 		div = Console.echoInfo(include)
 	}
+	carregar()
 	carregar()
 }
 
@@ -105,7 +107,7 @@ Console.carregarFuncoes = function () {
 		}
 		script = document.createElement("script")
 		include = includes[pos++]
-		script.src = "funcoes/"+include+".js?rand="+Math.random()
+		script.src = "funcoes/"+include+".js?hora="+Math.floor(Date.now()/(1e3*60*60))
 		script.onload = function () {
 			var i, n = 0
 			for (i in Funcao.funcoes)
