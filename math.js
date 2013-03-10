@@ -169,7 +169,7 @@ function separar(str) {
 	}
 	var getNumero = function (str) {
 		var partes, retorno, exato = true
-		if (partes = str.match(/^\d*(\.\d+)?(e[+-]?\d+)?$/i)) {
+		if (partes = str.match(/^\d*(\.\d*)?(e[+-]?\d+)?$/i)) {
 			exato = str.indexOf(".") == -1
 			retorno = Number(str)
 		} else if (partes = str.match(/^0x([0-9a-f]+)$/i))
