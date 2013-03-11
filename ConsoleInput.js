@@ -11,6 +11,19 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 		return
 	}
 	intervalo = setTimeout(ConsoleInput.pintar, 100)
+	var focarUltimo = function () {
+		var range, el
+		el = ConsoleInput.input
+		while (el && el.nodeType != Node.TEXT_NODE)
+			el = el.lastChild
+		if (!el)
+			return
+		range = document.createRange()
+		range.setStart(el, el.nodeValue.length)
+		range.setEnd(el, el.nodeValue.length)
+		window.getSelection().removeAllRanges()
+		window.getSelection().addRange(range)
+	}
 	if (evento.keyCode == 13) {
 		if (content.length) {
 			Console.echoEntrada("> "+content)
@@ -27,6 +40,7 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 			Console.pos--
 			ConsoleInput.input.textContent = Console.historico[Console.pos]
 			Console.focar()
+			focarUltimo()
 		}
 		evento.preventDefault()
 	} else if (evento.keyCode == 40) {
@@ -34,6 +48,7 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 			Console.pos++
 			ConsoleInput.input.textContent = Console.pos==Console.historico.length ? "" : Console.historico[Console.pos]
 			Console.focar()
+			focarUltimo()
 		}
 		evento.preventDefault()
 	}

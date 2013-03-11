@@ -2,7 +2,7 @@
 
 // Representa uma expressão matemática (sequência de outros objetos)
 function Expressao() {
-	this.elementos = []
+	this.elementos = arguments.length>0 ? arguments[0] : []
 	this.puro = false
 }
 

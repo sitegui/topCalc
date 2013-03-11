@@ -71,28 +71,6 @@ Funcao.fazerAceitarListas = function (funcaoBase) {
 
 // Gera uma função com base nos parâmetros e sua definição
 Funcao.gerar = function (params, unidades, definicao) {
-	// Renomeia as variáveis para evitar conflito com variáveis externas
-	var i, temp
-	var tratar = function (obj) {
-		var r = obj.clonar()
-		if (r instanceof Expressao)
-			r.elementos = r.elementos.map(tratar)
-		else if (r instanceof Parenteses || r instanceof Lista || r instanceof Vetor)
-			r.expressoes = r.expressoes.map(tratar)
-		else if (r instanceof Funcao)
-			r.args = r.args.map(tratar)
-		else if (r instanceof Variavel && params.indexOf(r.nome) != -1)
-			r.nome = "_"+r.nome
-		return r
-	}
-	definicao = tratar(definicao)
-	for (i=0; i<params.length; i++)
-		params[i] = "_"+params[i]
-	temp = {}
-	for (i in unidades)
-		temp["_"+i] = unidades[i]
-	unidades = temp
-	
 	var retorno = function () {
 		var escopoPai, i, retorno
 		escopoPai = Variavel.backup(params)
@@ -211,16 +189,16 @@ Funcao.prototype.toString = function () {
 
 // Executa uma função
 Funcao.prototype.executar = function (vars) {
-	var retorno, funcao, copia
+	var retorno, funcao, copia, that
+	that = this
+	this.escopo = vars
 	if (this.nome in Funcao.funcoes) {
 		funcao = Funcao.funcoes[this.nome]
 		if (!funcao.dimVariavel && funcao.dim != this.args.length)
 			throw "Quantidade inválida de parâmetros para "+this.nome+", recebido "+this.args.length+" e esperado "+funcao.dim
 		if (!funcao.entradaPura)
 			copia = new Funcao(this.nome, this.args.map(function (x) {
-				if (ePuro(x))
-					return x.clonar()
-				return executar(x, vars)
+				return that.executarPuroNoEscopo(x)
 			}))
 		else
 			copia = this.clonar()
@@ -236,9 +214,7 @@ Funcao.prototype.executar = function (vars) {
 		return retorno!==undefined ? retorno : copia
 	} else
 		return new Funcao(this.nome, this.args.map(function (x) {
-			if (ePuro(x))
-				return x.clonar()
-			return executar(x, vars)
+			return that.executarPuroNoEscopo(x)
 		}))
 }
 
@@ -248,6 +224,46 @@ Funcao.prototype.executarNoEscopo = function (obj, subvars) {
 		return executar(obj, this.escopo.concat(subvars))
 	else
 		return executar(obj, this.escopo)
+}
+
+// Executa uma expressão pura no escopo atual
+// Se a expressão não for pura, faz o mesmo que Funcao::executarNoEscopo
+// Se for, somente as variáveis são abertas, sem executar nenhuma função
+Funcao.prototype.executarPuroNoEscopo = function (obj, subvars) {
+	var vars
+	var trocar = function (obj) {
+		var r
+		if (obj instanceof Expressao) {
+			r = new Expressao(obj.elementos.map(trocar))
+			r.puro = obj.puro
+			return r
+		} else if (obj instanceof Parenteses)
+			return new Parenteses(obj.expressoes.map(trocar))
+		else if (obj instanceof Lista)
+			return new Lista(obj.expressoes.map(trocar))
+		else if (obj instanceof Vetor)
+			return new Vetor(obj.expressoes.map(trocar))
+		else if (obj instanceof Matriz)
+			return new Matriz(obj.expressoes.map(trocar), obj.colunas)
+		else if (obj instanceof Funcao)
+			return new Funcao(obj.nome, obj.args.map(trocar))
+		else if (obj instanceof Variavel) {
+			if (obj.nome in Variavel.valores && vars.indexOf(obj.nome) == -1)
+				return Variavel.valores[obj.nome]
+			return new Variavel(obj.nome)
+		} else
+			return obj.clonar()
+	}
+	
+	if (!ePuro(obj))
+		return this.executarNoEscopo(obj, subvars)
+	else {
+		if (subvars)
+			vars = this.escopo.concat(subvars)
+		else
+			vars = this.escopo
+		return trocar(obj)
+	}
 }
 
 // Retorna o valor de uma variável no escopo atual

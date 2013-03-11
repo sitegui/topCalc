@@ -12,10 +12,8 @@ Funcao.registrar("plot", "plot(variavel, inicio, fim, 'expressao)\nDesenha uma f
 	this.args[1] = inicio = this.executarNoEscopo(inicio)
 	this.args[2] = fim = this.executarNoEscopo(fim)
 	variavel = variavel.nome
-	if (!ePuro(expressao))
-		this.args[3] = expressao = this.executarNoEscopo(expressao, [variavel])
-	else
-		expressao = unbox(expressao)
+	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	expressao = unbox(expressao)
 	
 	if (eNumerico(inicio) && eNumerico(fim)) {
 		// Calcula os valores
@@ -52,10 +50,8 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 	this.args[5] = fimX = this.executarNoEscopo(fimX)
 	variavel = variavel.nome
 	variavelX = variavelX.nome
-	if (!ePuro(expressao))
-		this.args[6] = expressao = this.executarNoEscopo(expressao, [variavel, variavelX])
-	else
-		expressao = unbox(expressao)
+	this.args[6] = expressao = this.executarPuroNoEscopo(expressao, [variavel, variavelX])
+	expressao = unbox(expressao)
 	
 	if (eNumerico(inicio) && eNumerico(fim) && eNumerico(inicioX) && eNumerico(fimX)) {
 		// Calcula os valores
@@ -75,9 +71,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 			// Plota
 			Variavel.valores[variavel] = i
 			funcs2 = funcs.map(function (x) {
-				if (ePuro(x))
-					return x
-				return that.executarNoEscopo(x, [variavelX])
+				return that.executarPuroNoEscopo(x, [variavelX])
 			})
 			canvas = plot2canvas(that, variavelX, xMin, xMax, funcs2)
 			canvas.getContext("2d").fillStyle = "white"

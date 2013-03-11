@@ -2,14 +2,12 @@
 
 // Representa um parênteses (sequência de expressões)
 function Parenteses() {
-	this.expressoes = []
+	this.expressoes = arguments.length>0 ? arguments[0] : []
 }
 
 // Retorna um clone raso do parênteses
 Parenteses.prototype.clonar = function () {
-	var retorno = new Parenteses
-	retorno.expressoes = this.expressoes.clonar()
-	return retorno
+	return new Parenteses(this.expressoes.clonar())
 }
 
 // Retorna a representação em string

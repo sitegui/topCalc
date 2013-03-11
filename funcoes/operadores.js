@@ -137,7 +137,7 @@ Funcao.registrar("=", "x='... ou f(x)='... ou {x,y}='... ou [x,y]='...\nDefine u
 		var retorno, i, len, params = [], unidades = {}, temp, funcao
 		a = unbox(a)
 		if (a instanceof Variavel) {
-			retorno = ePuro(b) ? b.clonar() : that.executarNoEscopo(b)
+			retorno = that.executarPuroNoEscopo(b)
 			Variavel.valores[a.nome] = retorno
 		} else if (a instanceof Funcao) {
 			len = a.args.length
@@ -152,7 +152,7 @@ Funcao.registrar("=", "x='... ou f(x)='... ou {x,y}='... ou [x,y]='...\nDefine u
 				else
 					throw "Parâmetro inválido na declaração da função"
 			}
-			retorno = ePuro(b) ? b.clonar() : that.executarNoEscopo(b, params)
+			retorno = that.executarPuroNoEscopo(b, params)
 			funcao = Funcao.gerar(params, unidades, retorno)
 			funcao.definicao = String(that)
 			Funcao.funcoes[a.nome] = funcao

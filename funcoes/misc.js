@@ -22,9 +22,11 @@ Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou
 		throw 0
 }, false, true)
 
-Funcao.registrar("if", "if(oq, casoSim, casoNao)\nRetorna um valor ou outro dependendo da condição", function (oq, sim, nao) {
+Funcao.registrar("if", "if(oq, 'casoSim, 'casoNao)\nRetorna um valor ou outro dependendo da condição", function (oq, sim, nao) {
 	var r
 	this.args[0] = oq = this.executarNoEscopo(oq)
+	this.args[1] = sim = this.executarPuroNoEscopo(sim)
+	this.args[2] = nao = this.executarPuroNoEscopo(nao)
 	if (eNumerico(oq)) {
 		r = eZero(oq) ? nao : sim
 		return this.executarNoEscopo(r)
@@ -49,7 +51,7 @@ Funcao.registrar("unset", "unset(x) ou unset(f())\nExclui uma variável ou funç
 var ajudaInfo = {
 "": "Essa é uma calculadora feita para ser rápida de se usar e bem ampla\n"+
 	"Basta digitar a expressão que deseja executar, como (1/8)^(-1/3)\n"+
-	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como x+x = 2x)\n"+
+	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como x+x → 2x)\n"+
 	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
 	"- numeros\n"+
@@ -70,7 +72,7 @@ numeros: "Os valores numéricos são representados de 4 formas:\n"+
 	"- Complexo: um valor complexo na forma a+b*i (com a e b reais)\n"+
 	"Os números são encaixados em cada tipo automaticamente, como for melhor\n\n"+
 	"As formas de se escrever um número como entrada são:\n"+
-	"- double, exemplos: 2, 2.7, 1e100, .12e-7 Formalmente: \\d*(\\.\\d+)?(e[+-]?\\d+)?\n"+
+	"- double, exemplos: 2, 2.7, 1e100, .12e-7 Formalmente: \\d*(\\.\\d*)?(e[+-]?\\d+)?\n"+
 	"- inteiro hexadecimal, exemplo: 0x2F805B Formalmente: 0x[0-9a-f]+\n"+
 	"- inteiro binário, exemplo: 0b10101001 Formalmente: 0b[01]+\n"+
 	"- inteiro em outra base, exemplo: gui_36 Formalmente: [0-9a-z]+_\\d+",
@@ -79,7 +81,8 @@ operadores: "Os operadores são internamente tratados como funções normais\n"+
 	"- aritméticos: a+b, a-b, a*b, a/b, a^b (elevado), a%b (resto da divisão), +n, -n\n"+
 	"- comparação: a<b, a>b, a<=b, a>=b, a==b, a!=b (diferente)\n"+
 	"- lógicos: !a (not), a&&b (e), a||b (ou)\n"+
-	"- outros: n! (fatorial), n% (porcentagem, a=b (definição), v[n] (entrada do vetor), m[i, j] (entrada da matriz), a_b (aplicador de unidade)",
+	"- outros: n! (fatorial), n% (porcentagem, v[n] (entrada do vetor), m[i, j] (entrada da matriz), a_b (aplicador de unidade)"+
+	"- atribuições: a=b, a+=b, a-=b, a*=b, a/=b, a%=b, a^=b, a&&=b, a||=b, a_=b",
 variaveis: "Variáveis são definidas na forma x=valor (como x=2 ou x=a+1)\n"+
 	"Algumas variáveis já existem por padrão, como pi, e, inf, i\n"+
 	"Para pegar o valor direto de uma variável, use get(x)\n"+
@@ -89,12 +92,13 @@ funcoes: "Funções podem ser definidas na forma f(x)=valor (como f(x)=x^2 ou g(
 	"Várias funções já existem por padrão, como os operadores, sqrt(x), for(var,ini,fim,exp), num(valor)\n"+
 	"Para pegar a definição de uma função, use get(f())\n"+
 	"Para remover uma função, use unset(f())\n"+
-	"Para ver a lista de todas as funções definidas, use funcs()",
+	"Para ver a lista de todas as funções definidas, use funcs()\n"+
+	"Na descrição da função, argumentos com um ' indicam que expressões puras serão tratadas de forma diferente",
 expressoes: "Uma expressão é um conjunto de números, variáveis, operadores e funções\n\n"+
 	"Uma expressão \"pura\" começa com uma aspas simples (') e indica que ela deve ser executada depois. Exemplos:\n"+
 	"for(i, 1, 3, rand(1, 6)) → {4, 4, 4}\nfor(i, 1, 3, 'rand(1, 6)) → {4, 5, 3}\n\n"+
 	"f(x) = {x, 2x}\nf(rand(1, 6)) → {2, 4}\nf('rand(1, 6)) → {1, 10}\n\n"+
-	"a = 2, f(x) = x+a, g(x) = ('x+a), a = 3\nf(7), g(7) → 9, 10",
+	"f(n) = if(n <= 1, 1, n*f(n-1)), g(n) = if(n <= 1, 1, 'n*g(n-1))\nf(5), g(5) → Erro, 120",
 listas: "Uma lista é escrita na forma {a, b, c} e pode ter quantos elementos desejar\n"+
 	"A grande maioria das funções e operadores distribuem sobre listas:\n"+
 	"{3, 14}+15 → {18, 29}\n"+

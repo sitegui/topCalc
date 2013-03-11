@@ -12,8 +12,7 @@ Funcao.registrar("for", "for(variavel, inicio, fim, 'expressao)\nRetorna uma lis
 	this.args[2] = fim = this.executarNoEscopo(fim)
 	
 	variavel = variavel.nome
-	if (!ePuro(expressao))
-		this.args[3] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	
 	if (eNumerico(inicio) && eNumerico(fim)) {
 		inicio = getNum(inicio)
@@ -215,8 +214,7 @@ Funcao.registrar("every", "every(lista, variavel, 'expressao)\nRetorna zero se e
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	if (!ePuro(expressao))
-		this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = null
 		antes = Variavel.backup(variavel)
@@ -245,8 +243,7 @@ Funcao.registrar("some", "some(lista, variavel, 'expressao)\nRetorna zero se exp
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	if (!ePuro(expressao))
-		this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = null
 		antes = Variavel.backup(variavel)
@@ -275,8 +272,7 @@ Funcao.registrar("filter", "filter(lista, variavel, 'expressao)\nRetorna uma lis
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	if (!ePuro(expressao))
-		this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = new Lista
 		antes = Variavel.backup(variavel)
@@ -301,8 +297,7 @@ Funcao.registrar("map", "map(lista, variavel, 'expressao)\nRetorna uma lista com
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	if (!ePuro(expressao))
-		this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = new Lista
 		antes = Variavel.backup(variavel)
@@ -327,8 +322,7 @@ Funcao.registrar("reduce", "reduce(lista, varA, varB, 'expressao) ou reduce(list
 		throw 0
 	varA = varA.nome
 	varB = varB.nome
-	if (!ePuro(expressao))
-		this.args[3] = expressao = this.executarNoEscopo(expressao, [varA, varB])
+	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [varA, varB])
 	if (inicio !== undefined)
 		this.args[4] = inicio = this.executarNoEscopo(inicio)
 	if (lista instanceof Lista) {
@@ -361,8 +355,7 @@ Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, 'expressao) ou r
 		throw 0
 	varA = varA.nome
 	varB = varB.nome
-	if (!ePuro(expressao))
-		this.args[3] = expressao = this.executarNoEscopo(expressao, [varA, varB])
+	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [varA, varB])
 	if (inicio !== undefined)
 		this.args[4] = inicio = this.executarNoEscopo(inicio)
 	if (lista instanceof Lista) {

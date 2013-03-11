@@ -175,8 +175,7 @@ Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, 'exp)\nMonta u
 	this.args[3] = varJ = unbox(varJ)
 	if (!(varI instanceof Variavel) || !(varJ instanceof Variavel))
 		throw 0
-	if (!ePuro(exp))
-		this.args[4] = exp = this.executarNoEscopo(exp, [varI.nome, varJ.nome])
+	this.args[4] = exp = this.executarPuroNoEscopo(exp, [varI.nome, varJ.nome])
 	
 	if (eNumerico(nLinhas) && eNumerico(nColunas)) {
 		nLinhas = getNum(nLinhas)
