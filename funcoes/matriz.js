@@ -165,7 +165,7 @@ Funcao.registrar("cols", "cols(m)\nRetorna o número de colunas da matriz", func
 		throw 0
 }, true)
 
-Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, exp)\nMonta uma matriz com nLinhas por nColunas, com exp sendo uma expressão com as variáveis varI e varJ", function (nLinhas, nColunas, varI, varJ, exp) {
+Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, 'exp)\nMonta uma matriz com nLinhas por nColunas, com exp sendo uma expressão com as variáveis varI e varJ", function (nLinhas, nColunas, varI, varJ, exp) {
 	var retorno, i, j, antes
 	
 	// Trata os argumentos

@@ -2,7 +2,7 @@
 
 // Módulo para desenhar gráficos no console
 
-Funcao.registrar("plot", "plot(variavel, inicio, fim, expressao)\nDesenha uma função (ou várias) na tela", function (variavel, inicio, fim, expressao) {
+Funcao.registrar("plot", "plot(variavel, inicio, fim, 'expressao)\nDesenha uma função (ou várias) na tela", function (variavel, inicio, fim, expressao) {
 	var funcs, xMin, xMax, canvas, that, div
 	
 	// Trata os argumentos
@@ -38,7 +38,7 @@ Funcao.registrar("plot", "plot(variavel, inicio, fim, expressao)\nDesenha uma fu
 		throw 0
 }, false, true)
 
-Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, fimX, expressao)\nMostra uma animação dos gráficos gerados com plot(variavelX, inicioX, fimX, expressao)", function (variavel, inicio, fim, variavelX, inicioX, fimX, expressao) {
+Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, fimX, 'expressao)\nMostra uma animação dos gráficos gerados com plot(variavelX, inicioX, fimX, expressao)", function (variavel, inicio, fim, variavelX, inicioX, fimX, expressao) {
 	var funcs, xMin, xMax, canvas, that, div, quadros, antes, i, datas, img, pos, trocar, t0, iniciarTrocas, funcs2, tempo
 	
 	// Trata os argumentos

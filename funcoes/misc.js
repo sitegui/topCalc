@@ -25,15 +25,9 @@ Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou
 Funcao.registrar("if", "if(oq, casoSim, casoNao)\nRetorna um valor ou outro dependendo da condição", function (oq, sim, nao) {
 	var r
 	this.args[0] = oq = this.executarNoEscopo(oq)
-	if (!ePuro(sim))
-		this.args[1] = sim = this.executarNoEscopo(sim)
-	if (!ePuro(nao))
-		this.args[2] = nao = this.executarNoEscopo(nao)
 	if (eNumerico(oq)) {
 		r = eZero(oq) ? nao : sim
-		if (ePuro(r))
-			return this.executarNoEscopo(r)
-		return r
+		return this.executarNoEscopo(r)
 	} else if (eDeterminado(oq))
 		throw 0
 }, false, true)

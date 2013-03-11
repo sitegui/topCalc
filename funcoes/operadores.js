@@ -131,7 +131,7 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 	} else if (eDeterminado(a))
 		throw 0
 }, true)
-Funcao.registrar("=", "x=... ou f(x)=... ou {x,y}=... ou [x,y]=...\nDefine uma variável ou função", function (a, b) {
+Funcao.registrar("=", "x='... ou f(x)='... ou {x,y}='... ou [x,y]='...\nDefine uma variável ou função", function (a, b) {
 	var that = this
 	var definir = function (a, b) {
 		var retorno, i, len, params = [], unidades = {}, temp, funcao
@@ -254,13 +254,13 @@ Funcao.registrar(">", "a>b\nRetorna se a é maior que b", function (a, b) {
 }, true)
 Funcao.registrar("<=", "a<=b\nRetorna se a é menor ou igual a b", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
-		return new Fracao(eIdentico(max(a, b), b) ? 1 : 0, 1)
+		return new Fracao(eIdentico(max(a, b), b) || eIgual(a, b) ? 1 : 0, 1)
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
 Funcao.registrar(">=", "a>=b\nRetorna se a é maior ou igual a b", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
-		return new Fracao(eIdentico(max(a, b), a) ? 1 : 0, 1)
+		return new Fracao(eIdentico(max(a, b), a) || eIgual(a, b) ? 1 : 0, 1)
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)

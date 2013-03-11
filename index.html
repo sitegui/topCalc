@@ -24,8 +24,6 @@ canvas {
 }
 pre {
 	margin:0;
-}
-#historico {
 	white-space:pre-wrap;
 }
 #pre-input {
@@ -38,8 +36,10 @@ pre {
 	color:white;
 	font-family:"Courier New", Courier, monospace;
 	font-size:18px;
+	outline:none;
 }
-.console-input {
+.destaque {
+	background-color:rgba(255,255,255,.5);
 	outline:none;
 }
 .console-erro {
@@ -51,6 +51,22 @@ pre {
 .console-info {
 	color:rgba(255,255,255,.75);
 	font-size:16px;
+}
+.dicas {
+	color:#00C;
+}
+.dica {
+	display:inline-block;
+	margin:5px;
+}
+.dica-funcao {
+	font-weight:bold;
+}
+.dica-variavel {
+	font-style:italic;
+}
+.dica-destaque {
+	border-bottom:medium #33F solid;
 }
 </style>
 <script src="Console.js"></script>
@@ -66,6 +82,8 @@ pre {
 |      _|      _|_|    _|_|_|    _|    _|_|_|    _|_|_|  _|    _|_|_|  |
 |                      _|                                              |
 +----------------------_|----------------------------------------------+</div><div>### Carregando core ###</div></pre>
-<pre id="pre-input">&gt; <input class="console-input" id="input"></pre>
+<pre id="dicas" class="dicas"></pre>
+<pre id="dicas2" class="dicas2 console-info"></pre>
+<pre id="pre-input">&gt; <span class="console-input" id="input" contenteditable="true"></span></pre>
 </body>
 </html>

@@ -17,40 +17,17 @@ Console.historico = []
 Console.pos = 0
 
 addEventListener("load", function () {
-	var mX, mY, input
-	input = document.getElementById("input")
-	input.onkeypress = function (evento) {
-		if (evento.keyCode == 13 && input.value.length) {
-			Console.echoEntrada("> "+input.value)
-			Console.historico.push(input.value)
-			Console.pos = Console.historico.length
-			if (Console.oninput)
-				Console.oninput(input.value)
-			input.value = ""
-		} else if (evento.keyCode == 38) {
-			if (Console.pos > 0) {
-				Console.pos--
-				input.value = Console.historico[Console.pos]
-				Console.focar()
-			}
-		} else if (evento.keyCode == 40) {
-			if (Console.pos < Console.historico.length) {
-				Console.pos++
-				input.value = Console.pos==Console.historico.length ? "" : Console.historico[Console.pos]
-				Console.focar()
-			}
-		}
-	}
-	input.value = ""
+	var mX, mY
+	
 	Console.focar()
-	window.onmousedown = function (evento) {
+	window.addEventListener("mousedown", function (evento) {
 		mX = evento.clientX
 		mY = evento.clientY
-	}
-	window.onmouseup = function (evento) {
+	})
+	window.addEventListener("mouseup", function (evento) {
 		if (evento.clientX == mX && evento.clientY == mY)
 			Console.focar()
-	}
+	})
 	
 	Console.echoInfo("Console ok")
 	Console.carregarCore()
@@ -61,6 +38,7 @@ Console.carregarCore = function () {
 	var includes, iniciados, terminados, carregar
 	
 	includes = [
+		"ConsoleInput", "ConsoleDicas", // Interface
 		"Fracao", "Number", "BigNum", "Complexo", "ValorComUnidade", "nums", // Objetos numéricos
 		"Variavel", "Expressao", "Operador", "Parenteses", "Lista", "Vetor", "Funcao", "Matriz", "Unidade", // Objetos core
 		"math" // Interpretador
@@ -171,6 +149,6 @@ Console.echoInfo = function (str) {
 
 // Foca no campo de entrada do console
 Console.focar = function () {
-	document.getElementById("input").scrollIntoView()
+	document.getElementById("dicas2").scrollIntoView()
 	document.getElementById("input").focus()
 }

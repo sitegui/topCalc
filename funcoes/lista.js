@@ -2,7 +2,7 @@
 
 // Funções para listas
 
-Funcao.registrar("for", "for(variavel, inicio, fim, expressao)\nRetorna uma lista dos valores da expressão executada para os diferentes valores inteiros da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao) {
+Funcao.registrar("for", "for(variavel, inicio, fim, 'expressao)\nRetorna uma lista dos valores da expressão executada para os diferentes valores inteiros da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao) {
 	var lista, i, antes
 	
 	this.args[0] = variavel = unbox(variavel)
@@ -208,7 +208,7 @@ Funcao.registrar("product", "product(n1, n2, ...)\nRetorna o produto de todos os
 		throw 0
 }, false, false, true)
 
-Funcao.registrar("every", "every(lista, variavel, expressao)\nRetorna zero se expressao avalia para zero para algum elemento", function (lista, variavel, expressao) {
+Funcao.registrar("every", "every(lista, variavel, 'expressao)\nRetorna zero se expressao avalia para zero para algum elemento", function (lista, variavel, expressao) {
 	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
 	this.args[1] = variavel = unbox(variavel)
@@ -238,7 +238,7 @@ Funcao.registrar("every", "every(lista, variavel, expressao)\nRetorna zero se ex
 		throw 0
 }, false, true)
 
-Funcao.registrar("some", "some(lista, variavel, expressao)\nRetorna zero se expressao não avalia para zero para todos os elementos", function (lista, variavel, expressao) {
+Funcao.registrar("some", "some(lista, variavel, 'expressao)\nRetorna zero se expressao não avalia para zero para todos os elementos", function (lista, variavel, expressao) {
 	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
 	this.args[1] = variavel = unbox(variavel)
@@ -268,7 +268,7 @@ Funcao.registrar("some", "some(lista, variavel, expressao)\nRetorna zero se expr
 		throw 0
 }, false, true)
 
-Funcao.registrar("filter", "filter(lista, variavel, expressao)\nRetorna uma lista somente com os elementos que expressao não avalia como nulo", function (lista, variavel, expressao) {
+Funcao.registrar("filter", "filter(lista, variavel, 'expressao)\nRetorna uma lista somente com os elementos que expressao não avalia como nulo", function (lista, variavel, expressao) {
 	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
 	this.args[1] = variavel = unbox(variavel)
@@ -294,7 +294,7 @@ Funcao.registrar("filter", "filter(lista, variavel, expressao)\nRetorna uma list
 		throw 0
 }, false, true)
 
-Funcao.registrar("map", "map(lista, variavel, expressao)\nRetorna uma lista com os valores de expressao avaliado sobre cada elemento da lista", function (lista, variavel, expressao) {
+Funcao.registrar("map", "map(lista, variavel, 'expressao)\nRetorna uma lista com os valores de expressao avaliado sobre cada elemento da lista", function (lista, variavel, expressao) {
 	var i, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
 	this.args[1] = variavel = unbox(variavel)
@@ -316,7 +316,7 @@ Funcao.registrar("map", "map(lista, variavel, expressao)\nRetorna uma lista com 
 		throw 0
 }, false, true)
 
-Funcao.registrar("reduce", "reduce(lista, varA, varB, expressao) ou reduce(lista, varA, varB, expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
+Funcao.registrar("reduce", "reduce(lista, varA, varB, 'expressao) ou reduce(lista, varA, varB, 'expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
 	var i, ini, antes
 	if (arguments.length < 4 || arguments.length > 5)
 		throw 0
@@ -350,7 +350,7 @@ Funcao.registrar("reduce", "reduce(lista, varA, varB, expressao) ou reduce(lista
 		throw 0
 }, false, true, true)
 
-Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, expressao) ou reduceRight(lista, varA, varB, expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
+Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, 'expressao) ou reduceRight(lista, varA, varB, 'expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
 	var i, ini, antes
 	if (arguments.length < 4 || arguments.length > 5)
 		throw 0
