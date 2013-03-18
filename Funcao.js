@@ -137,8 +137,8 @@ Funcao.prototype.toString = function () {
 	}
 	var operadores2 = {
 		"^": 0, // ltr
-		"*": 1, "/": 1, "%": 1, "undefined": 1, // rtl
-		"_": 2, // rtl
+		"_": 1, // rtl
+		"*": 2, "/": 2, "%": 2, "undefined": 2, // rtl
 		"+": 3, "-": 3, // rtl
 		"<": 4, "<=": 4, ">": 4, ">=": 4, // rtl
 		"==": 5, "!=": 5, // rtl

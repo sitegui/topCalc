@@ -1,5 +1,7 @@
+"use strict";
+
 // Objeto para controlar o input amigável
-ConsoleInput = {}
+var ConsoleInput = {}
 ConsoleInput.input = document.getElementById("input")
 
 ConsoleInput.input.addEventListener("keydown", function (evento) {
@@ -217,7 +219,11 @@ ConsoleInput.montarDicas = function (str, inputPos) {
 	}
 	
 	// Mostra na tela
-	ConsoleDicas.mostrar(dicas)
+	if (dicas.length == 0) {
+		ConsoleDicas.esconder()
+		return
+	} else
+		ConsoleDicas.mostrar(dicas)
 }
 
 // Retorna uma mapa de aninhamento da string com os extremos (, [, {

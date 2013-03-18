@@ -168,22 +168,25 @@ function separar(str) {
 			return null
 	}
 	var getNumero = function (str) {
-		var partes, retorno, exato = true
+		var partes, retorno, exato = true, base = 10
 		if (partes = str.match(/^\d*(\.\d*)?(e[+-]?\d+)?$/i)) {
 			exato = str.indexOf(".") == -1
 			retorno = Number(str)
-		} else if (partes = str.match(/^0x([0-9a-f]+)$/i))
+		} else if (partes = str.match(/^0x([0-9a-f]+)$/i)) {
 			retorno = parseInt(partes[1], 16)
-		else if (partes = str.match(/^0b([01]+)$/i))
+			base = 16
+		} else if (partes = str.match(/^0b([01]+)$/i)) {
 			retorno = parseInt(partes[1], 2)
-		else if (partes = str.match(/^([0-9a-z]+)_(\d+)$/i))
+			base = 2
+		} else if (partes = str.match(/^([0-9a-z]+)_(\d+)$/i)) {
 			retorno = parseInt(partes[1], partes[2])
-		else
+			base = partes[2]
+		} else
 			return null
 		if (isNaN(retorno))
 			throw "Número inválido"
 		else if (exato)
-			return Fracao.toFracao(retorno)
+			return Fracao.toFracao(retorno, base)
 		return retorno
 	}
 	
@@ -294,8 +297,8 @@ function interpretar(expressao) {
 	aplicarUnarios(["!", "%"], 1)
 	aplicarUnarios(["!", "+", "-"], -1)
 	aplicarBinarios(["^"], -1)
-	aplicarBinarios(["*", "/", "%"], 1)
 	aplicarBinarios(["_"], 1)
+	aplicarBinarios(["*", "/", "%"], 1)
 	aplicarBinarios(["+", "-"], 1)
 	aplicarBinarios(["<", "<=", ">", ">="], 1)
 	aplicarBinarios(["==", "!="], 1)

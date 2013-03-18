@@ -52,7 +52,8 @@ var ajudaInfo = {
 "": "Essa é uma calculadora feita para ser rápida de se usar e bem ampla\n"+
 	"Basta digitar a expressão que deseja executar, como (1/8)^(-1/3)\n"+
 	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como x+x → 2x)\n"+
-	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n\n"+
+	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n"+
+	"Para entrar em contato, use o comando feedback()\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
 	"- numeros\n"+
 	"- operadores\n"+
@@ -143,6 +144,11 @@ Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	return new Expressao
 }, false, true, true)
 Variavel.valores["help"] = new Funcao("help", [])
+
+Funcao.registrar("feedback", "feedback()\nAbre uma janela para nos enviar uma mensagem", function () {
+	window.open('/fale_conosco/?assunto=topCalc', 'janelaFaleConosco', 'width=500,height=500')
+	return new Expressao()
+})
 
 // Exibe as variáveis definidas
 Funcao.registrar("vars", "vars()\nMostra uma lista de todas as variáveis definidas", function () {
@@ -245,3 +251,24 @@ Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
 	ms = new ValorComUnidade(vMs, uMs)
 	return new Funcao("+", [new Funcao("+", [new Funcao("+", [h, min]), s]), ms])
 })
+
+;(function () {
+	var backup = null
+	Funcao.registrar("backup", "backup()\nFaz um backup de todas as variáveis e funções criadas", function () {
+		var i
+		backup = {funcoes: {}, variaveis: {}}
+		for (i in Funcao.funcoes)
+			backup.funcoes[i] = Funcao.funcoes[i]
+		for (i in Variavel.valores)
+			backup.variaveis[i] = Variavel.valores[i]
+		return new Expressao
+	})
+	Funcao.registrar("restaurar", "restaurar()\nRestaura o estado do backup", function () {
+		var i
+		if (backup === null)
+			throw 0
+		Funcao.funcoes = backup.funcoes
+		Variavel.valores = backup.variaveis
+		backup = null
+	})
+})()

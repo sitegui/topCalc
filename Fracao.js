@@ -17,20 +17,28 @@ Operações não definidas (como 0/0) lançam exceções
 */
 
 // Cria uma nova fração com numerador e denominador dados
-function Fracao(n, d) {
+function Fracao(n, d, base) {
 	this.n = n
 	this.d = d
+	this.base = base===undefined ? 10 : base
 }
 
 // Cria uma cópia dessa fração
 Fracao.prototype.clonar = function () {
-	return new Fracao(this.n, this.d)
+	return new Fracao(this.n, this.d, this.base)
 }
 
 // Retorna uma representação em forma de string
 Fracao.prototype.toString = function () {
 	if (this.d == 1)
-		return String(this.n)
+		if (this.base == 10)
+			return String(this.n)
+		else if (this.base == 2)
+			return "0b"+this.n.toString(2)
+		else if (this.base == 16)
+			return "0x"+this.n.toString(16)
+		else
+			return this.n.toString(this.base)+"_"+this.base
 	return String(this.n)+"/"+String(this.d)
 }
 
@@ -46,7 +54,7 @@ Fracao.prototype.somar = function (outro) {
 		return this.getNum().somar(outro.getNum())
 	f1 = dcom/this.d
 	f2 = dcom/outro.d
-	return Fracao.simplificar(this.n*f1+outro.n*f2, dcom)
+	return Fracao.simplificar(this.n*f1+outro.n*f2, dcom, this.base)
 }
 Fracao.prototype.subtrair = function (outro) {
 	var dcom, f1, f2, retorno
@@ -55,15 +63,15 @@ Fracao.prototype.subtrair = function (outro) {
 		return this.getNum().subtrair(outro.getNum())
 	f1 = dcom/this.d
 	f2 = dcom/outro.d
-	return Fracao.simplificar(this.n*f1-outro.n*f2, dcom)
+	return Fracao.simplificar(this.n*f1-outro.n*f2, dcom, this.base)
 }
 Fracao.prototype.multiplicar = function (outro) {
-	return Fracao.simplificar(this.n*outro.n, this.d*outro.d)
+	return Fracao.simplificar(this.n*outro.n, this.d*outro.d, this.base)
 }
 Fracao.prototype.dividir = function (outro) {
 	if (this.getNum() == 0 && outro.getNum() == 0)
 		throw "0/0 é indefinido"
-	return Fracao.simplificar(this.n*outro.d, this.d*outro.n)
+	return Fracao.simplificar(this.n*outro.d, this.d*outro.n, this.base)
 }
 Fracao.prototype.modulo = function (outro) {
 	var temp = this.dividir(outro)
@@ -75,7 +83,7 @@ Fracao.prototype.atan2 = function (outro) {
 		if (outro.getNum() == 0)
 			throw "atan2(0, 0) é indefinido"
 		else
-			return new Fracao(0, 1)
+			return new Fracao(0, 1, this.base)
 	return this.getNum().atan2(outro.getNum())
 }
 Fracao.prototype.pow = function (outro) {
@@ -83,11 +91,11 @@ Fracao.prototype.pow = function (outro) {
 		if (outro.getNum() == 0)
 			throw "0^0 é indefinido"
 		else if (outro.getNum() > 0)
-			return new Fracao(0, 1)
+			return new Fracao(0, 1, this.base)
 		else
 			return Infinity
 	if (outro.getNum() == 0)
-		return new Fracao(1, 1)
+		return new Fracao(1, 1, this.base)
 	var intPow = function (x, f) {
 		var fatores, i, r, j
 		fatores = fatorar(x)
@@ -126,9 +134,9 @@ Fracao.prototype.pow = function (outro) {
 		else
 			return this.getNum().pow(outro.getNum())
 	if (tn < 0 && pot.d == 2)
-		return new Complexo(new Fracao(0, 1), new Fracao(-pn, pd))
+		return new Complexo(new Fracao(0, 1, this.base), new Fracao(-pn, pd, this.base))
 	else
-		return new Fracao(pn, pd)
+		return new Fracao(pn, pd, this.base)
 }
 Fracao.prototype.log = function (base) {
 	var tnum, bnum, ft, fb, i, r, sinalok
@@ -139,7 +147,7 @@ Fracao.prototype.log = function (base) {
 	if (tnum == 0)
 		return -Infinity
 	if (bnum == 0)
-		return 0
+		return new Fracao(0, 1, this.base)
 	if (tnum == 1 && bnum == 1)
 		return "0/0 é indefinido"
 	if (bnum == 1)
@@ -152,7 +160,7 @@ Fracao.prototype.log = function (base) {
 		if (!(i in fb))
 			return this.getNum().log(base.getNum())
 		if (r === null) {
-			r = Fracao.simplificar(ft[i], fb[i])
+			r = Fracao.simplificar(ft[i], fb[i], this.base)
 			if (r === null)
 				return this.getNum().log(base.getNum())
 			// Valida os valores do sinais
@@ -220,16 +228,16 @@ Fracao.prototype.ln = function () {
 	return this.getNum().ln()
 }
 Fracao.prototype.abs = function () {
-	return new Fracao(Math.abs(this.n), this.d)
+	return new Fracao(Math.abs(this.n), this.d, this.base)
 }
 Fracao.prototype.floor = function () {
-	return new Fracao(Math.floor(this.getNum()), 1)
+	return new Fracao(Math.floor(this.getNum()), 1, this.base)
 }
 Fracao.prototype.ceil = function () {
-	return new Fracao(Math.ceil(this.getNum()), 1)
+	return new Fracao(Math.ceil(this.getNum()), 1, this.base)
 }
 Fracao.prototype.round = function () {
-	return new Fracao(Math.round(this.getNum()), 1)
+	return new Fracao(Math.round(this.getNum()), 1, this.base)
 }
 Fracao.prototype.getNum = function () {
 	return this.n/this.d
@@ -247,7 +255,7 @@ Fracao.prototype.fatorar = function () {
 
 // Retorna um objeto simplificado para o numerador e denominador dados
 // Se não for representável como fração, retorna Number
-Fracao.simplificar = function (n, d) {
+Fracao.simplificar = function (n, d, base) {
 	var fcom
 	
 	if (!eIntSeguro(n) || !eIntSeguro(d) || d == 0)
@@ -257,7 +265,7 @@ Fracao.simplificar = function (n, d) {
 		throw "Fração inválida para simplificar"
 	
 	if (n == 0)
-		return new Fracao(0, 1)
+		return new Fracao(0, 1, base)
 	
 	fcom = mdc(n, d)
 	n /= fcom
@@ -268,7 +276,7 @@ Fracao.simplificar = function (n, d) {
 		d *= -1
 	}
 	
-	return new Fracao(n, d)
+	return new Fracao(n, d, base)
 }
 
 // Cria uma fração com base em fatores
@@ -288,7 +296,7 @@ Fracao.fromFatores = function (fatores) {
 }
 
 // Tenta transformar um valor em fração
-Fracao.toFracao = function (num) {
+Fracao.toFracao = function (num, base) {
 	var n, d
 	if (num instanceof Fracao)
 		return num
@@ -298,7 +306,7 @@ Fracao.toFracao = function (num) {
 		n *= 10
 		d *= 10
 	}
-	return Fracao.simplificar(n, d)
+	return Fracao.simplificar(n, d, base)
 }
 
 /*

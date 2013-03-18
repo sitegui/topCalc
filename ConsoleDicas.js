@@ -1,5 +1,7 @@
+"use strict";
+
 // Gerencia o mostrador de dicas
-ConsoleDicas = {}
+var ConsoleDicas = {}
 ConsoleDicas.div = document.getElementById("dicas")
 ConsoleDicas.div2 = document.getElementById("dicas2")
 ConsoleDicas.dicas = null
