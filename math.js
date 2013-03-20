@@ -13,7 +13,7 @@ Console.oninput = function (input) {
 				executar.logId = ""
 				r = executar(x)
 				Variavel.valores["ans"] = r
-				Console.echo(r)
+				Console.echo(r, true)
 			} catch (e) {
 				Console.echoErro(e)
 			}
@@ -345,7 +345,7 @@ function executar(expressao) {
 	var div, vars, debug
 	debug = _debug
 	if (debug) {
-		div = Console.echoInfo(executar.logId+expressao)
+		div = Console.echoInfo(executar.logId+expressao, true)
 		executar.logId += "\t"
 	}
 	vars = Array.isArray(arguments[1]) ? arguments[1] : []

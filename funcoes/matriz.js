@@ -13,7 +13,7 @@ Funcao.registrar("det", "det(m)\nRetorna o determinante de uma matriz quadrada",
 			return new Fracao(0, 1)
 		for (i=0; i<info.fatores.length; i++) {
 			if (i < info.fatores.length-1 && !eNumerico(info.fatores[i]))
-				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo")
+				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo", true)
 			if (i)
 				det = Funcao.executar("*", [det, info.fatores[i]])
 			else
@@ -63,7 +63,7 @@ Funcao.registrar("gauss", "gauss(m)\nAplica o método de eliminação de Gauss n
 			Console.echoInfo("Algoritmo abortado por falta de pivô não-nulo")
 		for (i=0; i<info.fatores.length; i++)
 			if (!eNumerico(info.fatores[i]))
-				Console.echoInfo("Assumindo "+info.fatores[i]+" não é nulo")
+				Console.echoInfo("Assumindo "+info.fatores[i]+" não é nulo", true)
 		return retorno
 	} else if (eDeterminado(m))
 		throw 0
@@ -99,7 +99,7 @@ Funcao.registrar("inverse", "inverse(m)\nRetorna a matriz quadrada m invertida",
 			throw 0
 		for (i=0; i<info.fatores.length; i++)
 			if (!eNumerico(info.fatores[i]))
-				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo")
+				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo", true)
 		return m.separar(-m.linhas)
 	} else if (eDeterminado(m))
 		throw 0

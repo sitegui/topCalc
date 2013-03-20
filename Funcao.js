@@ -130,7 +130,7 @@ Funcao.prototype.clonar = function () {
 
 // Retorna uma representação em forma de string
 Funcao.prototype.toString = function () {
-	var a, b, op, pre
+	var a, b, op, pre, nome2
 	var operadores = {
 		factorial: 0, "%": 0, // rtl
 		"!": 1, "+": 1, "-": 1 // ltr
@@ -155,17 +155,18 @@ Funcao.prototype.toString = function () {
 			return true
 		return x instanceof Funcao && x.nome in operadores2 && x.args.length == 2
 	}
+	nome2 = Console.escaparHTML(this.nome)
 	if (eOperador(this)) {
 		a = unbox(this.args[0])
 		if (operadores[this.nome] == 0) {
-			op = this.nome=="factorial" ? "!" : this.nome
+			op = this.nome=="factorial" ? "!" : nome2
 			if (eOperador2(a) || (eOperador(a) && operadores[a.nome] > 0))
 				return "("+a+")"+op
 			return String(a)+op
 		} else {
 			if (eOperador2(a))
-				return this.nome+"("+a+")"
-			return this.nome+a
+				return nome2+"("+a+")"
+			return nome2+a
 		}
 	}
 	if (eOperador2(this)) {
@@ -180,11 +181,13 @@ Funcao.prototype.toString = function () {
 			b = "("+b+")"
 		else
 			b = String(b)
+		if (this.nome == "_")
+			b = "<span class='unidade'>"+b+"</span>"
 		if (pre > 3)
-			return a+" "+this.nome+" "+b
-		return a+this.nome+b
+			return a+" "+nome2+" "+b
+		return a+nome2+b
 	}
-	return this.nome+"("+this.args.join(", ")+")"
+	return nome2+"("+this.args.join(", ")+")"
 }
 
 // Executa uma função

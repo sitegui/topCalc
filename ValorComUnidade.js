@@ -37,10 +37,12 @@ ValorComUnidade.prototype.clonar = function () {
 
 // Retorna a representação de string do objeto
 ValorComUnidade.prototype.toString = function () {
-	var valor = String(this.valor), op
+	var valor = String(this.valor), op, unidade = String(this.unidade)
 	op = valor.indexOf("+") != -1 || valor.indexOf("-") != -1 || valor.indexOf("/") != -1
 	valor = op ? "("+valor+")" : valor
-	return valor+"_"+this.unidade
+	if (unidade.indexOf("*") != -1 || unidade.indexOf("/") != -1)
+		unidade = "("+unidade+")"
+	return valor+"_<span class='unidade'>"+unidade+"</span>"
 }
 
 // Retorna o valor com unidade convertido para outra unidade

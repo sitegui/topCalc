@@ -12,5 +12,5 @@ Operador.prototype.clonar = function () {
 
 // Retorna como string
 Operador.prototype.toString = function () {
-	return this.valor
+	return Console.escaparHTML(this.valor)
 }

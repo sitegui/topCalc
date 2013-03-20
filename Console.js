@@ -7,10 +7,16 @@ var Console = {}
 var introInfo =
 "+-----------------------------------+\n"+
 "| Calculadora prática e inteligente |\n"+
-"|    Digite help para saber mais    |\n"+
-"|     Versão 1.5.2 - 20/03/2013     |\n"+
+"|    Digite @help@ para saber mais    |\n"+
+"|     Versão 1.5.3 - 20/03/2013     |\n"+
 "|       http://sitegui.com.br       |\n"+
 "+-----------------------------------+"
+
+// Executa um comando clicado
+function ir(a) {
+	ConsoleInput.input.textContent = a.textContent
+	ConsoleInput.executar()
+}
 
 // Armazena o histórico de comandos
 Console.historico = []
@@ -79,7 +85,7 @@ Console.carregarFuncoes = function () {
 		if (pos == includes.length) {
 			setTimeout(function () {
 				Console.limpar()
-				Console.echo(introInfo)
+				Console.echo(Console.escaparHTML(introInfo), true)
 			}, 1e3)
 			return
 		}
@@ -115,9 +121,12 @@ Console.limpar = function () {
 }
 
 // Adiciona uma mensagem de texto na tela
-Console.echo = function (str) {
+Console.echo = function (str, html) {
 	var div = document.createElement("div")
-	div.textContent = str
+	if (html)
+		div.innerHTML = str
+	else
+		div.textContent = str
 	Console.echoDiv(div)
 	return div
 }
@@ -125,26 +134,39 @@ Console.echoDiv = function (div) {
 	document.getElementById("historico").appendChild(div)
 	Console.focar()
 }
-Console.echoErro = function (str) {
+Console.echoErro = function (str, html) {
 	var div = document.createElement("div")
 	div.className = "console-erro"
-	div.textContent = str
+	if (html)
+		div.innerHTML = str
+	else
+		div.textContent = str
 	Console.echoDiv(div)
 	return div
 }
-Console.echoEntrada = function (str) {
+Console.echoEntrada = function (str, html) {
 	var div = document.createElement("div")
 	div.className = "console-entrada"
-	div.textContent = str
+	if (html)
+		div.innerHTML = str
+	else
+		div.textContent = str
 	Console.echoDiv(div)
 	return div
 }
-Console.echoInfo = function (str) {
+Console.echoInfo = function (str, html) {
 	var div = document.createElement("div")
 	div.className = "console-info"
-	div.textContent = str
+	if (html)
+		div.innerHTML = str
+	else
+		div.textContent = str
 	Console.echoDiv(div)
 	return div
+}
+Console.escaparHTML = function (str) {
+	str = str.replace(/&/g, "&amp;").replace(/</g, "&lt;")
+	return str.replace(/@([^@]+)@/g, "<a class='input' onclick='ir(this)'>$1</a>")
 }
 
 // Foca no campo de entrada do console

@@ -4,6 +4,18 @@
 var ConsoleInput = {}
 ConsoleInput.input = document.getElementById("input")
 
+// Executa o comando escrito atualmente no input
+ConsoleInput.executar = function () {
+	var content = ConsoleInput.input.textContent
+	Console.echoEntrada("> "+content)
+	Console.historico.push(content)
+	Console.pos = Console.historico.length
+	if (Console.oninput)
+		Console.oninput(content)
+	ConsoleInput.input.textContent = ""
+	ConsoleDicas.esconder()
+}
+
 ConsoleInput.input.addEventListener("keydown", function (evento) {
 	var content, intervalo
 	content = ConsoleInput.input.textContent
@@ -26,15 +38,8 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 		window.getSelection().addRange(range)
 	}
 	if (evento.keyCode == 13) {
-		if (content.length) {
-			Console.echoEntrada("> "+content)
-			Console.historico.push(content)
-			Console.pos = Console.historico.length
-			if (Console.oninput)
-				Console.oninput(content)
-			ConsoleInput.input.textContent = ""
-			ConsoleDicas.esconder()
-		}
+		if (content.length)
+			ConsoleInput.executar()
 		evento.preventDefault()
 	} else if (evento.keyCode == 38) {
 		if (Console.pos > 0) {

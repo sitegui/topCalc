@@ -9,13 +9,13 @@ Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou
 	if (variavel instanceof Variavel) {
 		valor = this.getVariavelDireto(variavel)
 		if (valor !== null) {
-			Console.echoInfo(valor)
+			Console.echoInfo(valor, true)
 			return new Expressao
 		}
 	} else if (variavel instanceof Funcao) {
 		valor = variavel.getDefinicao()
 		if (valor !== null) {
-			Console.echoInfo("Módulo "+Funcao.funcoes[variavel.nome].modulo+"\n"+valor)
+			Console.echoInfo("Módulo "+Funcao.funcoes[variavel.nome].modulo+"\n"+valor, true)
 			return new Expressao
 		}
 	} else if (eDeterminado(variavel))
@@ -59,82 +59,82 @@ Funcao.registrar("unset", "unset(x) ou unset(f()) ou unset(1_x)\nExclui uma vari
 // Exibe a ajuda
 var ajudaInfo = {
 "": "Essa é uma calculadora feita para ser rápida de se usar e bem ampla\n"+
-	"Basta digitar a expressão que deseja executar, como (1/8)^(-1/3)\n"+
-	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como x+x → 2x)\n"+
+	"Basta digitar a expressão que deseja executar, como @(1/8)^(-1/3)@\n"+
+	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como @x+x@ → 2x)\n"+
 	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n"+
-	"Para entrar em contato, use o comando feedback()\n\n"+
+	"Para entrar em contato, use o comando @feedback()@\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
-	"- numeros\n"+
-	"- operadores\n"+
-	"- variaveis\n"+
-	"- funcoes\n"+
-	"- expressoes\n"+
-	"- listas\n"+
-	"- vetores\n"+
-	"- matrizes\n"+
-	"- graficos\n"+
-	"- unidades",
+	"- @help(numeros)@\n"+
+	"- @help(operadores)@\n"+
+	"- @help(variaveis)@\n"+
+	"- @help(funcoes)@\n"+
+	"- @help(expressoes)@\n"+
+	"- @help(listas)@\n"+
+	"- @help(vetores)@\n"+
+	"- @help(matrizes)@\n"+
+	"- @help(graficos)@\n"+
+	"- @help(unidades)@",
 numeros: "Os valores numéricos são representados de 4 formas:\n"+
 	"- Fracao: um valor racional exato, com numerador e denominador inteiros\n"+
 	"- Number: um valor real aproximado, armazenado como double\n"+
 	"- BigNum: um valor real muito aproximado e capaz de representar números muito grandes\n"+
-	"- Infinity: representa o valor 'infinito' (real e complexo), como o obtido em 1/0\n"+
-	"- Complexo: um valor complexo na forma a+b*i (com a e b reais)\n"+
+	"- Infinity: representa o valor 'infinito' (real e complexo), como o obtido em @1/0@\n"+
+	"- Complexo: um valor complexo na forma @a+b*i@ (com a e b reais)\n"+
 	"Os números são encaixados em cada tipo automaticamente, como for melhor\n\n"+
 	"As formas de se escrever um número como entrada são:\n"+
-	"- double, exemplos: 2, 2.7, 1e100, .12e-7 Formalmente: \\d*(\\.\\d*)?(e[+-]?\\d+)?\n"+
-	"- inteiro hexadecimal, exemplo: 0x2F805B Formalmente: 0x[0-9a-f]+\n"+
-	"- inteiro binário, exemplo: 0b10101001 Formalmente: 0b[01]+\n"+
-	"- inteiro em outra base, exemplo: gui_36 Formalmente: [0-9a-z]+_\\d+",
+	"- double, exemplos: @2@, @2.7@, @1e100@, @.12e-7@ Formalmente: \\d*(\\.\\d*)?(e[+-]?\\d+)?\n"+
+	"- inteiro hexadecimal, exemplo: @0x2F805B@ Formalmente: 0x[0-9a-f]+\n"+
+	"- inteiro binário, exemplo: @0b10101001@ Formalmente: 0b[01]+\n"+
+	"- inteiro em outra base, exemplo: @gui_36@ Formalmente: [0-9a-z]+_\\d+",
 operadores: "Os operadores são internamente tratados como funções normais\n"+
 	"Os operadores disponíveis são:\n"+
-	"- aritméticos: a+b, a-b, a*b, a/b, a^b (elevado), a%b (resto da divisão), +n, -n\n"+
-	"- comparação: a<b, a>b, a<=b, a>=b, a==b, a!=b (diferente)\n"+
-	"- lógicos: !a (not), a&&b (e), a||b (ou)\n"+
-	"- outros: n! (fatorial), n% (porcentagem, v[n] (entrada do vetor), m[i, j] (entrada da matriz), a_b (aplicador de unidade)"+
-	"- atribuições: a=b, a+=b, a-=b, a*=b, a/=b, a%=b, a^=b, a&&=b, a||=b, a_=b",
-variaveis: "Variáveis são definidas na forma x=valor (como x=2 ou x=a+1)\n"+
-	"Algumas variáveis já existem por padrão, como pi, e, inf, i\n"+
-	"Para pegar o valor direto de uma variável, use get(x)\n"+
-	"Para remover uma variável, use unset(x)\n"+
-	"Para ver a lista de todas as variáveis definidas, use vars()",
-funcoes: "Funções podem ser definidas na forma f(x)=valor (como f(x)=x^2 ou g(a,b)=a!/b!)\n"+
-	"Várias funções já existem por padrão, como os operadores, sqrt(x), for(var,ini,fim,exp), num(valor)\n"+
-	"Para pegar a definição de uma função, use get(f())\n"+
-	"Para remover uma função, use unset(f())\n"+
-	"Para ver a lista de todas as funções definidas, use funcs()\n"+
+	"- aritméticos: @a+b@, @a-b@, @a*b@, @a/b@, @a^b@ (elevado), @a%b@ (resto da divisão), @+n@, @-n@\n"+
+	"- comparação: @a<b@, @a>b@, @a<=b@, @a>=b@, @a==b@, @a!=b@ (diferente)\n"+
+	"- lógicos: @!a@ (not), @a&&b@ (e), @a||b@ (ou)\n"+
+	"- outros: @n!@ (fatorial), @n%@ (porcentagem, @v[n]@ (entrada do vetor), @m[i, j]@ (entrada da matriz), @a_b@ (aplicador de unidade)\n"+
+	"- atribuições: @a=b@, @a+=b@, @a-=b@, @a*=b@, @a/=b@, @a%=b@, @a^=b@, @a&&=b@, @a||=b@, @a_=b@",
+variaveis: "Variáveis são definidas na forma @x=valor@ (como @x=2@ ou @x=a+1@)\n"+
+	"Algumas variáveis já existem por padrão, como @pi@, @e@, @inf@, @i@, etc\n"+
+	"Para pegar o valor direto de uma variável, use @get(x)@\n"+
+	"Para remover uma variável, use @unset(x)@\n"+
+	"Para ver a lista de todas as variáveis definidas, use @vars()@",
+funcoes: "Funções podem ser definidas na forma @f(x)=valor@ (como @f(x)=x^2@ ou @g(a,b)=a!/b!@)\n"+
+	"Várias funções já existem por padrão, como os operadores, @sqrt(x)@, @for(var,ini,fim,exp)@, @num(valor)@\n"+
+	"Para pegar a definição de uma função, use @get(f())@\n"+
+	"Para remover uma função, use @unset(f())@\n"+
+	"Para ver a lista de todas as funções definidas, use @funcs()@\n"+
 	"Na descrição da função, argumentos com um ' indicam que expressões puras serão tratadas de forma diferente",
 expressoes: "Uma expressão é um conjunto de números, variáveis, operadores e funções\n\n"+
 	"Uma expressão \"pura\" começa com uma aspas simples (') e indica que ela deve ser executada depois. Exemplos:\n"+
-	"for(i, 1, 3, rand(1, 6)) → {4, 4, 4}\nfor(i, 1, 3, 'rand(1, 6)) → {4, 5, 3}\n\n"+
-	"f(x) = {x, 2x}\nf(rand(1, 6)) → {2, 4}\nf('rand(1, 6)) → {1, 10}\n\n"+
-	"f(n) = if(n <= 1, 1, n*f(n-1)), g(n) = if(n <= 1, 1, 'n*g(n-1))\nf(5), g(5) → Erro, 120",
-listas: "Uma lista é escrita na forma {a, b, c} e pode ter quantos elementos desejar\n"+
+	"@for(i, 1, 3, rand(1, 6))@ → {4, 4, 4}\n@for(i, 1, 3, 'rand(1, 6))@ → {4, 5, 3}\n\n"+
+	"@f(x) = {x, 2x}@\n@f(rand(1, 6))@ → {2, 4}\n@f('rand(1, 6))@ → {1, 10}\n\n"+
+	"@g(n) = if(n <= 1, 1, n*g(n-1)), h(n) = if(n <= 1, 1, 'n*h(n-1))@\n@g(5), h(5)@ → Erro, 120",
+listas: "Uma lista é escrita na forma @{a, b, c}@ e pode ter quantos elementos desejar\n"+
 	"A grande maioria das funções e operadores distribuem sobre listas:\n"+
-	"{3, 14}+15 → {18, 29}\n"+
-	"{1, 2}+{3, 4} → {4, 6}\n"+
-	"Use lista[n] para acessar o nº termo da lista\n"+
-	"Use funcs(lista) para ver as funções especiais para listas",
-vetores: "Um vetor é escrito na forma [a, b, c] e pode ter quantas dimensões desejar\n"+
-	"Use vetor[n] para acessar o nº componente do vetor\n"+
-	"Use funcs(vetor) para ver as funções especiais para lidar com vetores",
-matrizes: "Uma matriz 3x3 é escrita na forma |a,b,c;d,e,f;g,h,i|\n"+
+	"@{3, 14}+15@ → {18, 29}\n"+
+	"@{1, 2}+{3, 4}@ → {4, 6}\n"+
+	"Use @lista[n]@ para acessar o nº termo da lista\n"+
+	"Use @funcs(lista)@ para ver as funções especiais para listas",
+vetores: "Um vetor é escrito na forma @[a, b, c]@ e pode ter quantas dimensões desejar\n"+
+	"Use @vetor[n]@ para acessar o nº componente do vetor\n"+
+	"Use @funcs(vetor)@ para ver as funções especiais para lidar com vetores",
+matrizes: "Uma matriz 3x3 é escrita na forma @|a,b,c;d,e,f;g,h,i|@\n"+
 	"Uma matriz não pode ser vazia (zero entradas)\n"+
-	"Use matriz[i, j] para obter a entrada na linha i e coluna j da matriz\n"+
-	"Use funcs(matriz) para ver as funções específicas para lidar com matrizes",
+	"Use @matriz[i, j]@ para obter a entrada na linha i e coluna j da matriz\n"+
+	"Use @funcs(matriz)@ para ver as funções específicas para lidar com matrizes",
 graficos: "Para plotar gráficos, use a função plot, exemplos:\n"+
-	"plot(x, -3, 5, x*sin(x^2))\n"+
-	"plot(x, -pi, pi, {sin(x), cos(x)})\n"+
-	"plot(t, -3, 3, {abs(asin(t)), arg(asin(t))})\n"+
-	"plot(x, -3, 2, x^x)\n"+
-	"animate(a, 1/10, 10, x, 0, pi, sin(x)^a)\n"+
-	"animate(a, 1, 10, x, -2, 2, for(i, 1, round(a^2), i*x))",
+	"@plot(x, -3, 5, x*sin(x^2))@\n"+
+	"@plot(x, -pi, pi, {sin(x), cos(x)})@\n"+
+	"@plot(t, -3, 3, {abs(asin(t)), arg(asin(t))})@\n"+
+	"@plot(x, -3, 2, x^x)@\n"+
+	"@animate(a, 1/10, 10, x, 0, pi, sin(x)^a)@\n"+
+	"@animate(a, 1, 10, x, -2, 2, for(i, 1, round(a^2), i*x))@",
 unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
-	"1_s, pi_rad, x_N*m, 17_kW/m^2\n"+
-	"O operador _ aplica e transforma unidades, por exemplo: 20_ºC_ºF = 68_ºF\n"+
-	"Para ver todas as unidades e prefixos disponíveis, use units()\n"+
-	"Você pode definir novas unidades, exemplo: 1_x = (17/27)_m\n"+
-	"Para excluir uma unidade, use unset(1_x)"
+	"@1_s@, @pi_rad@, @x_(N*m)@, @17_(kW/m^2)@\n"+
+	"O operador _ aplica e transforma unidades, por exemplo: @20_ºC_ºF@ → 68_ºF\n"+
+	"Para ver todas as unidades e prefixos disponíveis, use @units()@\n"+
+	"Você pode definir novas unidades, exemplo: @1_x = (17/27)_m@\n"+
+	"Para excluir uma unidade, use @unset(1_x)@"
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {
@@ -142,7 +142,7 @@ Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 		if (tema instanceof Variavel) {
 			if (tema.nome in ajudaInfo)
 				setTimeout(function () {
-					Console.echoInfo(ajudaInfo[tema.nome])
+					Console.echoInfo(Console.escaparHTML(ajudaInfo[tema.nome]), true)
 				}, 250)
 			else
 				throw 0
@@ -150,7 +150,7 @@ Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 			throw 0
 	} else
 		setTimeout(function () {
-			Console.echoInfo(ajudaInfo[""])
+			Console.echoInfo(Console.escaparHTML(ajudaInfo[""]), true)
 		}, 250)
 	return new Expressao
 }, false, true, true)

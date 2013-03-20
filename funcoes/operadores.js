@@ -76,7 +76,7 @@ Funcao.registrar("/", "a/b\nRetorna a razão entre dois valores", function (a, b
 			throw 0
 		for (i=0; i<info.fatores.length; i++)
 			if (!eNumerico(info.fatores[i]))
-				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo")
+				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo", true)
 		return a.multiplicar(b.separar(-b.linhas))
 	} else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
