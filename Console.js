@@ -8,7 +8,7 @@ var introInfo =
 "+-----------------------------------+\n"+
 "| Calculadora prática e inteligente |\n"+
 "|    Digite help para saber mais    |\n"+
-"|     Versão 1.5.1 - 18/03/2013     |\n"+
+"|     Versão 1.5.2 - 20/03/2013     |\n"+
 "|       http://sitegui.com.br       |\n"+
 "+-----------------------------------+"
 

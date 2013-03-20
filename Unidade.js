@@ -94,7 +94,6 @@ Unidade.unidades = {
 	mil: [{L: 1}, new Fracao(127, 5000000)],
 	Ao: [{L: 1}, new Fracao(1, 10000000000)],
 	// Área
-	b: [{L: 2}, 1e-28],
 	ha: [{L: 2}, new Fracao(10000, 1)],
 	a: [{L: 2}, new Fracao(100, 1)],
 	acre: [{L: 2}, new Fracao(316160658, 78125)],
@@ -131,6 +130,7 @@ Unidade.unidades = {
 	min: [{T: 1}, new Fracao(60, 1)],
 	h: [{T: 1}, new Fracao(3600, 1)],
 	d: [{T: 1}, new Fracao(86400, 1)],
+	mo: [{T: 1}, new Fracao(2629800, 1)],
 	yr: [{T: 1}, new Fracao(31557600, 1)],
 	// Frequência
 	rpm: [{T: -1}, new Fracao(1, 60)],
@@ -143,8 +143,8 @@ Unidade.unidades = {
 	cal: [{M: 1, L: 2, T: -2}, new Fracao(10467, 2500)],
 	eV: [{M: 1, L: 2, T: -2}, 1.60217733e-19],
 	// Informação
-	B: [{}, new Fracao(1, 1)]
-	
+	B: [{}, new Fracao(8, 1)],
+	b: [{}, new Fracao(1, 1)]
 }
 
 // Interpreta as unidades numa expressão
@@ -152,6 +152,8 @@ Unidade.unidades = {
 Unidade.interpretar = function (expressao) {
 	var arg0, arg1, r
 	expressao = unbox(expressao)
+	if (expressao instanceof Fracao && expressao.n == 1 && expressao.d == 1)
+		return new Unidade
 	if (expressao instanceof Funcao) {
 		// Executa *, / e ^
 		if (expressao.nome == "*" || expressao.nome == "/") {
@@ -248,7 +250,7 @@ Unidade.prototype.toString = function () {
 			else
 				r.push(j+i+"^"+exp)
 		}
-	return r.join("*")
+	return r.length ? r.join("*") : "1"
 }
 
 // Retorna se é identico à outra unidade

@@ -131,7 +131,7 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 	} else if (eDeterminado(a))
 		throw 0
 }, true)
-Funcao.registrar("=", "x='... ou f(x)='... ou {x,y}='... ou [x,y]='...\nDefine uma variável ou função", function (a, b) {
+Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='...\nDefine ou redefine uma variável, função ou unidade", function (a, b) {
 	var that = this
 	var definir = function (a, b) {
 		var retorno, i, len, params = [], unidades = {}, temp, funcao
@@ -139,6 +139,17 @@ Funcao.registrar("=", "x='... ou f(x)='... ou {x,y}='... ou [x,y]='...\nDefine u
 		if (a instanceof Variavel) {
 			retorno = that.executarPuroNoEscopo(b)
 			Variavel.valores[a.nome] = retorno
+		} else if (a instanceof Funcao && a.nome == "_") {
+			a.args[0] = unbox(a.args[0])
+			a.args[1] = unbox(a.args[1])
+			if (!(a.args[0] instanceof Fracao) || a.args[0].n != 1 || a.args[0].d != 1)
+				throw "O valor tem de ser 1"
+			if (!(a.args[1] instanceof Variavel))
+				throw "A unidade deve ser simples"
+			retorno = that.executarNoEscopo(b)
+			if (!(retorno instanceof ValorComUnidade))
+				throw "O valor deve ser associado a unidades"
+			Unidade.unidades[a.args[1].nome] = [retorno.unidade.getBases(), multiplicar(retorno.valor, retorno.unidade.getFator())]
 		} else if (a instanceof Funcao) {
 			len = a.args.length
 			

@@ -37,8 +37,9 @@ ValorComUnidade.prototype.clonar = function () {
 
 // Retorna a representação de string do objeto
 ValorComUnidade.prototype.toString = function () {
-	var valor = String(this.valor)
-	valor = valor.indexOf("+") != -1 || valor.indexOf("-", 1) != -1 ? "("+valor+")" : valor
+	var valor = String(this.valor), op
+	op = valor.indexOf("+") != -1 || valor.indexOf("-") != -1 || valor.indexOf("/") != -1
+	valor = op ? "("+valor+")" : valor
 	return valor+"_"+this.unidade
 }
 

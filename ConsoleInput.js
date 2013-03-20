@@ -12,7 +12,6 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 		evento.preventDefault()
 		return
 	}
-	intervalo = setTimeout(ConsoleInput.pintar, 100)
 	var focarUltimo = function () {
 		var range, el
 		el = ConsoleInput.input
@@ -45,6 +44,7 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 			focarUltimo()
 		}
 		evento.preventDefault()
+		return
 	} else if (evento.keyCode == 40) {
 		if (Console.pos < Console.historico.length) {
 			Console.pos++
@@ -53,7 +53,9 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 			focarUltimo()
 		}
 		evento.preventDefault()
+		return
 	}
+	intervalo = setTimeout(ConsoleInput.pintar, 100)
 })
 
 // Pinta parênteses, vetores e listas na entrada

@@ -178,7 +178,7 @@ function separar(str) {
 		} else if (partes = str.match(/^0b([01]+)$/i)) {
 			retorno = parseInt(partes[1], 2)
 			base = 2
-		} else if (partes = str.match(/^([0-9a-z]+)_(\d+)$/i)) {
+		} else if ((partes = str.match(/^([0-9a-z]+)_(\d+)$/i)) && partes[2] != "1") {
 			retorno = parseInt(partes[1], partes[2])
 			base = partes[2]
 		} else

@@ -35,10 +35,19 @@ Funcao.registrar("if", "if(oq, 'casoSim, 'casoNao)\nRetorna um valor ou outro de
 }, false, true)
 
 // Remove a definição de uma variável ou função
-Funcao.registrar("unset", "unset(x) ou unset(f())\nExclui uma variável ou função", function (variavel) {
+Funcao.registrar("unset", "unset(x) ou unset(f()) ou unset(1_x)\nExclui uma variável, função ou unidade", function (variavel) {
 	this.args[0] = variavel = unbox(variavel)
 	if (variavel instanceof Variavel) {
 		delete Variavel.valores[variavel.nome]
+		return new Expressao
+	} else if (variavel instanceof Funcao && variavel.nome == "_") {
+		variavel.args[0] = unbox(variavel.args[0])
+		variavel.args[1] = unbox(variavel.args[1])
+		if (!(variavel.args[0] instanceof Fracao) || variavel.args[0].n != 1 || variavel.args[0].d != 1)
+			throw 0
+		if (!(variavel.args[1] instanceof Variavel))
+			throw 0
+		delete Unidade.unidades[variavel.args[1].nome]
 		return new Expressao
 	} else if (variavel instanceof Funcao) {
 		delete Funcao.funcoes[variavel.nome]
@@ -123,7 +132,9 @@ graficos: "Para plotar gráficos, use a função plot, exemplos:\n"+
 unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
 	"1_s, pi_rad, x_N*m, 17_kW/m^2\n"+
 	"O operador _ aplica e transforma unidades, por exemplo: 20_ºC_ºF = 68_ºF\n"+
-	"Para ver todas as unidades e prefixos disponíveis, use units()"
+	"Para ver todas as unidades e prefixos disponíveis, use units()\n"+
+	"Você pode definir novas unidades, exemplo: 1_x = (17/27)_m\n"+
+	"Para excluir uma unidade, use unset(1_x)"
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {
