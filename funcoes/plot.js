@@ -64,6 +64,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 		that = this
 		quadros = 50
 		funcs = expressao instanceof Lista ? expressao.expressoes : [expressao]
+
 		antes = Variavel.backup(variavel)
 		datas = []
 		
@@ -125,28 +126,30 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 		throw 0
 }, false, true)
 
-Funcao.registrar("slider", "slider(varX, inicioX, fimX, 'expX, var1, min1, max1, ...)", function (varX, inicioX, fimX, expX) {
+Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, 'expX)\nPermite plotar um gráfico com um dado número de parâmetros visualmente ajustáveis. Variáveis não definidas serão adicionadas como parâmetros automaticamente", function () {
+	var varX, inicioX, fimX, expX, len
 	var vars, mins, maxs, varI, minI, maxI, i, numerico, div, valores, that, funcs
 	
 	// Carrega os argumentos
-	this.args[0] = varX = unbox(varX)
+	len = arguments.length
+	if (len < 4 || (len-4)%3 != 0)
+		throw 0
+	this.args[len-4] = varX = unbox(this.args[len-4])
 	if (!(varX instanceof Variavel))
 		throw 0
 	varX = varX.nome
-	this.args[1] = inicioX = this.executarNoEscopo(inicioX)
+	this.args[len-3] = inicioX = this.executarNoEscopo(this.args[len-3])
 	if (!eNumerico(inicioX) && eDeterminado(inicioX))
 		throw 0
-	this.args[2] = fimX = this.executarNoEscopo(fimX)
+	this.args[len-2] = fimX = this.executarNoEscopo(this.args[len-2])
 	if (!eNumerico(fimX) && eDeterminado(fimX))
-		throw 0
-	if (arguments.length < 4 || (arguments.length-4)%3 != 0)
 		throw 0
 	vars = []
 	mins = []
 	maxs = []
 	valores = []
 	that = this
-	for (i=4; i<arguments.length; i+=3) {
+	for (i=0; i<arguments.length-4; i+=3) {
 		varI = unbox(arguments[i])
 		if (!(varI instanceof Variavel))
 			throw 0
@@ -160,7 +163,7 @@ Funcao.registrar("slider", "slider(varX, inicioX, fimX, 'expX, var1, min1, max1,
 		mins.push(minI)
 		maxs.push(maxI)
 	}
-	this.args[3] = expX = unbox(this.executarPuroNoEscopo(expX, vars.concat(varX)))
+	this.args[len-1] = expX = unbox(this.executarPuroNoEscopo(this.args[len-1], vars.concat(varX)))
 	funcs = expX instanceof Lista ? expX.expressoes : [expX]
 	
 	var gerarOnChange = function (i) {
@@ -171,20 +174,43 @@ Funcao.registrar("slider", "slider(varX, inicioX, fimX, 'expX, var1, min1, max1,
 	}
 	
 	var desenhar = function () {
-		var backup, i
+		var backup, i, funcs2
 		backup = Variavel.backup(vars)
 		
 		for (i=0; i<vars.length; i++)
 			Variavel.valores[vars[i]] = valores[i]
 		
-		div.replaceChild(plot2canvas(that, varX, inicioX, fimX, funcs), div.lastChild)
+		funcs2 = funcs.map(function (x) {
+			return that.executarNoEscopo(x, [varX])
+		})
+		div.replaceChild(plot2canvas(that, varX, inicioX, fimX, funcs2), div.lastChild)
 		Variavel.restaurar(backup)
+	}
+	
+	// Percorre a expressão recursivamente, buscando por variáveis
+	var acharVars = function (exp) {
+		if (exp instanceof Expressao)
+			exp.elementos.forEach(acharVars)
+		else if (exp instanceof Parenteses || exp instanceof Lista || exp instanceof Vetor || exp instanceof Matriz)
+			exp.expressoes.forEach(acharVars)
+		else if (exp instanceof Funcao)
+			exp.args.forEach(acharVars)
+		else if (exp instanceof Variavel)
+			if (vars.indexOf(exp.nome) == -1 && exp.nome != varX) {
+				vars.push(exp.nome)
+				mins.push(-1)
+				maxs.push(1)
+			}
 	}
 	
 	numerico = mins.concat(maxs).every(eNumerico)
 	if (eNumerico(inicioX) && eNumerico(fimX) && numerico) {
 		inicioX = getNum(inicioX)
 		fimX = getNum(fimX)
+		
+		// Pega os parâmetros da própria expressão
+		funcs.forEach(acharVars)
+		
 		div = document.createElement("div")
 		Console.echoDiv(div)
 		for (i=0; i<vars.length; i++) {
@@ -208,7 +234,30 @@ Funcao.registrar("slider", "slider(varX, inicioX, fimX, 'expX, var1, min1, max1,
 // Gera uma div com um slider com o mínimo, máximo e valor inicial dados
 // onchange(valor) é uma função que será chamada quando o valor for alterado
 function gerarSlider(onde, nome, min, max, valor, onchange) {
-	var spanNome, spanValor, divBarra, divBotao, div, spanMin, spanMax, barra, meio, intervalo
+	var spanNome, spanValor, divBarra, divBotao, div, spanMin, spanMax, barra, intervalo
+	
+	// Posiciona o botão no local correto
+	var posicionarBotao = function () {
+		var meio, valor2
+		meio = divBotao.clientWidth/2
+		valor2 = Math.min(max, Math.max(min, valor))
+		if (valor2 != valor) {
+			lancarOnChange()
+			valor = valor2
+		}
+		divBotao.style.left = ((divBarra.clientWidth*(valor-min)/(max-min))-meio)+"px"
+	}
+	
+	// Executa a função de onchange
+	var lancarOnChange = function () {
+		spanValor.textContent = valor.toPrecision(3)
+		if (onchange) {
+			clearInterval(intervalo)
+			intervalo = setTimeout(function () {
+				onchange(valor)
+			}, 10)
+		}
+	}
 	
 	div = document.createElement("div")
 	div.className = "slider"
@@ -220,10 +269,30 @@ function gerarSlider(onde, nome, min, max, valor, onchange) {
 	spanMin = document.createElement("span")
 	spanMin.textContent = min
 	spanMin.className = "slider-min"
+	spanMin.onclick = function () {
+		var novo, num
+		novo = prompt("Definir valor mínimo", min)
+		num = Number(novo)
+		if (novo !== null && !isNaN(num)) {
+			min = num
+			spanMin.textContent = min
+			posicionarBotao()
+		}
+	}
 	
 	spanMax = document.createElement("span")
 	spanMax.textContent = max
 	spanMax.className = "slider-max"
+	spanMax.onclick = function () {
+		var novo, num
+		novo = prompt("Definir valor máximo", max)
+		num = Number(novo)
+		if (novo !== null && !isNaN(num)) {
+			max = num
+			spanMax.textContent = max
+			posicionarBotao()
+		}
+	}
 	
 	divBarra = document.createElement("div")
 	divBarra.className = "slider-barra"
@@ -233,20 +302,14 @@ function gerarSlider(onde, nome, min, max, valor, onchange) {
 		evento.preventDefault()
 	}
 	var onmousemove = function (evento) {
-		var x, botao, barra, meio, valor
+		var x, botao, barra, meio
 		botao = divBotao.getBoundingClientRect()
 		barra = divBarra.getBoundingClientRect()
 		meio = (botao.right-botao.left)/2
 		x = Math.min(Math.max(evento.clientX, barra.left), barra.right)-barra.left
 		divBotao.style.left = (x-meio)+"px"
 		valor = min+(max-min)*x/(barra.right-barra.left)
-		spanValor.textContent = valor.toPrecision(3)
-		if (onchange) {
-			clearInterval(intervalo)
-			intervalo = setTimeout(function () {
-				onchange(valor)
-			}, 10)
-		}
+		lancarOnChange()
 	}
 	var onmouseup = function (evento) {
 		window.removeEventListener("mousemove", onmousemove)
@@ -267,8 +330,7 @@ function gerarSlider(onde, nome, min, max, valor, onchange) {
 	divBarra.appendChild(divBotao)
 	div.appendChild(spanMax)
 	div.appendChild(spanValor)
-	meio = divBotao.clientWidth/2
-	divBotao.style.left = ((divBarra.clientWidth*(valor-min)/(max-min))-meio)+"px"
+	posicionarBotao()
 }
 
 // Plota uma array de expressões num canvas
@@ -278,7 +340,7 @@ function gerarSlider(onde, nome, min, max, valor, onchange) {
 // funcs é uma array de expressões matemáticas
 // Retorna um canvas com o desenho
 function plot2canvas(that, variavel, xMin, xMax, funcs) {
-	var passos, xss, yss, yMax, yMin, i, j, canvas, cntxt, w, h, dX, dY, valores, x, y
+	var passos, xss, yss, yMax, yMin, i, j, canvas, cntxt, w, h, dX, dY, valores, x, y, ticks
 	
 	// Calcula os valores para uma função
 	// Retorna [xs, ys, xsC, ysC, yMax, yMin]
@@ -399,6 +461,11 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		cntxt.lineTo(w, y)
 		cntxt.moveTo(w-5, y+5)
 		cntxt.lineTo(w, y)
+		ticks = Math.exp(Math.floor(Math.log(xMax-xMin)-2))
+		for (x=Math.ceil(xMin/ticks)*ticks; x<=xMax; x+=ticks) {
+			cntxt.moveTo((x-xMin)*w/(xMax-xMin), y-3)
+			cntxt.lineTo((x-xMin)*w/(xMax-xMin), y+3)
+		}
 		cntxt.stroke()
 	}
 	if (xMin<0 && xMax>0) {
@@ -410,6 +477,11 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		cntxt.lineTo(x, 0)
 		cntxt.moveTo(x+5, 5)
 		cntxt.lineTo(x, 0)
+		ticks = Math.exp(Math.floor(Math.log(yMax-yMin)-2))
+		for (y=Math.ceil(yMin/ticks)*ticks; y<=yMax; y+=ticks) {
+			cntxt.moveTo(x-3, (y-yMax)*h/(yMin-yMax))
+			cntxt.lineTo(x+3, (y-yMax)*h/(yMin-yMax))
+		}
 		cntxt.stroke()
 	}
 	

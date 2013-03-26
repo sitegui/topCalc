@@ -129,8 +129,8 @@ graficos: "Para plotar gráficos, use a função plot, exemplos:\n"+
 	"@plot(x, -3, 2, x^x)@\n\n"+
 	"Outras opções de gráficos (animados ou com parâmetros) são:\n"+
 	"@animate(a, 1/10, 10, x, 0, pi, sin(x)^a)@\n"+
-	"@animate(a, 1, 9, x, -2, 2, for(i, 1, round(a^2), i*x))@\n"+
-	"@slider(x, -5pi, 5pi, a*sin(x)+b*sin(2x), a, -2, 2, b, -2, 2)@",
+	"@animate(a, 1, 7, x, -2, 2, for(j, 1, round(a^2), j*(1-i)*x))@\n"+
+	"@slider(f, 1, 5, x, -3pi, 3pi, a*sin(x)+b*sin(f*x))@",
 unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
 	"@1_s@, @pi_rad@, @x_(N*m)@, @17_(kW/m^2)@\n"+
 	"O operador _ aplica e transforma unidades, por exemplo: @20_ºC_ºF@ → 68_ºF\n"+
