@@ -125,11 +125,151 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 		throw 0
 }, false, true)
 
+Funcao.registrar("slider", "slider(varX, inicioX, fimX, 'expX, var1, min1, max1, ...)", function (varX, inicioX, fimX, expX) {
+	var vars, mins, maxs, varI, minI, maxI, i, numerico, div, valores, that, funcs
+	
+	// Carrega os argumentos
+	this.args[0] = varX = unbox(varX)
+	if (!(varX instanceof Variavel))
+		throw 0
+	varX = varX.nome
+	this.args[1] = inicioX = this.executarNoEscopo(inicioX)
+	if (!eNumerico(inicioX) && eDeterminado(inicioX))
+		throw 0
+	this.args[2] = fimX = this.executarNoEscopo(fimX)
+	if (!eNumerico(fimX) && eDeterminado(fimX))
+		throw 0
+	if (arguments.length < 4 || (arguments.length-4)%3 != 0)
+		throw 0
+	vars = []
+	mins = []
+	maxs = []
+	valores = []
+	that = this
+	for (i=4; i<arguments.length; i+=3) {
+		varI = unbox(arguments[i])
+		if (!(varI instanceof Variavel))
+			throw 0
+		this.args[i+1] = minI = this.executarNoEscopo(arguments[i+1])
+		if (!eNumerico(minI) && eDeterminado(minI))
+			throw 0
+		this.args[i+2] = maxI = this.executarNoEscopo(arguments[i+2])
+		if (!eNumerico(maxI) && eDeterminado(maxI))
+			throw 0
+		vars.push(varI.nome)
+		mins.push(minI)
+		maxs.push(maxI)
+	}
+	this.args[3] = expX = unbox(this.executarPuroNoEscopo(expX, vars.concat(varX)))
+	funcs = expX instanceof Lista ? expX.expressoes : [expX]
+	
+	var gerarOnChange = function (i) {
+		return function (valor) {
+			valores[i] = valor
+			desenhar()
+		}
+	}
+	
+	var desenhar = function () {
+		var backup, i
+		backup = Variavel.backup(vars)
+		
+		for (i=0; i<vars.length; i++)
+			Variavel.valores[vars[i]] = valores[i]
+		
+		div.replaceChild(plot2canvas(that, varX, inicioX, fimX, funcs), div.lastChild)
+		Variavel.restaurar(backup)
+	}
+	
+	numerico = mins.concat(maxs).every(eNumerico)
+	if (eNumerico(inicioX) && eNumerico(fimX) && numerico) {
+		inicioX = getNum(inicioX)
+		fimX = getNum(fimX)
+		div = document.createElement("div")
+		Console.echoDiv(div)
+		for (i=0; i<vars.length; i++) {
+			mins[i] = getNum(mins[i])
+			maxs[i] = getNum(maxs[i])
+			valores.push(mins[i])
+			gerarSlider(div, vars[i], mins[i], maxs[i], valores[i], gerarOnChange(i))
+		}
+		div.appendChild(document.createElement("canvas"))
+		desenhar()
+		return new Expressao
+	}
+}, false, true, true)
+
 /*
 
 = Funções auxiliares =
 
 */
+
+// Gera uma div com um slider com o mínimo, máximo e valor inicial dados
+// onchange(valor) é uma função que será chamada quando o valor for alterado
+function gerarSlider(onde, nome, min, max, valor, onchange) {
+	var spanNome, spanValor, divBarra, divBotao, div, spanMin, spanMax, barra, meio, intervalo
+	
+	div = document.createElement("div")
+	div.className = "slider"
+	
+	spanNome = document.createElement("span")
+	spanNome.textContent = nome
+	spanNome.className = "slider-nome"
+	
+	spanMin = document.createElement("span")
+	spanMin.textContent = min
+	spanMin.className = "slider-min"
+	
+	spanMax = document.createElement("span")
+	spanMax.textContent = max
+	spanMax.className = "slider-max"
+	
+	divBarra = document.createElement("div")
+	divBarra.className = "slider-barra"
+	div.onmousedown = function (evento) {
+		window.addEventListener("mousemove", onmousemove)
+		window.addEventListener("mouseup", onmouseup)
+		evento.preventDefault()
+	}
+	var onmousemove = function (evento) {
+		var x, botao, barra, meio, valor
+		botao = divBotao.getBoundingClientRect()
+		barra = divBarra.getBoundingClientRect()
+		meio = (botao.right-botao.left)/2
+		x = Math.min(Math.max(evento.clientX, barra.left), barra.right)-barra.left
+		divBotao.style.left = (x-meio)+"px"
+		valor = min+(max-min)*x/(barra.right-barra.left)
+		spanValor.textContent = valor.toPrecision(3)
+		if (onchange) {
+			clearInterval(intervalo)
+			intervalo = setTimeout(function () {
+				onchange(valor)
+			}, 10)
+		}
+	}
+	var onmouseup = function (evento) {
+		window.removeEventListener("mousemove", onmousemove)
+		window.removeEventListener("mouseup", onmouseup)
+	}
+	
+	divBotao = document.createElement("div")
+	divBotao.className = "slider-botao"
+	
+	spanValor = document.createElement("span")
+	spanValor.textContent = valor
+	spanValor.className = "slider-valor"
+	
+	onde.appendChild(div)
+	div.appendChild(spanNome)
+	div.appendChild(spanMin)
+	div.appendChild(divBarra)
+	divBarra.appendChild(divBotao)
+	div.appendChild(spanMax)
+	div.appendChild(spanValor)
+	meio = divBotao.clientWidth/2
+	divBotao.style.left = ((divBarra.clientWidth*(valor-min)/(max-min))-meio)+"px"
+}
 
 // Plota uma array de expressões num canvas
 // that é o this dentro de uma função executada

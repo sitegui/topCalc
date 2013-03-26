@@ -126,9 +126,11 @@ graficos: "Para plotar gráficos, use a função plot, exemplos:\n"+
 	"@plot(x, -3, 5, x*sin(x^2))@\n"+
 	"@plot(x, -pi, pi, {sin(x), cos(x)})@\n"+
 	"@plot(t, -3, 3, {abs(asin(t)), arg(asin(t))})@\n"+
-	"@plot(x, -3, 2, x^x)@\n"+
+	"@plot(x, -3, 2, x^x)@\n\n"+
+	"Outras opções de gráficos (animados ou com parâmetros) são:\n"+
 	"@animate(a, 1/10, 10, x, 0, pi, sin(x)^a)@\n"+
-	"@animate(a, 1, 10, x, -2, 2, for(i, 1, round(a^2), i*x))@",
+	"@animate(a, 1, 9, x, -2, 2, for(i, 1, round(a^2), i*x))@\n"+
+	"@slider(x, -5pi, 5pi, a*sin(x)+b*sin(2x), a, -2, 2, b, -2, 2)@",
 unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
 	"@1_s@, @pi_rad@, @x_(N*m)@, @17_(kW/m^2)@\n"+
 	"O operador _ aplica e transforma unidades, por exemplo: @20_ºC_ºF@ → 68_ºF\n"+
