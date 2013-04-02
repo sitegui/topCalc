@@ -221,7 +221,7 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, '
 		}
 		div.appendChild(document.createElement("canvas"))
 		desenhar()
-		return new Expressao
+		return expX
 	}
 }, false, true, true)
 

@@ -83,9 +83,9 @@ ConsoleInput.pintar = function () {
 	pos = dados[2]
 	
 	// Verifica se está digitando um símbolo
-	simbolo = str.substr(0, pos).match(/[a-z][a-z0-9]*$/i)
+	simbolo = str.substr(0, pos).match(/([a-z][a-z0-9]*)\(?$/i)
 	if (simbolo && !str.substr(pos).match(/^[a-z0-9]+/i)) {
-		simbolo = simbolo[0]
+		simbolo = simbolo[1]
 		ConsoleInput.montarDicas(simbolo, pos)
 	} else
 		ConsoleDicas.esconder()

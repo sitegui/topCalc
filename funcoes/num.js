@@ -59,6 +59,13 @@ Funcao.registrar("abs", "abs(x)\nRetorna o módulo (ou norma) de x", function (x
 			throw 0
 	}, true)
 })
+Funcao.registrar("cis", "cis(x)\nRetorna cos(x)+i*sin(x)", function (x) {
+	var c, i, s
+	c = Funcao.executar("cos", [x])
+	i = new Complexo(new Fracao(0, 1), new Fracao(1, 1))
+	s = Funcao.executar("sin", [x])
+	return Funcao.executar("+", [c, Funcao.executar("*", [i, s])])
+}, true)
 Funcao.registrar("cosh", "cosh(x)\nRetorna o cosseno hiperbólico de x", function (x) {
 	var ex
 	if (eNumerico(x)) {

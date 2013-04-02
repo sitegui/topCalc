@@ -71,6 +71,30 @@ Funcao.fazerAceitarListas = function (funcaoBase) {
 
 // Gera uma função com base nos parâmetros e sua definição
 Funcao.gerar = function (params, unidades, definicao) {
+	var i
+	
+	// Muda os nomes dos parâmetros de "x" para "_x"
+	// Isso serve para evitar conflitos de escopo, como em:
+	// f(x)=x+1, slider(x, -5pi, 5pi, f(a*x))
+	var filtrar = function (exp) {
+		if (exp instanceof Vetor || exp instanceof Lista || exp instanceof Parenteses)
+			return new exp.constructor(exp.expressoes.map(filtrar))
+		else if (exp instanceof Matriz)
+			return new Matriz(exp.expressoes.map(filtrar), exp.colunas)
+		else if (exp instanceof Expressao)
+			return new Expressao(exp.elementos.map(filtrar))
+		else if (exp instanceof Funcao)
+			return new Funcao(exp.nome, exp.args.map(filtrar))
+		else if (exp instanceof Variavel && params.indexOf(exp.nome) != -1)
+			return new Variavel("_"+exp.nome)
+		else
+			return exp.clonar()
+	}
+	definicao = filtrar(definicao)
+	
+	for (i=0; i<params.length; i++)
+		params[i] = "_"+params[i]
+	
 	var retorno = function () {
 		var escopoPai, i, retorno
 		escopoPai = Variavel.backup(params)
