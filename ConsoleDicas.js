@@ -2,8 +2,14 @@
 
 // Gerencia o mostrador de dicas
 var ConsoleDicas = {}
+
+// Usado para mostrar a assinatura da função atualmente editada
+ConsoleDicas.preDiv = document.getElementById("preDicas")
+
+// A primeira div mostra as opções como dicas e a segunda mostra detalhes da opção selecionada
 ConsoleDicas.div = document.getElementById("dicas")
 ConsoleDicas.div2 = document.getElementById("dicas2")
+
 ConsoleDicas.dicas = null
 ConsoleDicas.pos = 0
 ConsoleDicas.inputPos = 0
@@ -11,6 +17,7 @@ ConsoleDicas.selecionado = false
 
 // Esconde as dicas
 ConsoleDicas.esconder = function () {
+	ConsoleDicas.preDiv.textContent = ""
 	ConsoleDicas.div.textContent = ""
 	ConsoleDicas.div2.textContent = ""
 	ConsoleDicas.dicas = null
@@ -38,6 +45,16 @@ ConsoleDicas.mostrar = function (dicas) {
 	}
 	ConsoleDicas.pos = 0
 	ConsoleDicas.selecionar(dicas.pos)
+}
+
+// Mostra a assinatura da função
+ConsoleDicas.mostrarFuncao = function (funcao) {
+	var funcao = Funcao.funcoes[funcao], pos
+	if (funcao) {
+		pos = funcao.definicao.indexOf("\n")
+		ConsoleDicas.preDiv.innerHTML = "&bull; "+(pos==-1 ? funcao.definicao : funcao.definicao.substr(0, pos))
+	} else
+		ConsoleDicas.preDiv.innerHTML = ""
 }
 
 // Ouvintes para controlar as dicas
@@ -85,6 +102,6 @@ ConsoleDicas.selecionar = function (pos) {
 	ConsoleDicas.div.childNodes[ConsoleDicas.pos].classList.remove("dica-destaque")
 	ConsoleDicas.div.childNodes[pos].classList.add("dica-destaque")
 	ConsoleDicas.pos = pos
-	ConsoleDicas.div2.textContent = dica[2] ? Funcao.funcoes[dica[0]].definicao : Variavel.valores[dica[0]]
+	ConsoleDicas.div2.innerHTML = dica[2] ? Funcao.funcoes[dica[0]].definicao : Variavel.valores[dica[0]]
 	Console.focar()
 }

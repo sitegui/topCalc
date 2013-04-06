@@ -12,7 +12,7 @@ ConsoleInput.executar = function () {
 	Console.pos = Console.historico.length
 	if (Console.oninput)
 		Console.oninput(content)
-	ConsoleInput.input.textContent = ""
+	ConsoleInput.input.innerHTML = "<span></span>"
 	ConsoleDicas.esconder()
 }
 
@@ -59,6 +59,9 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 		}
 		evento.preventDefault()
 		return
+	} else if (evento.keyCode == 9) {
+		evento.preventDefault()
+		return
 	}
 	intervalo = setTimeout(ConsoleInput.pintar, 100)
 })
@@ -66,7 +69,6 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 // Pinta parênteses, vetores e listas na entrada
 ConsoleInput.pintar = function () {
 	var dados, str, chars, pos, mapas, i, extremos, elementos, cache, j, selecNode, selecOff, range, simbolo
-	
 	var destacar = function (pos) {
 		var span = document.createElement("span")
 		span.className = "destaque"
@@ -83,19 +85,23 @@ ConsoleInput.pintar = function () {
 	pos = dados[2]
 	
 	// Verifica se está digitando um símbolo
-	simbolo = str.substr(0, pos).match(/([a-z][a-z0-9]*)\(?$/i)
+	simbolo = str.substr(0, pos).match(/[a-z][a-z0-9]*$/i)
 	if (simbolo && !str.substr(pos).match(/^[a-z0-9]+/i)) {
-		simbolo = simbolo[1]
+		simbolo = simbolo[0]
 		ConsoleInput.montarDicas(simbolo, pos)
 	} else
 		ConsoleDicas.esconder()
 	
 	// Destaca parênteses, chaves e colchetes
 	mapas = ConsoleInput.mapear(chars)
+	ConsoleDicas.preDiv.innerHTML = ""
 	for (i=0; i<3; i++) {
 		extremos = ConsoleInput.getExtremos(mapas[i], pos)
-		if (extremos[0])
+		if (extremos[0]) {
 			destacar(extremos[0])
+			if (i == 0 && (simbolo = str.substr(0, extremos[0]-1).match(/([a-z][a-z0-9]*)\s*$/i)))
+				ConsoleDicas.mostrarFuncao(simbolo[1])
+		}
 		if (extremos[1])
 			destacar(extremos[1])
 	}

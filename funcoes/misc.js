@@ -178,11 +178,11 @@ Funcao.registrar("funcs", "funcs() ou funcs(modulo)\nMostra uma lista de todas a
 		// Lista os módulos
 		itens = {}
 		for (i in Funcao.funcoes)
-			itens["- "+Funcao.funcoes[i].modulo] = true
+			itens["- @funcs("+Funcao.funcoes[i].modulo+")@"] = true
 		itens = Object.keys(itens)
 		setTimeout(function () {
 			Console.echoInfo("Para listar as funções de um dos módulos abaixo, use funcs(modulo):\n")
-			Console.echoInfo(itens.sort().join("\n"))
+			Console.echoInfo(Console.escaparHTML(itens.sort().join("\n")), true)
 		}, 250)
 	} else {
 		// Lista as funções do módulo
