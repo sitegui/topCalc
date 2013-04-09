@@ -60,7 +60,9 @@ Funcao.fazerAceitarListas = function (funcaoBase) {
 					else
 						args.push(arguments[j])
 				temp = funcaoBase.apply(this, args)
-				retorno.expressoes.push(temp===undefined ? new Funcao(this.nome, args) : temp)
+				temp = temp===undefined ? new Funcao(this.nome, args) : temp
+				if (!eExpressaoVazia(temp))
+					retorno.expressoes.push(temp)
 			}
 			return retorno
 		}
