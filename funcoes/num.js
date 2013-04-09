@@ -428,6 +428,33 @@ Funcao.registrar("toBase", "toBase(num, base)\nRetorna o número inteiro num esc
 		throw 0
 }, true)
 
+Funcao.registrar("setEpsilon", "setEpsilon(x)\nDefine o maior valor positivo que pode ser aproximado para zero", function (x) {
+	if (eNumerico(x)) {
+		_epsilon = toNumber(x)
+		return new Expressao
+	} else if (eDeterminado(x))
+		throw 0
+})
+
+Funcao.registrar("getEpsilon", "getEpsilon()\nRetorna o maior valor positivo que pode ser aproximado para zero", function () {
+	return _epsilon
+})
+
+Funcao.registrar("roundoff", "roundoff(x)\nRetorna o valor arredondado de x com base no epsilon definido", function (x) {
+	var r, exp, i
+	if (x instanceof Vetor || x instanceof Matriz) {
+		exp = x.expressoes
+		r = []
+		if (exp.every(eNumerico))
+			for (i=0; i<exp.length; i++)
+				r.push(multiplicar(_epsilon, round(dividir(exp[i], _epsilon))))
+		return x instanceof Vetor ? new Vetor(r) : new Matriz(r, x.colunas)
+	} else if (eNumerico(x)) {
+		return multiplicar(_epsilon, round(dividir(x, _epsilon)))
+	} else if (eDeterminado(x))
+		throw 0
+}, true)
+
 // Constantes
 Variavel.valores.e = Math.E
 Variavel.valores.ln2 = Math.LN2

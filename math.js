@@ -37,6 +37,9 @@ Object.defineProperty(Array.prototype, "clonar", {value: function () {
 // Liga ou desliga o debug
 var _debug = false
 
+// Define o menor erro aceitável (x < epsilon pode ser aproximado para 0)
+var _epsilon = 1e-7
+
 // Infla uma string, retorna um objeto Parenteses
 function inflar(str) {
 	var i, len, c, retorno, niveis, nivelAtual, novo, cache, salvarCache, matriz, posColuna, classe

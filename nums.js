@@ -107,16 +107,17 @@ function eInfinito(x) {
 }
 
 // Retorna se o valor dado é zero
-function eZero(x) {
+// Se aproximado for true (padrão: false), assume como zero Number menor que epsilon em módulo
+function eZero(x, aproximado) {
 	if (x instanceof Fracao)
 		return x.n==0
 	if (x instanceof BigNum)
 		return x.zero
 	if (x instanceof Complexo)
-		return eZero(x.a) && eZero(x.b)
+		return aproximado ? eZero(abs(x), true) : eZero(x.a) && eZero(x.b)
 	if (x instanceof ValorComUnidade)
 		return eZero(x.valor)
-	return x == 0
+	return aproximado ? Math.abs(x) < _epsilon : x == 0
 }
 
 // Retorna se o valor dado é um (em termos absolutos)

@@ -240,14 +240,15 @@ Matriz.prototype.fatorarLU = function () {
 
 // Recebe uma array de possíveis pivô e retorna o índice do melhor
 // Retorna null caso não tenha um pivô adequado
-// Caso o melhor pivô não seja numérico, assume ele como não nulo e mostra um aviso no console
+// Caso o melhor pivô não seja numérico, assume ele como não nulo
+// Um pivô é dito zero se for menor (em módulo) do que epsilon
 Matriz.escolherPivo = function (pivos) {
 	var i, melhor, melhorAbs, pivoAbs
 	melhor = null
 	
 	// Busca o maior (em módulo) pivô numérico não nulo
 	for (i=0; i<pivos.length; i++) {
-		if (eNumerico(pivos[i]) && !eZero(pivos[i])) {
+		if (eNumerico(pivos[i]) && !eZero(pivos[i], true)) {
 			pivoAbs = abs(pivos[i])
 			if (melhor === null || eIdentico(max(melhorAbs, pivoAbs), pivoAbs)) {
 				melhor = i
@@ -304,14 +305,6 @@ Matriz.prototype.separar = function (n) {
 	return new Matriz(retorno, nAbs)
 }
 
-function PQ(p, q) {
-	this.p = p
-	this.q = q
-}
-PQ.prototype.toString = function () {
-	return this.p+"/"+this.q
-}
-
 // Calcula os auto-valores da matriz, desde que seja quadrada e totalmente numérica
 Matriz.prototype.getAutovalores = function () {
 	var m, i, j, i2, o, t, p2, q2
@@ -325,7 +318,7 @@ Matriz.prototype.getAutovalores = function () {
 		m[i] = []
 		for (j=0; j<this.colunas; j++) {
 			t = this.get(i+1, j+1)
-			m[i][j] = new PQ(new Polinomio(i==j ? [t, -1] : [t]), new Polinomio([1]))
+			m[i][j] = {p: new Polinomio(i==j ? [t, -1] : [t]), q: new Polinomio([1])}
 		}
 	}
 	
@@ -337,11 +330,43 @@ Matriz.prototype.getAutovalores = function () {
 				t = t.subtrair(m[i][j].p.multiplicar(m[i2][i].p))
 				p2 = t.dividir(m[i2][i].q)
 				q2 = m[i][i].p
-				m[i2][j] = new PQ(p2, q2)
+				m[i2][j] = {p: p2, q: q2}
 			}
 		}
 	}
 	
 	// Pega o polinômio característico da matriz
 	return m[o-1][o-1].p.getRaizes()
+}
+
+// Código de teste
+setTimeout(function () {
+	var n, d, e = [], i
+	n = [9, 1, -1, -1, 7, 1, 1, 1, 1]
+	d = [4, 4, 2, 4, 4, 2, 2, 2, 1]
+	for (i=0; i<n.length; i++)
+		e.push(new Fracao(n[i], d[i]))
+	Variavel.valores.A = new Matriz(e, 3)
+	Funcao.registrar("kernel", "kernel(m)\nRetorna os vetores que compõe uma base para o núcleo de uma matriz numérica", function (m) {
+		if (m instanceof Matriz) {
+			if (!m.expressoes.every(eNumerico))
+				throw 0
+			return m.getNucleo()
+		} else if (eDeterminado(m))
+			throw 0
+	})
+	Variavel.valores.I = Funcao.executar("identity", [3])
+}, 1e3)
+
+// Retorna os vetores que compõe uma base para o núcleo de uma matriz numérica
+// Núcleo é definido como N(A) = {x | A*x = 0}
+Matriz.prototype.getNucleo = function () {
+	var m, r, info = {}
+	
+	// Aplica a eliminação de Gauss
+	m = this.eliminar(true, info)
+	
+	Console.echoErro(info.fatores)
+	
+	return m
 }

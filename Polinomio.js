@@ -65,14 +65,13 @@ Polinomio.prototype.derivarB = function () {
 // Calcula uma raiz do polinômio
 // Usa o método de Newton alterado para números complexos e retorna valores aproximados
 Polinomio.prototype.getRaiz = function () {
-	var a, b, i, fa, fb, ma, mb, a2, b2, limite
+	var a, b, i, fa, fb, ma, mb, a2, b2, r
 	
 	// Chutes iniciais
 	a = 1.7
 	b = 1.7
 	fa = this.derivarA()
 	fb = this.derivarB()
-	limite = 1e-15
 	
 	// Itera, obtendo valores mais próximos
 	for (i=0; i<100; i++) {
@@ -82,12 +81,13 @@ Polinomio.prototype.getRaiz = function () {
 		b = subtrair(b, dividir(this.avaliarAB(a, b), fb.avaliarAB(a, b)))
 		ma = abs(subtrair(a, a2))
 		mb = abs(subtrair(b, b2))
-		if (Math.min(ma, mb) < limite)
+		if (Math.max(ma, mb) < _epsilon)
 			break
 	}
 	
 	// Retorna o valor
-	return somar(a, multiplicar(b, new Complexo(0, 1)))
+	r = somar(a, multiplicar(b, new Complexo(0, 1)))
+	return multiplicar(_epsilon, round(dividir(r, _epsilon)))
 }
 
 // Retorna um polinômio com a raiz dada a menos (divide por x-a)
