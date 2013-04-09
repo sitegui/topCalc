@@ -20,7 +20,7 @@ Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou
 		}
 	} else if (eDeterminado(variavel))
 		throw 0
-}, false, true)
+}, true, true)
 
 Funcao.registrar("if", "if(oq, 'casoSim, 'casoNao)\nRetorna um valor ou outro dependendo da condição", function (oq, sim, nao) {
 	var r
@@ -54,7 +54,7 @@ Funcao.registrar("unset", "unset(x) ou unset(f()) ou unset(1_x)\nExclui uma vari
 		return new Expressao
 	} else if (eDeterminado(variavel))
 		throw 0
-}, false, true)
+}, true, true)
 
 // Exibe a ajuda
 var ajudaInfo = {

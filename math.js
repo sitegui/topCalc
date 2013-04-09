@@ -339,6 +339,11 @@ function ePuro(obj) {
 	return false
 }
 
+// Retorna se um dado objeto é uma expressão vazia
+function eExpressaoVazia(obj) {
+	return obj instanceof Expressao && obj.elementos.length == 0
+}
+
 // Executa um objeto matemático (sem alterar o argumento)
 // Retorna um outro objeto matemático (sem referências ao argumento)
 function executar(expressao) {
