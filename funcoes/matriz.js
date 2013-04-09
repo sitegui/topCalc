@@ -197,3 +197,14 @@ Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, 'exp)\nMonta u
 	} else if (eDeterminado(nLinhas) && eDeterminado(nColunas))
 		throw 0
 }, true, true)
+
+Funcao.registrar("eigenvalues", "eigenvalues(m)\nRetorna os autovalores complexos de uma matriz quadrada e numérica", function (m) {
+	if (m instanceof Matriz) {
+		if (m.linhas != m.colunas)
+			throw 0
+		if (!m.expressoes.every(eNumerico))
+			throw 0
+		return new Lista(m.getAutovalores())
+	} else if (eDeterminado(m))
+		throw 0
+}, true)

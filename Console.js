@@ -47,7 +47,8 @@ Console.carregarCore = function () {
 		"ConsoleInput", "ConsoleDicas", // Interface
 		"Fracao", "Number", "BigNum", "Complexo", "ValorComUnidade", "nums", // Objetos numéricos
 		"Variavel", "Expressao", "Operador", "Parenteses", "Lista", "Vetor", "Funcao", "Matriz", "Unidade", // Objetos core
-		"math" // Interpretador
+		"math", // Interpretador
+		"Polinomio"
 	]
 	iniciados = terminados = 0
 	carregar = function () {

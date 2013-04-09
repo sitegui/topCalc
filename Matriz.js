@@ -303,3 +303,45 @@ Matriz.prototype.separar = function (n) {
 			retorno.push(this.get(i, n>0 ? j : this.colunas+n+j))
 	return new Matriz(retorno, nAbs)
 }
+
+function PQ(p, q) {
+	this.p = p
+	this.q = q
+}
+PQ.prototype.toString = function () {
+	return this.p+"/"+this.q
+}
+
+// Calcula os auto-valores da matriz, desde que seja quadrada e totalmente numérica
+Matriz.prototype.getAutovalores = function () {
+	var m, i, j, i2, o, t, p2, q2
+	
+	// Transforma em uma matriz mais fácil de se trabalhar
+	// Também transforma os fatores em quocientes de polinômios
+	// Também já faz A-x*I (subtrair x dos elementos da diagonal)
+	m = []
+	o = this.linhas
+	for (i=0; i<this.linhas; i++) {
+		m[i] = []
+		for (j=0; j<this.colunas; j++) {
+			t = this.get(i+1, j+1)
+			m[i][j] = new PQ(new Polinomio(i==j ? [t, -1] : [t]), new Polinomio([1]))
+		}
+	}
+	
+	// Faz m[i2, j] -= m[i, j]*m[i2, i]/m[i, i]
+	for (i=0; i<o-1; i++) {
+		for (i2=i+1; i2<o; i2++) {
+			for (j=i+1; j<o; j++) {
+				t = m[i2][j].p.multiplicar(m[i][i].p)
+				t = t.subtrair(m[i][j].p.multiplicar(m[i2][i].p))
+				p2 = t.dividir(m[i2][i].q)
+				q2 = m[i][i].p
+				m[i2][j] = new PQ(p2, q2)
+			}
+		}
+	}
+	
+	// Pega o polinômio característico da matriz
+	return m[o-1][o-1].p.getRaizes()
+}
