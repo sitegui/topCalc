@@ -143,7 +143,8 @@ Matriz.prototype.diferente = function (outra) {
 // - fatores: fatores pelos quais as linhas foram divididas
 // - trocas: número de trocas de linhas
 // - sucesso: se a eliminação foi concluída completamente
-Matriz.prototype.eliminar = function (completo, info) {
+// Caso aproximado seja true (padrão: false), a eliminação é feita com base no epsilon
+Matriz.prototype.eliminar = function (completo, info, aproximado) {
 	var max, i, pivos, j, melhor, retorno, temp, fator, k
 	
 	max = Math.min(this.linhas, this.colunas)
@@ -158,7 +159,7 @@ Matriz.prototype.eliminar = function (completo, info) {
 		pivos = []
 		for (j=i; j<=max; j++)
 			pivos.push(retorno.get(j, i))
-		melhor = Matriz.escolherPivo(pivos)
+		melhor = Matriz.escolherPivo(pivos, aproximado)
 		if (melhor === null)
 			return retorno
 		
@@ -242,13 +243,14 @@ Matriz.prototype.fatorarLU = function () {
 // Retorna null caso não tenha um pivô adequado
 // Caso o melhor pivô não seja numérico, assume ele como não nulo
 // Um pivô é dito zero se for menor (em módulo) do que epsilon
-Matriz.escolherPivo = function (pivos) {
+// Caso aproximado seja true aproximada números de acordo com o epsilon definido
+Matriz.escolherPivo = function (pivos, aproximado) {
 	var i, melhor, melhorAbs, pivoAbs
 	melhor = null
 	
 	// Busca o maior (em módulo) pivô numérico não nulo
 	for (i=0; i<pivos.length; i++) {
-		if (eNumerico(pivos[i]) && !eZero(pivos[i], true)) {
+		if (eNumerico(pivos[i]) && !eZero(pivos[i], aproximado)) {
 			pivoAbs = abs(pivos[i])
 			if (melhor === null || eIdentico(max(melhorAbs, pivoAbs), pivoAbs)) {
 				melhor = i
@@ -350,23 +352,50 @@ setTimeout(function () {
 	Funcao.registrar("kernel", "kernel(m)\nRetorna os vetores que compõe uma base para o núcleo de uma matriz numérica", function (m) {
 		if (m instanceof Matriz) {
 			if (!m.expressoes.every(eNumerico))
-				throw 0
+				return
 			return m.getNucleo()
 		} else if (eDeterminado(m))
 			throw 0
 	})
 	Variavel.valores.I = Funcao.executar("identity", [3])
+	ConsoleInput.input.textContent = "{A1, A2, A3} = A-eigenvalues(A)*I"
 }, 1e3)
 
 // Retorna os vetores que compõe uma base para o núcleo de uma matriz numérica
 // Núcleo é definido como N(A) = {x | A*x = 0}
 Matriz.prototype.getNucleo = function () {
-	var m, r, info = {}
+	var m, r, info, i, j, indep, v, k
 	
-	// Aplica a eliminação de Gauss
-	m = this.eliminar(true, info)
+	// Aplica a eliminação de Gauss aproximada
+	info = {}
+	m = this.eliminar(true, info, true)
 	
-	Console.echoErro(info.fatores)
+	// Pega as colunas sem pivô
+	indep = []
+	for (i=j=1; j<=m.colunas && i<=m.linhas; j++) {
+		if (eUm(m.get(i, j)))
+			i++
+		else
+			indep.push(j)
+	}
+	for (; j<=m.colunas; j++)
+		indep.push(j)
 	
-	return m
+	// Monta os vetores básicos da resposta
+	r = []
+	for (i=0; i<indep.length; i++) {
+		v = []
+		k = 1
+		for (j=1; j<=m.colunas; j++) {
+			if (indep.indexOf(j) == -1)
+				v[j-1] = Funcao.executar("-", [m.get(k++, indep[i])])
+			else if (k == i+1)
+				v[j-1] = new Fracao(1, 1)
+			else
+				v[j-1] = new Fracao(0, 1)
+		}
+		r.push(new Vetor(v))
+	}
+	
+	return new Lista(r)
 }

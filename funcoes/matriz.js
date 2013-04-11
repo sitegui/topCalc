@@ -203,7 +203,7 @@ Funcao.registrar("eigenvalues", "eigenvalues(m)\nRetorna os autovalores complexo
 		if (m.linhas != m.colunas)
 			throw 0
 		if (!m.expressoes.every(eNumerico))
-			throw 0
+			return
 		return new Lista(m.getAutovalores())
 	} else if (eDeterminado(m))
 		throw 0

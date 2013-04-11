@@ -177,13 +177,3 @@ Polinomio.prototype.dividir = function (outro) {
 	
 	return new Polinomio(r)
 }
-
-// TODO: colocar num lugar melhor
-Funcao.registrar("roots", "roots(a0, a1, ...)", function () {
-	var p = new Polinomio([].slice.call(arguments, 0))
-	return new Lista(p.getRaizes())
-}, false, false, true)
-Funcao.registrar("pol", "pol(x, a0, a1, ...)", function (x) {
-	var p = new Polinomio([].slice.call(arguments, 1))
-	return p.avaliar(x)
-}, false, false, true)
