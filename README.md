@@ -1,20 +1,39 @@
-# Top!Calc
+# Top!Calc - func2var
+A ideia é transformar funções em variáveis e permitir operações mais dinâmicas com elas
 
-## Descrição
-Essa é uma calculadora simples de se usar, rápida e prática para operações mais complexas dos que uma calculadora comum suporta
+## Exemplos
+`f(x)=x, g(x)=x^2, (f+g)(f*g)(2)` retorna 72
+`f(x)=x+1, a(x)=x^2, g(n)=for(i,1,n,f+i), h(n)=g(n)(a), h(3)(14)` retorna {198, 199, 200}
 
-## Características
-* Opera com inteiros, frações, decimais, números muito grandes (ou pequenos), números complexos
-* Operações com lista, exemplo: 2^{1, 2, 3} = {2, 4, 8}
-* Operações com vetores, como [3,14]*[15,92] = 1333
-* Operações com matrizes, como inverter(|3,14,15;92,65,35;89,79,32|)
-* Uso de variáveis, como a=x+1
-* Funções criadas pelo usuário, exemplo: f(a,b)=a!/b!
-* Plotagem de gráficos de funções reais, como: plot(x, -3, 2, x^x)
-* Cálculos com unidades, como: sin(90_º)
+## Status
+Ainda não há nada implementado
+A sintaxe e o funcionamento estão no inicialmente pensados
 
-## Limitações
-Essa calculadora não é simbólica, ou seja, não consegue fazer operações e simplificações como x+x = 2x
+## Funcionamento
+As seguintes alterações na implementação atual devem ser feitas:
 
-## Exemplo em funcionamento
-Acesse http://sitegui.com.br/topCalc
+### Operador
+Deve ser criado um novo operador invisível (#, por exemplo), que representa casos como:
+`(f+g)(f*g)` -> `#(+(f, g), *(f, g))`
+Esse operador se comporta tanto como o executor de uma função como operador de multiplicação normal
+
+Se o primeiro argumento for determinado (número, vetor, matriz, etc) ele se transforma numa multiplicação
+Se não, ele executa o primeiro argumento, adicionando o segundo argumento na *cadeia de chamadas*
+
+### Cadeia de chamadas
+É uma informação a mais a ser carregada pelos escopos
+Atualmente o escopo é determinado somente pelas variáveis que devem ser ignoradas, ou seja, não transformadas para seu valor real
+A cadeia de chamadas seria a forma de propagar os argumentos da expressão mais exterior para as mais interiores
+Qualquer variável presente será chamada com essa cadeia
+
+Exemplo de cadeia de 1 elemento: `f(x)=(a+b)(a-b)(x)` -> `f(x)=a(a(x)-b(x))+b(a(x)-b(x))`
+Exemplo de cadeia de 2 elementos: `a(x)=x, b(x)=x*a, c(x)=x*b, d(x)=x*c, d(1)(2)(3)` retorna 1*2*3*a
+
+### Valor de uma variável
+Ao pegar o valor de uma variável, se a variável estiver na lista de ignoradas, ela será retornada intacta. Fim.
+
+Se for um valor determinado, retorna ele
+
+Se for uma função definida, executa a função com os dados no fim da cadeia de chamadas e os remove da cadeia
+
+Se for uma expressão, executa a expressão com as mesmas informações de escopo anteriores
