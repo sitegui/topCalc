@@ -129,7 +129,7 @@ Fracao.prototype.pow = function (outro) {
 	pn = intPow(tn, pot)
 	pd = intPow(td, pot)
 	if (pn === null || pd === null)
-		if (tn < 0 && pot.d%2 == 1)
+		if (tn < 0 && pot.n%2 == 1)
 			return subtrair(0, this.abs().getNum().pow(outro.getNum()))
 		else
 			return this.getNum().pow(outro.getNum())

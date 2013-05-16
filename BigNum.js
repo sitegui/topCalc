@@ -117,7 +117,7 @@ BigNum.prototype.pow = function (outro) {
 		else
 			return BigNum.zero()
 	if (this.negativo)
-		return toComplexo(Number(this)).pow(toComplexo(outro))
+		return toComplexo(this).pow(toComplexo(outro))
 	return this.log10().multiplicar(outro).pow10()
 }
 BigNum.prototype.log = function (base) {
