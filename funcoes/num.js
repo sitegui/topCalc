@@ -3,6 +3,7 @@
 // Funções para lidar com números
 
 Funcao.registrar("random", "random()\nRetorna um valor pseudo-aleatório 0 <= x < 1", Math.random)
+
 Funcao.registrar("rand", "rand(min, max)\nRetorna um valor pseudo-aleatório inteiro min <= x <= max", function (a, b) {
 	if (eNumerico(a) && eNumerico(b)) {
 		a = getNum(a)
@@ -13,6 +14,7 @@ Funcao.registrar("rand", "rand(min, max)\nRetorna um valor pseudo-aleatório int
 	} else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 })
+
 Funcao.registrar("q", "q(x)\nRetorna, se possível, o formato exato do número em forma de fração", function (x) {
 	var toFracao = function (x) {
 		if (x instanceof Fracao || x instanceof BigNum)
@@ -29,12 +31,14 @@ Funcao.registrar("q", "q(x)\nRetorna, se possível, o formato exato do número e
 	else if (eDeterminado(x))
 		throw 0
 }, true)
+
 Funcao.registrar("sqrt", "sqrt(x)\nRetorna x^(1/2)", function (x) {
 	if (eNumerico(x))
 		return pow(x, new Fracao(1, 2))
 	else if (eDeterminado(x))
 		throw 0
 }, true)
+
 Funcao.registrar("abs", "abs(x)\nRetorna o módulo (ou norma) de x", function (x) {
 	if (eNumerico(x))
 		return abs(x)
@@ -43,6 +47,7 @@ Funcao.registrar("abs", "abs(x)\nRetorna o módulo (ou norma) de x", function (x
 	else if (eDeterminado(x))
 		throw 0
 }, true)
+
 ;["acos", "asin", "atan", "cos", "sin", "tan", "exp", "floor", "ceil", "round", "ln"].forEach(function (x) {
 	Funcao.registrar(x, x+"(x)\nRetorna Math."+x+"(x)", function (y) {
 		if (eNumerico(y))
@@ -51,7 +56,8 @@ Funcao.registrar("abs", "abs(x)\nRetorna o módulo (ou norma) de x", function (x
 			throw 0
 	}, true)
 })
-;["atan2", "pow", "log"].forEach(function (x) {
+
+;["atan2", "pow"].forEach(function (x) {
 	Funcao.registrar(x, x+"(a, b)\nRetorna Math."+x+"(a, b)", function (y, z) {
 		if (eNumerico(y) && eNumerico(z))
 			return window[x](y, z)
@@ -59,6 +65,21 @@ Funcao.registrar("abs", "abs(x)\nRetorna o módulo (ou norma) de x", function (x
 			throw 0
 	}, true)
 })
+
+Funcao.registrar("log", "log(num, base)\nRetorna o log de num na base indicada", function (num, base) {
+	if (eNumerico(num) && eNumerico(base))
+			return log(num, base)
+		else if (eDeterminado(num) && eDeterminado(base))
+			throw 0
+}, true)
+
+Funcao.registrar("log10", "log10(num)\nRetorna o log de num na base 10", function (num) {
+	if (eNumerico(num))
+			return log(num, new Fracao(10, 1))
+		else if (eDeterminado(num))
+			throw 0
+}, true)
+
 Funcao.registrar("cis", "cis(x)\nRetorna cos(x)+i*sin(x)", function (x) {
 	var c, i, s
 	c = Funcao.executar("cos", [x])
@@ -66,6 +87,7 @@ Funcao.registrar("cis", "cis(x)\nRetorna cos(x)+i*sin(x)", function (x) {
 	s = Funcao.executar("sin", [x])
 	return Funcao.executar("+", [c, Funcao.executar("*", [i, s])])
 }, true)
+
 Funcao.registrar("cosh", "cosh(x)\nRetorna o cosseno hiperbólico de x", function (x) {
 	var ex
 	if (eNumerico(x)) {
@@ -74,6 +96,7 @@ Funcao.registrar("cosh", "cosh(x)\nRetorna o cosseno hiperbólico de x", functio
 	} else if (eDeterminado(x))
 		throw 0
 }, true)
+
 Funcao.registrar("sinh", "sinh(x)\nRetorna o seno hiperbólico de x", function (x) {
 	var ex
 	if (eNumerico(x)) {
@@ -82,6 +105,7 @@ Funcao.registrar("sinh", "sinh(x)\nRetorna o seno hiperbólico de x", function (
 	} else if (eDeterminado(x))
 		throw 0
 }, true)
+
 Funcao.registrar("tanh", "tanh(x)\nRetorna a tangente hiperbólico de x", function (x) {
 	var e2x
 	if (eNumerico(x)) {
@@ -90,6 +114,7 @@ Funcao.registrar("tanh", "tanh(x)\nRetorna a tangente hiperbólico de x", functi
 	} else if (eDeterminado(x))
 		throw 0
 }, true)
+
 Funcao.registrar("acosh", "acosh(x)\nRetorna o arco cosseno hiperbólico de x", function (x) {
 	var a, b
 	if (eNumerico(x)) {
@@ -99,6 +124,7 @@ Funcao.registrar("acosh", "acosh(x)\nRetorna o arco cosseno hiperbólico de x", 
 	} else if (eDeterminado(x))
 		throw 0
 }, true)
+
 Funcao.registrar("asinh", "asinh(x)\nRetorna o arco sino hiperbólico de x", function (x) {
 	var a
 	if (eNumerico(x)) {
@@ -107,6 +133,7 @@ Funcao.registrar("asinh", "asinh(x)\nRetorna o arco sino hiperbólico de x", fun
 	} else if (eDeterminado(x))
 		throw 0
 }, true)
+
 Funcao.registrar("atanh", "atanh(x)\nRetorna o arco tangente hiperbólico de x", function (x) {
 	var a, b
 	if (eNumerico(x)) {
@@ -116,6 +143,7 @@ Funcao.registrar("atanh", "atanh(x)\nRetorna o arco tangente hiperbólico de x",
 	} else if (eDeterminado(x))
 		throw 0
 }, true)
+
 Funcao.registrar("max", "max(n1, n2, ...)\nRetorna o maior valor dentre os argumentos", function () {
 	var args, numerico, determinado, i, r
 	args = Funcao.getFlatArgs(arguments)
@@ -137,6 +165,7 @@ Funcao.registrar("max", "max(n1, n2, ...)\nRetorna o maior valor dentre os argum
 			throw 0
 	}
 }, false, false, true)
+
 Funcao.registrar("min", "min(n1, n2, ...)\nRetorna o menor valor dentre os argumentos", function () {
 	var args, numerico, determinado, i, r
 	args = Funcao.getFlatArgs(arguments)
@@ -158,6 +187,7 @@ Funcao.registrar("min", "min(n1, n2, ...)\nRetorna o menor valor dentre os argum
 			throw 0
 	}
 }, false, false, true)
+
 Funcao.registrar("num", "num(x)\nRetorna o valor numérico de x", function (x) {
 	if (eNumerico(x)) {
 		if (x instanceof Complexo)

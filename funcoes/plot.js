@@ -340,7 +340,7 @@ function gerarSlider(onde, nome, min, max, valor, onchange) {
 // funcs é uma array de expressões matemáticas
 // Retorna um canvas com o desenho
 function plot2canvas(that, variavel, xMin, xMax, funcs) {
-	var passos, xss, yss, yMax, yMin, i, j, canvas, cntxt, w, h, dX, dY, valores, x, y, ticks
+	var passos, xss, yss, yMax, yMin, i, j, canvas, cntxt, w, h, dX, dY, valores, x, y, ticks, debug
 	
 	// Calcula os valores para uma função
 	// Retorna [xs, ys, xsC, ysC, yMax, yMin]
@@ -354,27 +354,33 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		complexo = false
 		
 		// Executa a expressão para cada valor de x e salva os resultados
+		debug = _debug
+		_debug = false
 		for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
 			Variavel.valores[variavel] = x
-			y = that.executarNoEscopo(exp)
-			if (eNumerico(y)) {
-				if (y instanceof Complexo) {
-					xsC.push(x)
-					ysC.push(getNum(y.b))
-					y = y.a
-					complexo = true
-				} else {
-					xsC.push(x)
-					ysC.push(0)
+			try {
+				y = that.executarNoEscopo(exp)
+				if (eNumerico(y)) {
+					if (y instanceof Complexo) {
+						xsC.push(x)
+						ysC.push(getNum(y.b))
+						y = y.a
+						complexo = true
+					} else {
+						xsC.push(x)
+						ysC.push(0)
+					}
+					xs.push(x)
+					ys.push(getNum(y))
 				}
-				xs.push(x)
-				ys.push(getNum(y))
+			} catch (e) {
 			}
 		}
 		if (!complexo) {
 			xsC = []
 			ysC = []
 		}
+		_debug = debug
 		Variavel.restaurar(antes)
 		
 		// Escolhe a escala vertical
