@@ -201,14 +201,51 @@ Funcao.registrar("funcs", "funcs() ou funcs(modulo)\nMostra uma lista de todas a
 	return new Expressao
 }, false, true, true)
 
-// Liga ou desliga o debug
-Funcao.registrar("debug", "debug(estado)\nLiga ou desliga informações de debug", function (estado) {
-	if (eNumerico(estado)) {
-		_debug = !eZero(estado)
-		Console.echoInfo("Debug "+(_debug ? "ligado" : "desligado"))
+Funcao.registrar("setConfig", "setConfig(nome, valor)\nDefine um novo valor para uma configuração. Para saber a lista de configurações disponíveis, use configs()", function (nome, valor) {
+	nome = unbox(nome)
+	valor = this.executarNoEscopo(valor)
+	if (nome instanceof Variavel) {
+		nome = nome.nome
+		Config.set(nome, valor)
 		return new Expressao
-	} else if (eDeterminado(estado))
+	} else if (eDeterminado(nome))
 		throw 0
+}, false, true)
+
+Funcao.registrar("getConfig", "getConfig(nome)\nMostra o valor atual de uma configuração. Para saber a lista de configurações disponíveis, use configs()", function (nome) {
+	var valor
+	nome = unbox(nome)
+	if (nome instanceof Variavel) {
+		nome = nome.nome
+		valor = Config.get(nome)
+		if (valor === undefined)
+			Console.echoErro("Configuração "+nome+" não existe")
+		else
+			Console.echo(valor)
+		return new Expressao
+	} else if (eDeterminado(nome))
+		throw 0
+}, false, true)
+
+Funcao.registrar("resetConfig", "resetConfig(nome)\nVolta a configuração ao seu valor inicial. Para saber a lista de configurações disponíveis, use configs()", function (nome) {
+	nome = unbox(nome)
+	if (nome instanceof Variavel) {
+		nome = nome.nome
+		Config.reset(nome)
+		return new Expressao
+	} else if (eDeterminado(nome))
+		throw 0
+}, false, true)
+
+Funcao.registrar("configs", "configs()\nMostra todas configurações disponíveis, bem como seus valores atuais", function () {
+	var configs, i
+	configs = []
+	for (i in Config.configs) {
+		configs.push("- "+i+" = "+Config.configs[i].valor+"\n\t"+Config.configs[i].descricao)
+	}
+	configs.sort()
+	Console.echo(configs.join("\n"))
+	return new Expressao
 })
 
 // Limpa o console

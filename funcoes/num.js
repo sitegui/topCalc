@@ -520,6 +520,10 @@ Variavel.valores.i = new Complexo(new Fracao(0, 1), new Fracao(1, 1))
 Variavel.valores["false"] = new Fracao(0, 1)
 Variavel.valores["true"] = new Fracao(1, 1)
 
+Variavel.valores["I"] = new Vetor([new Fracao(1, 1), new Fracao(0, 1), new Fracao(0, 1)])
+Variavel.valores["J"] = new Vetor([new Fracao(0, 1), new Fracao(1, 1), new Fracao(0, 1)])
+Variavel.valores["K"] = new Vetor([new Fracao(0, 1), new Fracao(0, 1), new Fracao(1, 1)])
+
 /*
 
 = Funções de apoio =

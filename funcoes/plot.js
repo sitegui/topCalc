@@ -225,6 +225,114 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, '
 	}
 }, false, true, true)
 
+Funcao.registrar("listPlot", "listPlot(A1, A2, ...)\nPlota os valores de uma ou mais listas de valores", function () {
+	var canvas, w, h, yMin, yMax, cntxt, yss, i, ys, ysC, lista, j, valor, nX, complexo, valor2, x, y, div
+	
+	// Extrai os valores para o vetor yss
+	yss = []
+	nX = 0
+	yMin = yMax = 0
+	for (i=0; i<arguments.length; i++) {
+		lista = arguments[i]
+		if (lista instanceof Lista) {
+			ys = []
+			ys.real = true
+			ys.i = i
+			ysC = []
+			ysC.real = false
+			ysC.i = i
+			complexo = false
+			for (j=0; j<lista.expressoes.length; j++) {
+				valor = lista.expressoes[j]
+				if (eNumerico(valor)) {
+					if (valor instanceof Complexo) {
+						valor2 = getNum(valor.b)
+						yMin = Math.min(yMin, valor2)
+						yMax = Math.max(yMax, valor2)
+						ysC.push(valor2)
+						valor = valor.a
+						complexo = true
+					} else
+						ysC.push(0)
+					valor2 = getNum(valor)
+					ys.push(valor2)
+					yMin = Math.min(yMin, valor2)
+					yMax = Math.max(yMax, valor2)
+				} else if (!eDeterminado(valor))
+					return
+				else
+					throw 0
+			}
+			yss.push(ys)
+			if (complexo)
+				yss.push(ysC)
+			nX = Math.max(nX, ys.length)
+		} else if (!eDeterminado(lista))
+			return
+		else
+			throw 0
+	}
+	
+	// Cria o canvas
+	canvas = document.createElement("canvas")
+	w = canvas.width = 4*Math.round(document.body.clientWidth/8)
+	h = canvas.height = 9*w/16
+	
+	// Desenha o fundo
+	cntxt = canvas.getContext("2d")
+	cntxt.fillStyle = "black"
+	cntxt.fillRect(0, 0, w, h)
+	
+	// Desenha os eixos
+	cntxt.strokeStyle = "white"
+	cntxt.lineWidth = 1
+	cntxt.beginPath()
+	y = .05*h+.9*h*yMax/(yMax-yMin)
+	cntxt.moveTo(0, y)
+	cntxt.lineTo(w, y)
+	cntxt.moveTo(w-5, y-5)
+	cntxt.lineTo(w, y)
+	cntxt.moveTo(w-5, y+5)
+	cntxt.lineTo(w, y)
+	cntxt.stroke()
+	cntxt.beginPath()
+	x = .05*w
+	cntxt.moveTo(x, h)
+	cntxt.lineTo(x, 0)
+	cntxt.moveTo(x-5, 5)
+	cntxt.lineTo(x, 0)
+	cntxt.moveTo(x+5, 5)
+	cntxt.lineTo(x, 0)
+	cntxt.stroke()
+	
+	// Desenha a curva
+	cntxt.lineWidth = 3
+	for (i=0; i<yss.length; i++) {
+		if (yss[i].real)
+			cntxt.strokeStyle = "rgba(255,255,255,"+(1-yss[i].i/arguments.length)+")"
+		else
+			cntxt.strokeStyle = "rgba(255,0,0,"+(1-yss[i].i/arguments.length)+")"
+		cntxt.beginPath()
+		for (j=0; j<yss[i].length; j++) {
+			x = .05*w+.9*w*(j+1)/(nX+1)
+			y = .05*h+.9*h*(yMax-yss[i][j])/(yMax-yMin)
+			if (Math.abs(x) == Infinity || Math.abs(y) == Infinity)
+				continue
+			if (j)
+				cntxt.lineTo(x, y)
+			else
+				cntxt.moveTo(x, y)
+		}
+		cntxt.stroke()
+	}
+	
+	// Mostra na tela
+	div = document.createElement("div")
+	div.appendChild(canvas)
+	Console.echoDiv(div)
+	return new Expressao()
+}, false, false, true)
+
 /*
 
 = Funções auxiliares =
@@ -354,8 +462,8 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		complexo = false
 		
 		// Executa a expressão para cada valor de x e salva os resultados
-		debug = _debug
-		_debug = false
+		debug = Console.get("debug")
+		Console.set("debug", false, true)
 		for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
 			Variavel.valores[variavel] = x
 			try {
@@ -380,7 +488,7 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 			xsC = []
 			ysC = []
 		}
-		_debug = debug
+		Console.set("debug", debug, true)
 		Variavel.restaurar(antes)
 		
 		// Escolhe a escala vertical

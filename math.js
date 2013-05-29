@@ -18,7 +18,7 @@ Console.oninput = function (input) {
 				Console.echoErro(e)
 			}
 			fim = Date.now()
-			if (_debug)
+			if (Config.get("debug"))
 				Console.echoInfo("Executado em "+(fim-inicio)+" ms")
 		})
 	} catch (e) {
@@ -34,8 +34,13 @@ Object.defineProperty(Array.prototype, "clonar", {value: function () {
 	return this.slice(0)
 }})
 
-// Liga ou desliga o debug
-var _debug = false
+// Define a configuração de ativação do debug
+Config.registrar("debug", "Define se a execução está no modo debug", false, function (x) {
+	if (eNumerico(x)) {
+		return !eZero(x)
+	} else if (eDeterminado(x))
+		throw 0
+})
 
 // Infla uma string, retorna um objeto Parenteses
 function inflar(str) {
@@ -348,7 +353,7 @@ function eExpressaoVazia(obj) {
 // Retorna um outro objeto matemático (sem referências ao argumento)
 function executar(expressao) {
 	var div, vars, debug
-	debug = _debug
+	debug = Config.get("debug")
 	if (debug) {
 		div = Console.echoInfo(executar.logId+expressao, true)
 		executar.logId += "\t"

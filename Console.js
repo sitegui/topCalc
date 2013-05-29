@@ -44,7 +44,7 @@ Console.carregarCore = function () {
 	var includes, iniciados, terminados, carregar
 	
 	includes = [
-		"ConsoleInput", "ConsoleDicas", // Interface
+		"Config", "ConsoleInput", "ConsoleDicas", // Interface
 		"Fracao", "Number", "BigNum", "Complexo", "ValorComUnidade", "nums", // Objetos numéricos
 		"Variavel", "Expressao", "Operador", "Parenteses", "Lista", "Vetor", "Funcao", "Matriz", "Unidade", // Objetos core
 		"math" // Interpretador
