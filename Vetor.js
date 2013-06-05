@@ -10,9 +10,30 @@ Vetor.prototype.clonar = function () {
 	return new Vetor(this.expressoes.clonar())
 }
 
+// Cria a configuração para imprimir vetores
+Config.registrar("vetorEmVersores", "Define se os vetores até 3D serão impressos na forma de soma de versores I, J e K", true, function (x) {
+	if (eNumerico(x)) {
+		return !eZero(x)
+	} else if (eDeterminado(x))
+		throw 0
+})
+
 // Transforma em string
 Vetor.prototype.toString = function () {
-	return "["+this.expressoes.join(", ")+"]"
+	var soma = null, i, termo, vars = "IJK"
+	if (Config.get("vetorEmVersores") && this.expressoes.length <= 3) {
+		for (i=0; i<this.expressoes.length; i++) {
+			if (eNumerico(this.expressoes[i]) && eZero(this.expressoes[i]))
+				continue
+			if (eNumerico(this.expressoes[i]) && eUm(this.expressoes[i]))
+				termo = new Variavel(vars[i])
+			else
+				termo = new Funcao("*", [this.expressoes[i], new Variavel(vars[i])])
+			soma = soma ? new Funcao("+", [soma, termo]) : termo
+		}
+		return soma ? String(soma) : "0*I"
+	} else
+		return "["+this.expressoes.join(", ")+"]"
 }
 
 // Soma esse vetor com outro e retorna o resultado
