@@ -159,7 +159,7 @@ function inflar(str) {
 
 // Separa uma string em Operadores, Variáveis e Números
 function separar(str) {
-	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_", "+=", "-=", "*=", "/=", "%=", "^=", "&&=", "||=", "_="]
+	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_", "+=", "-=", "*=", "/=", "%=", "^=", "&&=", "||=", "_=", "²", "³", "\u221A", "\u2264", "\u2265", "\u2260", "\u2A2F"]
 	var getOperador = function (str) {
 		if (operadores.indexOf(str) != -1)
 			return new Operador(str)
@@ -167,7 +167,7 @@ function separar(str) {
 			return null
 	}
 	var getVariavel = function (str) {
-		if (str.match(/^[a-zº][a-z0-9º]*$/i))
+		if (str.match(/^[a-zº\u0391-\u03A9\u03B1-\u03C9\u221E\u00C5][a-z0-9º\u0391-\u03A9\u03B1-\u03C9\u221E\u00C5]*$/i))
 			return new Variavel(str)
 		else
 			return null
@@ -299,14 +299,14 @@ function interpretar(expressao) {
 	}
 	
 	// Aplica os operadores ordem de precedência
-	aplicarUnarios(["!", "%"], 1)
-	aplicarUnarios(["!", "+", "-"], -1)
+	aplicarUnarios(["!", "%", "²", "³"], 1)
+	aplicarUnarios(["!", "+", "-", "\u221A"], -1)
 	aplicarBinarios(["^"], -1)
 	aplicarBinarios(["_"], 1)
-	aplicarBinarios(["*", "/", "%"], 1)
+	aplicarBinarios(["*", "/", "%", "\u2A2F"], 1)
 	aplicarBinarios(["+", "-"], 1)
-	aplicarBinarios(["<", "<=", ">", ">="], 1)
-	aplicarBinarios(["==", "!="], 1)
+	aplicarBinarios(["<", "<=", ">", ">=", "\u2264", "\u2265"], 1)
+	aplicarBinarios(["==", "!=", "\u2260"], 1)
 	aplicarBinarios(["&&"], 1)
 	aplicarBinarios(["||"], 1)
 	aplicarBinarios(["=", "+=", "-=", "*=", "/=", "%=", "_=", "&&=", "||="], -1)

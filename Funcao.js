@@ -158,16 +158,16 @@ Funcao.prototype.clonar = function () {
 Funcao.prototype.toString = function () {
 	var a, b, op, pre, nome2
 	var operadores = {
-		factorial: 0, "%": 0, // rtl
-		"!": 1, "+": 1, "-": 1 // ltr
+		factorial: 0, "%": 0, "²": 0, "³": 0, // rtl
+		"!": 1, "+": 1, "-": 1, "\u221A": 1 // ltr
 	}
 	var operadores2 = {
 		"^": 0, // ltr
 		"_": 1, // rtl
-		"*": 2, "/": 2, "%": 2, "undefined": 2, // rtl
+		"*": 2, "/": 2, "%": 2, "undefined": 2, "\u2A2F": 2, // rtl
 		"+": 3, "-": 3, // rtl
-		"<": 4, "<=": 4, ">": 4, ">=": 4, // rtl
-		"==": 5, "!=": 5, // rtl
+		"<": 4, "<=": 4, ">": 4, ">=": 4, "\u2264": 4, "\u2265": 4, // rtl
+		"==": 5, "!=": 5, "\u2260": 5, // rtl
 		"&&": 6, // rtl
 		"||": 7, // rtl
 		"=": 8 // ltr

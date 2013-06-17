@@ -22,24 +22,7 @@ Funcao.registrar("dot", "dot(a,b)\nRetorna o produto escalar/interno de dois vet
 }, true)
 
 Funcao.registrar("cross", "cross(a,b)\nRetorna o produto vetorial de dois vetores de 2 ou 3 dimensôes", function (a, b) {
-	var termo, lenA, lenB, ae, be, i, j, k
-	if (a instanceof Vetor && b instanceof Vetor) {
-		lenA = a.expressoes.length
-		lenB = b.expressoes.length
-		if (lenA < 2 || lenA > 3 || lenB < 2 || lenB > 3)
-			throw 0
-		if (lenA == 2)
-			a = new Vetor(a.expressoes.concat([0]))
-		if (lenB == 2)
-			b = new Vetor(b.expressoes.concat([0]))
-		ae = a.expressoes
-		be = b.expressoes
-		i = Funcao.executar("-", [Funcao.executar("*", [ae[1], be[2]]), Funcao.executar("*", [ae[2], be[1]])])
-		j = Funcao.executar("-", [Funcao.executar("*", [ae[2], be[0]]), Funcao.executar("*", [ae[0], be[2]])])
-		k = Funcao.executar("-", [Funcao.executar("*", [ae[0], be[1]]), Funcao.executar("*", [ae[1], be[0]])])
-		return new Vetor([i, j, k])
-	} else if (eDeterminado(a) && eDeterminado(b))
-		throw 0
+	return Funcao.executar("\u2A2F", [a, b])
 }, true)
 
 Funcao.registrar("proj", "proj(a,b)\nRetorna a projeção de a em b", function (a, b) {

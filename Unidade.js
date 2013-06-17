@@ -24,6 +24,7 @@ Unidade.prefixos = (function () {
 		c: -2,
 		m: -3,
 		u: -6,
+		"\u03BC": -6,
 		n: -9,
 		p: -12,
 		f: -15,
@@ -79,6 +80,7 @@ Unidade.unidades = {
 	W: [{M: 1, L: 2, T: -3}, new Fracao(1, 1)],
 	Pa: [{M: 1, L: -1, T: -2}, new Fracao(1, 1)],
 	ohm: [{M: 1, L: 2, T: -3, I: -2}, new Fracao(1, 1)],
+	"\u03A9": [{M: 1, L: 2, T: -3, I: -2}, new Fracao(1, 1)],
 	"ºC": [{θ: 1}, new Fracao(1, 1)],
 	V: [{M: 1, L: 2, T: -3, I: -1}, new Fracao(1, 1)],
 	// Comprimento
@@ -93,6 +95,7 @@ Unidade.unidades = {
 	ftUS: [{L: 1}, new Fracao(1200, 3937)],
 	mil: [{L: 1}, new Fracao(127, 5000000)],
 	Ao: [{L: 1}, new Fracao(1, 10000000000)],
+	"\u00C5": [{L: 1}, new Fracao(1, 10000000000)],
 	// Área
 	ha: [{L: 2}, new Fracao(10000, 1)],
 	a: [{L: 2}, new Fracao(100, 1)],

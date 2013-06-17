@@ -37,6 +37,18 @@ Funcao.registrar("-", "-a ou a-b\nRetorna o oposto do valor ou a diferença entr
 			throw 0
 	}
 }, true, false, true)
+Funcao.registrar("²", "a²\nRetorna a^2", function (a) {
+	return Funcao.executar("^", [a, new Fracao(2, 1)])
+}, true)
+Funcao.registrar("³", "a³\nRetorna a^3", function (a) {
+	return Funcao.executar("^", [a, new Fracao(3, 1)])
+}, true)
+Funcao.registrar("\u221A", "\u221Ax\nRetorna a raiz de x, ou seja, x^(1/2)", function (x) {
+	if (eNumerico(x))
+		return pow(x, new Fracao(1, 2))
+	else if (eDeterminado(x))
+		throw 0
+}, true)
 Funcao.registrar("*", "a*b\nRetorna o produto entre dois valores", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
 		return multiplicar(a, b)
@@ -55,6 +67,26 @@ Funcao.registrar("*", "a*b\nRetorna o produto entre dois valores", function (a, 
 	else if (a instanceof Matriz && b instanceof Vetor) {
 		b = new Matriz(b.expressoes, 1)
 		return new Vetor(a.multiplicar(b).expressoes)
+	} else if (eDeterminado(a) && eDeterminado(b))
+		throw 0
+}, true)
+Funcao.registrar("\u2A2F", "a\u2A2Fb\nRetorna o produto vetorial de dois vetores de 2 ou 3 dimensôes", function (a, b) {
+	var termo, lenA, lenB, ae, be, i, j, k
+	if (a instanceof Vetor && b instanceof Vetor) {
+		lenA = a.expressoes.length
+		lenB = b.expressoes.length
+		if (lenA < 2 || lenA > 3 || lenB < 2 || lenB > 3)
+			throw 0
+		if (lenA == 2)
+			a = new Vetor(a.expressoes.concat([0]))
+		if (lenB == 2)
+			b = new Vetor(b.expressoes.concat([0]))
+		ae = a.expressoes
+		be = b.expressoes
+		i = Funcao.executar("-", [Funcao.executar("*", [ae[1], be[2]]), Funcao.executar("*", [ae[2], be[1]])])
+		j = Funcao.executar("-", [Funcao.executar("*", [ae[2], be[0]]), Funcao.executar("*", [ae[0], be[2]])])
+		k = Funcao.executar("-", [Funcao.executar("*", [ae[0], be[1]]), Funcao.executar("*", [ae[1], be[0]])])
+		return new Vetor([i, j, k])
 	} else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
@@ -264,12 +296,18 @@ Funcao.registrar(">", "a>b\nRetorna se a é maior que b", function (a, b) {
 		throw 0
 }, true)
 Funcao.registrar("<=", "a<=b\nRetorna se a é menor ou igual a b", function (a, b) {
+	return Funcao.executar("\u2264", [a, b])
+}, true)
+Funcao.registrar(">=", "a>=b\nRetorna se a é maior ou igual a b", function (a, b) {
+	return Funcao.executar("\u2265", [a, b])
+}, true)
+Funcao.registrar("\u2264", "a\u2264b\nRetorna se a é menor ou igual a b", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
 		return new Fracao(eIdentico(max(a, b), b) || eIgual(a, b) ? 1 : 0, 1)
 	else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
-Funcao.registrar(">=", "a>=b\nRetorna se a é maior ou igual a b", function (a, b) {
+Funcao.registrar("\u2265", "a\u2265b\nRetorna se a é maior ou igual a b", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
 		return new Fracao(eIdentico(max(a, b), a) || eIgual(a, b) ? 1 : 0, 1)
 	else if (eDeterminado(a) && eDeterminado(b))
@@ -286,6 +324,9 @@ Funcao.registrar("==", "a==b\nRetorna se a tem o mesmo valor de b", function (a,
 		throw 0
 }, true)
 Funcao.registrar("!=", "a!=b\nRetorna se a não tem o mesmo valor de b", function (a, b) {
+	return Funcao.executar("\u2260", [a, b])
+}, true)
+Funcao.registrar("\u2260", "a\u2260b\nRetorna se a não tem o mesmo valor de b", function (a, b) {
 	if (eNumerico(a) && eNumerico(b))
 		return new Fracao(eIgual(a, b) ? 0 : 1, 1)
 	else if (a instanceof Vetor && b instanceof Vetor)

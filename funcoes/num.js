@@ -32,11 +32,8 @@ Funcao.registrar("q", "q(x)\nRetorna, se possível, o formato exato do número e
 		throw 0
 }, true)
 
-Funcao.registrar("sqrt", "sqrt(x)\nRetorna x^(1/2)", function (x) {
-	if (eNumerico(x))
-		return pow(x, new Fracao(1, 2))
-	else if (eDeterminado(x))
-		throw 0
+Funcao.registrar("sqrt", "sqrt(x)\nRetorna \u221Ax", function (x) {
+	return Funcao.executar("\u221A", [x])
 }, true)
 
 Funcao.registrar("abs", "abs(x)\nRetorna o módulo (ou norma) de x", function (x) {
@@ -514,6 +511,7 @@ Variavel.valores.maxvalue = Number.MAX_VALUE
 Variavel.valores.minvalue = Number.MIN_VALUE
 Variavel.valores.inf = Number.POSITIVE_INFINITY
 Variavel.valores["Infinity"] = Infinity
+Variavel.valores["\u221E"] = Infinity
 
 Variavel.valores.i = new Complexo(new Fracao(0, 1), new Fracao(1, 1))
 

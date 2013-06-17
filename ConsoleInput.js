@@ -7,6 +7,7 @@ ConsoleInput.input = document.getElementById("input")
 // Executa o comando escrito atualmente no input
 ConsoleInput.executar = function () {
 	var content = ConsoleInput.input.textContent
+	content = ConsoleInput.trocarSimbolos(content)
 	Console.echoEntrada("> "+content)
 	Console.historico.push(content)
 	Console.pos = Console.historico.length
@@ -14,6 +15,15 @@ ConsoleInput.executar = function () {
 		Console.oninput(content)
 	ConsoleInput.input.innerHTML = "<span></span>"
 	ConsoleDicas.esconder()
+}
+
+// Converte os símbolos da entrada
+// Exemplo: "\\alpha+\\beta" => "\u03B1+\u03B2"
+ConsoleInput.trocarSimbolos = function (str) {
+	var i
+	for (i=0; i<ConsoleInput.tabelaChars.length; i++)
+		str = str.replace(ConsoleInput.tabelaChars[i][0], ConsoleInput.tabelaChars[i][1])
+	return str
 }
 
 ConsoleInput.input.addEventListener("keydown", function (evento) {
@@ -85,8 +95,8 @@ ConsoleInput.pintar = function () {
 	pos = dados[2]
 	
 	// Verifica se está digitando um símbolo
-	simbolo = str.substr(0, pos).match(/[a-z][a-z0-9]*$/i)
-	if (simbolo && !str.substr(pos).match(/^[a-z0-9]+/i)) {
+	simbolo = str.substr(0, pos).match(/[a-zº\u0391-\u03A9\u03B1-\u03C9\u221E\u00C5][a-z0-9º\u0391-\u03A9\u03B1-\u03C9\u221E\u00C5]*$/i)
+	if (simbolo && !str.substr(pos).match(/^[a-z0-9º\u0391-\u03A9\u03B1-\u03C9\u221E\u00C5]+/i)) {
 		simbolo = simbolo[0]
 		ConsoleInput.montarDicas(simbolo, pos)
 	} else
@@ -307,3 +317,74 @@ ConsoleInput.get = function () {
 			pos += els[i].textContent.length
 	return [str, chars, pos]
 }
+
+// Tabela de conversão de caracteres
+ConsoleInput.tabelaChars = [
+[/\\=\//g, "\u2260"],
+[/\\<=/g, "\u2264"],
+[/\\>=/g, "\u2265"],
+[/\\v\//g, "\u221A"],
+[/\\oo/g, "\u221E"],
+[/\\x/g, "\u2A2F"],
+[/\\times/g, "\u2A2F"],
+[/\\Ao/g, "\u00C5"],
+[/\\sum/g, "\u03A3"],
+[/\\prod/g, "\u03A0"],
+[/\\ohm/g, "\u03A9"],
+[/\\u/g, "\u03BC"],
+[/\\Alpha/g, "\u0391"],
+[/\\Beta/g, "\u0392"],
+[/\\Gamma/g, "\u0393"],
+[/\\Delta/g, "\u0394"],
+[/\\Epsilon/g, "\u0395"],
+[/\\Zeta/g, "\u0396"],
+[/\\Eta/g, "\u0397"],
+[/\\Theta/g, "\u0398"],
+[/\\Iota/g, "\u0399"],
+[/\\Kappa/g, "\u039A"],
+[/\\Lamda/g, "\u039B"],
+[/\\Mu/g, "\u039C"],
+[/\\Nu/g, "\u039D"],
+[/\\Xi/g, "\u039E"],
+[/\\Omicron/g, "\u039F"],
+[/\\Pi/g, "\u03A0"],
+[/\\Rho/g, "\u03A1"],
+[/\\Sigma/g, "\u03A3"],
+[/\\Tau/g, "\u03A4"],
+[/\\Upsilon/g, "\u03A5"],
+[/\\Phi/g, "\u03A6"],
+[/\\Chi/g, "\u03A7"],
+[/\\Psi/g, "\u03A8"],
+[/\\Omega/g, "\u03A9"],
+[/\\alpha/g, "\u03B1"],
+[/\\beta/g, "\u03B2"],
+[/\\gamma/g, "\u03B3"],
+[/\\delta/g, "\u03B4"],
+[/\\epsilon/g, "\u03B5"],
+[/\\zeta/g, "\u03B6"],
+[/\\eta/g, "\u03B7"],
+[/\\theta/g, "\u03B8"],
+[/\\iota/g, "\u03B9"],
+[/\\kappa/g, "\u03BA"],
+[/\\lamda/g, "\u03BB"],
+[/\\mu/g, "\u03BC"],
+[/\\nu/g, "\u03BD"],
+[/\\xi/g, "\u03BE"],
+[/\\omicron/g, "\u03BF"],
+[/\\pi/g, "\u03C0"],
+[/\\rho/g, "\u03C1"],
+[/\\sigma/g, "\u03C3"],
+[/\\tau/g, "\u03C4"],
+[/\\upsilon/g, "\u03C5"],
+[/\\phi/g, "\u03C6"],
+[/\\chi/g, "\u03C7"],
+[/\\psi/g, "\u03C8"],
+[/\\omega/g, "\u03C9"],
+[/\u220F/g, "\u03A0"],
+[/\u2211/g, "\u03A3"],
+[/\u2A09/g, "\u2A2F"],
+[/\u00D7/g, "\u2A2F"],
+[/\u0251/g, "\u03B1"],
+[/\u00DF/g, "\u03B2"],
+[/\u2126/g, "\u03A9"]
+]
