@@ -2,6 +2,13 @@
 
 // Módulo para desenhar gráficos no console
 
+Config.registrar("numPontosPlot", "Define o número de pontos a serem calculados para montar um gráfico", 300, function (x) {
+	if (eNumerico(x) && eIntSeguro(x))
+		return toNumber(x)
+	else if (eDeterminado(x))
+		throw 0
+})
+
 Funcao.registrar("plot", "plot(variavel, inicio, fim, 'expressao)\nDesenha uma função (ou várias) na tela", function (variavel, inicio, fim, expressao) {
 	var funcs, xMin, xMax, canvas, that, div
 	
@@ -462,8 +469,8 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		complexo = false
 		
 		// Executa a expressão para cada valor de x e salva os resultados
-		debug = Console.get("debug")
-		Console.set("debug", false, true)
+		debug = Config.get("debug")
+		Config.set("debug", false, true)
 		for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
 			Variavel.valores[variavel] = x
 			try {
@@ -488,7 +495,7 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 			xsC = []
 			ysC = []
 		}
-		Console.set("debug", debug, true)
+		Config.set("debug", debug, true)
 		Variavel.restaurar(antes)
 		
 		// Escolhe a escala vertical
@@ -518,7 +525,7 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		return [xs, ys, xsC, ysC, yMax, yMin]
 	}
 	
-	passos = 300
+	passos = Config.get("numPontosPlot")
 	xss = []
 	yss = []
 	yMax = -Infinity
