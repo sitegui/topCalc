@@ -462,6 +462,7 @@ Variavel.valores.ln10 = Math.LN10
 Variavel.valores.log2e = Math.LOG2E
 Variavel.valores.log10e = Math.LOG10E
 Variavel.valores.pi = Math.PI
+Variavel.valores["\u03C0"] = Math.PI
 Variavel.valores.sqrt12 = Math.SQRT1_2
 Variavel.valores.sqrt2 = Math.SQRT2
 Variavel.valores.g = (function () {

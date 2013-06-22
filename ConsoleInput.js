@@ -109,8 +109,8 @@ ConsoleInput.pintar = function () {
 		extremos = ConsoleInput.getExtremos(mapas[i], pos)
 		if (extremos[0]) {
 			destacar(extremos[0])
-			if (i == 0 && (simbolo = str.substr(0, extremos[0]-1).match(/([a-z][a-z0-9]*)\s*$/i)))
-				ConsoleDicas.mostrarFuncao(simbolo[1])
+			if (i == 0 && (simbolo = str.substr(0, extremos[0]-1).match(/([a-zº\u0391-\u03A9\u03B1-\u03C9\u221E\u00C5][a-z0-9º\u0391-\u03A9\u03B1-\u03C9\u221E\u00C5]*)\s*$/i)))
+				ConsoleDicas.mostrarFuncao(simbolo[1], pos, str.substr(extremos[0], pos-extremos[0]))
 		}
 		if (extremos[1])
 			destacar(extremos[1])
@@ -182,10 +182,10 @@ ConsoleInput.montarDicas = function (str, inputPos) {
 		dicas = []
 		for (i=0; i<vars.length; i++)
 			for (j=0; j<vars[i].length; j++)
-				dicas.push([vars[i][j], vars[i][j].toLowerCase(), false])
+				dicas.push([vars[i][j], vars[i][j].toLowerCase(), 0])
 		for (i=0; i<funcs.length; i++)
 			for (j=0; j<funcs[i].length; j++)
-				dicas.push([funcs[i][j], funcs[i][j].toLowerCase(), true])
+				dicas.push([funcs[i][j], funcs[i][j].toLowerCase(), 1])
 		dicas.sort(function (a, b) {
 			return a[1]>b[1] ? 1 : (a[1]==b[1] ? 0 : -1)
 		})
