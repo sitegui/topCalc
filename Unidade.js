@@ -335,7 +335,7 @@ Unidade.prototype.getBases = function () {
 		
 		// Pega isso em termos de unidades base e junta à resposta
 		for (j in Unidade.unidades[i][0]) {
-			base = multiplicar(new Fracao(Unidade.unidades[i][0][j], 1), soma)
+			base = multiplicar(Fracao.toFracao(Unidade.unidades[i][0][j]), soma)
 			if (j in r)
 				r[j] = somar(r[j], base)
 			else

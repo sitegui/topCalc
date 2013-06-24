@@ -156,7 +156,7 @@ ConsoleDicas.selecionar = function (pos) {
 	ConsoleDicas.div.childNodes[pos].classList.add("dica-destaque")
 	ConsoleDicas.pos = pos
 	if (dica[2] == 0)
-		ConsoleDicas.div2.innerHTML = Variavel.valores[dica[0]]
+		ConsoleDicas.div2.innerHTML = Variavel.valores[dica[0]].toMathString(false)
 	else if (dica[2] == 1)
 		ConsoleDicas.div2.innerHTML = Funcao.funcoes[dica[0]].definicao
 	else

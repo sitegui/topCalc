@@ -23,7 +23,9 @@ Config.registrar("precisaoImpressa", "Define a precisão a ser mostrada (não af
 
 // Retorna em string
 Number.prototype.toMathString = function (mathML) {
-	return mathML ? "<mn>"+this.toPrecision(Config.get("precisaoImpressa"))+"</mn>" : String(this)
+	var str = this.toPrecision(Config.get("precisaoImpressa"))
+	str = str.replace(/(\.[^0]*)0+$/, "$1")
+	return mathML ? "<mn>"+str+"</mn>" : str
 }
 
 /*

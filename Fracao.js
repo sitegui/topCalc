@@ -34,11 +34,11 @@ Fracao.prototype.toMathString = function (mathML) {
 		if (this.base == 10)
 			return mathML ? "<mn>"+this.n+"</mn>" : String(this.n)
 		else if (this.base == 2)
-			return mathML ? "<msub><mn>"+this.n.toString(2)+"</mn><mn>2</mn></msub>" : "0b"+this.n.toString(2)
+			return mathML ? "<msub><mn>"+this.n.toString(2).toUpperCase()+"</mn><mn>2</mn></msub>" : "0b"+this.n.toString(2).toUpperCase()
 		else if (this.base == 16)
-			return mathML ? "<msub><mn>"+this.n.toString(16)+"</mn><mn>16</mn></msub>" : "0x"+this.n.toString(16)
+			return mathML ? "<msub><mn>"+this.n.toString(16).toUpperCase()+"</mn><mn>16</mn></msub>" : "0x"+this.n.toString(16).toUpperCase()
 		else
-			return mathML ? "<msub><mn>"+this.n.toString(this.base)+"</mn><mn>"+this.base+"</mn></msub>" : this.n.toString(this.base)+"_"+this.base
+			return mathML ? "<msub><mn>"+this.n.toString(this.base).toUpperCase()+"</mn><mn>"+this.base+"</mn></msub>" : this.n.toString(this.base).toUpperCase()+"_"+this.base
 	return mathML ? "<mfrac><mn>"+this.n+"</mn><mn>"+this.d+"</mn></mfrac>" : String(this.n)+"/"+String(this.d)
 }
 

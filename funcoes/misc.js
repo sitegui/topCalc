@@ -9,7 +9,7 @@ Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou
 	if (variavel instanceof Variavel) {
 		valor = this.getVariavelDireto(variavel)
 		if (valor !== null) {
-			Console.echoInfo(valor, true)
+			Console.echoInfo(valor.toMathString(false), true)
 			return new Expressao
 		}
 	} else if (variavel instanceof Funcao) {
@@ -262,15 +262,15 @@ Funcao.registrar("units", "units()\nMostra todas as unidades e prefixos válidos
 			if (base[i] == 1)
 				str.push(i)
 			else
-				str.push(i+"^"+base[i])
+				str.push(i+"^"+base[i].toMathString(false))
 		return str.join("*")
 	}
 	for (i in Unidade.prefixos)
-		str += i+" → "+Unidade.prefixos[i]+"\n"
+		str += i+" → "+Unidade.prefixos[i].toMathString(false)+"\n"
 	str += "\nUnidades:\n"
 	for (i in Unidade.unidades) {
 		base = base2Str(Unidade.unidades[i][0])
-		str += i+" → "+Unidade.unidades[i][1]+(base ? "*"+base : "")+"\n"
+		str += i+" → "+Unidade.unidades[i][1].toMathString(false)+(base ? "*"+base : "")+"\n"
 	}
 	Console.echoInfo(str)
 	return new Expressao

@@ -64,7 +64,10 @@ Config.registrar("usarMathML", "Indica se as expressões devem ser impressas no 
 // Transforma o objeto matemático em string
 // Olha para a configuração usarMathML para retornar no melhor formato
 function math2str(obj) {
-	return Config.get("usarMathML") ? "<math><mrow>"+obj.toMathString(true)+"</mrow></math>" : obj.toMathString(false)
+	var mathML = Config.get("usarMathML"), str = obj.toMathString(mathML)
+	if (str)
+		return mathML ? "<math><mrow>"+str+"</mrow></math>" : str
+	return ""
 }
 
 // Infla uma string, retorna um objeto Parenteses
@@ -223,15 +226,15 @@ function separar(str) {
 	var i, sub, valor, partes = [], ini = str
 	for (i=str.length; i>0; i--) {
 		sub = str.substr(0, i)
-		if (valor = getOperador(sub)) {
+		if ((valor = getOperador(sub)) !== null) {
 			partes.push(valor)
 			str = str.substr(i)
 			i = str.length+1
-		} else if (valor = getVariavel(sub)) {
+		} else if ((valor = getVariavel(sub)) !== null) {
 			partes.push(valor)
 			str = str.substr(i)
 			i = str.length+1
-		} else if (valor = getNumero(sub)) {
+		} else if ((valor = getNumero(sub)) !== null) {
 			partes.push(valor)
 			str = str.substr(i)
 			i = str.length+1

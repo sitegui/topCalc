@@ -126,7 +126,11 @@ function eZero(x) {
 
 // Retorna se o valor dado é 1
 function eUm(x) {
-	return getNum(x) == 1
+	if (typeof x == "number")
+		return x == 1
+	else if (x instanceof Fracao || x instanceof BigNum)
+		return x.getNum() == 1
+	return false
 }
 
 // Verifica se um valor é numérico

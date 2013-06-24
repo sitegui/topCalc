@@ -174,37 +174,34 @@ Funcao.registrar("delta", "delta(lista)\nRetorna uma lista com as diferenças en
 Funcao.registrar("sum", "sum(n1, n2, ...)\nRetorna a soma de todos os elementos", function () {
 	var args, i, r
 	args = Funcao.getFlatArgs(arguments)
-	if (args.every(eNumerico)) {
-		r = new Fracao(0, 1)
-		for (i=0; i<args.length; i++)
+	if (args.every(eDeterminado)) {
+		r = args.length ? args[0] : new Fracao(0, 1)
+		for (i=1; i<args.length; i++)
 			r = Funcao.executar("+", [r, args[i]])
 		return r
-	} else if (args.every(eDeterminado))
-		throw 0
+	}
 }, false, false, true)
 
 Funcao.registrar("avg", "avg(n1, n2, ...)\nRetorna a média de todos os elementos", function () {
 	var args, i, r
 	args = Funcao.getFlatArgs(arguments)
-	if (args.every(eNumerico)) {
-		r = new Fracao(0, 1)
-		for (i=0; i<args.length; i++)
+	if (args.every(eDeterminado)) {
+		r = args.length ? args[0] : new Fracao(0, 1)
+		for (i=1; i<args.length; i++)
 			r = Funcao.executar("+", [r, args[i]])
 		return Funcao.executar("/", [r, new Fracao(args.length, 1)])
-	} else if (args.every(eDeterminado))
-		throw 0
+	}
 }, false, false, true)
 
 Funcao.registrar("product", "product(n1, n2, ...)\nRetorna o produto de todos os elementos", function () {
 	var args, i, r
 	args = Funcao.getFlatArgs(arguments)
-	if (args.every(eNumerico)) {
-		r = new Fracao(1, 1)
-		for (i=0; i<args.length; i++)
+	if (args.every(eDeterminado)) {
+		r = args.length ? args[0] : new Fracao(1, 1)
+		for (i=1; i<args.length; i++)
 			r = Funcao.executar("*", [r, args[i]])
 		return r
-	} else if (args.every(eDeterminado))
-		throw 0
+	}
 }, false, false, true)
 
 Funcao.registrar("every", "every(lista, variavel, 'expressao)\nRetorna zero se expressao avalia para zero para algum elemento", function (lista, variavel, expressao) {

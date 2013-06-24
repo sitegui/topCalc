@@ -40,7 +40,7 @@ ValorComUnidade.prototype.toMathString = function (mathML) {
 	var valor, unidade, valor2, unidade2
 	valor = this.valor.toMathString(false)
 	valor2 = mathML ? this.valor.toMathString(true) : valor
-	unidade = this.unidade.toMathString(mathML)
+	unidade = this.unidade.toMathString(false)
 	unidade2 = mathML ? this.unidade.toMathString(true) : unidade
 	if (valor.indexOf("+") != -1 || valor.indexOf("-") != -1 || valor.indexOf("/") != -1)
 		valor2 = mathML ? "<mrow><mo>(</mo>"+valor2+"<mo>)</mo></mrow>" : "("+valor2+")"
