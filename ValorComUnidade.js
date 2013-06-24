@@ -36,13 +36,17 @@ ValorComUnidade.prototype.clonar = function () {
 }
 
 // Retorna a representação de string do objeto
-ValorComUnidade.prototype.toString = function () {
-	var valor = String(this.valor), op, unidade = String(this.unidade)
-	op = valor.indexOf("+") != -1 || valor.indexOf("-") != -1 || valor.indexOf("/") != -1
-	valor = op ? "("+valor+")" : valor
+ValorComUnidade.prototype.toMathString = function (mathML) {
+	var valor, unidade, valor2, unidade2
+	valor = this.valor.toMathString(false)
+	valor2 = mathML ? this.valor.toMathString(true) : valor
+	unidade = this.unidade.toMathString(mathML)
+	unidade2 = mathML ? this.unidade.toMathString(true) : unidade
+	if (valor.indexOf("+") != -1 || valor.indexOf("-") != -1 || valor.indexOf("/") != -1)
+		valor2 = mathML ? "<mrow><mo>(</mo>"+valor2+"<mo>)</mo></mrow>" : "("+valor2+")"
 	if (unidade.indexOf("*") != -1 || unidade.indexOf("/") != -1)
-		unidade = "("+unidade+")"
-	return valor+"_<span class='unidade'>"+unidade+"</span>"
+		unidade2 = mathML ? "<mrow><mo>(</mo>"+unidade2+"<mo>)</mo></mrow>" : "("+unidade2+")"
+	return mathML ? valor2+"<mo>_</mo><mstyle class='unidade'>"+unidade2+"</mstyle>" : valor2+"_<span class='unidade'>"+unidade2+"</span>"
 }
 
 // Retorna o valor com unidade convertido para outra unidade

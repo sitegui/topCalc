@@ -11,16 +11,11 @@ Vetor.prototype.clonar = function () {
 }
 
 // Cria a configuração para imprimir vetores
-Config.registrar("vetorEmVersores", "Define se os vetores até 3D serão impressos na forma de soma de versores I, J e K", true, function (x) {
-	if (eNumerico(x)) {
-		return !eZero(x)
-	} else if (eDeterminado(x))
-		throw 0
-})
+Config.registrar("vetorEmVersores", "Define se os vetores até 3D serão impressos na forma de soma de versores I, J e K", true, Config.setters.bool)
 
 // Transforma em string
-Vetor.prototype.toString = function () {
-	var soma = null, i, termo, vars = "IJK"
+Vetor.prototype.toMathString = function (mathML) {
+	var soma = null, i, termo, vars = "IJK", els
 	if (Config.get("vetorEmVersores") && this.expressoes.length <= 3) {
 		for (i=0; i<this.expressoes.length; i++) {
 			if (eNumerico(this.expressoes[i]) && eZero(this.expressoes[i]))
@@ -31,9 +26,13 @@ Vetor.prototype.toString = function () {
 				termo = new Funcao("*", [this.expressoes[i], new Variavel(vars[i])])
 			soma = soma ? new Funcao("+", [soma, termo]) : termo
 		}
-		return soma ? String(soma) : "0*I"
-	} else
-		return "["+this.expressoes.join(", ")+"]"
+		return soma ? soma.toMathString(mathML) : (mathML ? "<mn>0</mn><mo>*</mo><mi>I</mi>" : "0*I")
+	} else {
+		els = []
+		for (i=0; i<this.expressoes.length; i++)
+			els.push(this.expressoes[i].toMathString(mathML))
+		return mathML ? "<mrow><mo>[</mo>"+els.join("<mo>,</mo> ")+"<mo>]</mo></mrow>" : "["+els.join(", ")+"]"
+	}
 }
 
 // Soma esse vetor com outro e retorna o resultado

@@ -13,7 +13,7 @@ Console.oninput = function (input) {
 				executar.logId = ""
 				r = executar(x)
 				Variavel.valores["ans"] = r
-				Console.echo(r, true)
+				Console.echo(math2str(r), true)
 			} catch (e) {
 				Console.echoErro(e)
 			}
@@ -35,12 +35,37 @@ Object.defineProperty(Array.prototype, "clonar", {value: function () {
 }})
 
 // Define a configuração de ativação do debug
-Config.registrar("debug", "Define se a execução está no modo debug", false, function (x) {
-	if (eNumerico(x)) {
-		return !eZero(x)
-	} else if (eDeterminado(x))
-		throw 0
-})
+Config.registrar("debug", "Define se a execução está no modo debug", false, Config.setters.bool)
+
+// Adiciona a configuração de imprimir com MathML ou não
+Config.registrar("usarMathML", "Indica se as expressões devem ser impressas no formato MathML ou como strings simples", false, Config.setters.bool)
+
+// Verifica se o navegador suporta MathML
+;(function () {
+	var div, math, mfrac, n, d
+	var ns = "http://www.w3.org/1998/Math/MathML"
+	div = document.createElement("div")
+	div.style.position = "absolute"
+	math = document.createElementNS(ns, "math")
+	mfrac = document.createElementNS(ns, "mfrac")
+	n = document.createElementNS(ns, "mi")
+	n.appendChild(document.createTextNode("xx"))
+	d = document.createElementNS(ns, "mi")
+	d.appendChild(document.createTextNode("yy"))
+	mfrac.appendChild(n)
+	mfrac.appendChild(d)
+	math.appendChild(mfrac)
+	div.appendChild(math)
+	document.body.appendChild(div)
+	Config.set("usarMathML", div.clientHeight>div.clientWidth, true)
+	document.body.removeChild(div)
+})()
+
+// Transforma o objeto matemático em string
+// Olha para a configuração usarMathML para retornar no melhor formato
+function math2str(obj) {
+	return Config.get("usarMathML") ? "<math><mrow>"+obj.toMathString(true)+"</mrow></math>" : obj.toMathString(false)
+}
 
 // Infla uma string, retorna um objeto Parenteses
 function inflar(str) {
@@ -128,7 +153,7 @@ function inflar(str) {
 			novo = new Expressao
 			niveis[niveis.length-1].expressoes.push(novo)
 			nivelAtual = novo
-		} else if (c == " ")
+		} else if (c == " " || c == "\n")
 			salvarCache()
 		else if (c == "'" && nivelAtual.elementos.length == 0 && cache == "")
 			nivelAtual.puro = true
@@ -355,7 +380,7 @@ function executar(expressao) {
 	var div, vars, debug
 	debug = Config.get("debug")
 	if (debug) {
-		div = Console.echoInfo(executar.logId+expressao, true)
+		div = Console.echoInfo(executar.logId+expressao.toMathString(false), true)
 		executar.logId += "\t"
 	}
 	vars = Array.isArray(arguments[1]) ? arguments[1] : []
@@ -390,7 +415,7 @@ function executar(expressao) {
 	}
 	var r = calc(expressao)
 	if (debug) {
-		div.textContent += " ⇒ "+r
+		div.textContent += " ⇒ "+r.toMathString(false)
 		executar.logId = executar.logId.substr(0, executar.logId.length-1)
 	}
 	return r

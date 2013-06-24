@@ -448,6 +448,7 @@ Funcao.registrar("lcm", "lcm(n1, n2, ...)\nRetorna o menor múltiplo comum dos n
 Funcao.registrar("toBase", "toBase(num, base)\nRetorna o número inteiro num escrito na base desejada", function (num, base) {
 	if (eNumerico(num) && eNumerico(base)) {
 		num = getNum(num)
+		base = getNum(base)
 		if (!eIntSeguro(num) || !eIntSeguro(base) || base < 2)
 			throw 0
 		return new Fracao(num, 1, base)

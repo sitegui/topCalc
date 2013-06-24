@@ -2,12 +2,7 @@
 
 // Módulo para desenhar gráficos no console
 
-Config.registrar("numPontosPlot", "Define o número de pontos a serem calculados para montar um gráfico", 300, function (x) {
-	if (eNumerico(x) && eIntSeguro(x))
-		return toNumber(x)
-	else if (eDeterminado(x))
-		throw 0
-})
+Config.registrar("numPontosPlot", "Define o número de pontos a serem calculados para montar um gráfico", 300, Config.setters.int)
 
 Funcao.registrar("plot", "plot(variavel, inicio, fim, 'expressao)\nDesenha uma função (ou várias) na tela", function (variavel, inicio, fim, expressao) {
 	var funcs, xMin, xMax, canvas, that, div

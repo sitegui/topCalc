@@ -21,6 +21,8 @@ ConsoleInput.executar = function () {
 // Exemplo: "\\alpha+\\beta" => "\u03B1+\u03B2"
 ConsoleInput.trocarSimbolos = function (str) {
 	var i
+	if (str.indexOf("\\") == -1)
+		return str
 	for (i=0; i<ConsoleInput.tabelaChars.length; i++)
 		str = str.replace(ConsoleInput.tabelaChars[i][0], ConsoleInput.tabelaChars[i][1])
 	return str
@@ -48,7 +50,12 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 		window.getSelection().addRange(range)
 	}
 	if (evento.keyCode == 13) {
-		if (content.length)
+		// Enter
+		if (evento.shiftKey)
+			// Shift+Enter => Insere um "\n"
+			document.execCommand("insertHTML", false, "\n")
+		else if (content.length)
+			// Enter => Executa a ação
 			ConsoleInput.executar()
 		evento.preventDefault()
 	} else if (evento.keyCode == 38) {
@@ -119,14 +126,15 @@ ConsoleInput.pintar = function () {
 	// Une o texto de volta
 	selecNode = selecOff = null
 	var salvarCache = function () {
-		var span
+		var span, cache2
 		if (cache) {
 			span = document.createElement("span")
-			span.textContent = cache
+			cache2 = ConsoleInput.trocarSimbolos(cache)
+			span.textContent = cache2
 			j += cache.length
 			if (j>=pos && !selecNode) {
 				selecNode = span.childNodes[0]
-				selecOff = pos-j+cache.length
+				selecOff = pos-j+cache2.length
 			}
 			elementos.push(span)
 			cache = ""

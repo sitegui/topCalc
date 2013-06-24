@@ -11,6 +11,10 @@ Lista.prototype.clonar = function () {
 }
 
 // Retorna a representação em string
-Lista.prototype.toString = function () {
-	return "{"+this.expressoes.join(", ")+"}"
+Lista.prototype.toMathString = function (mathML) {
+	var i, els
+	els = []
+	for (i=0; i<this.expressoes.length; i++)
+		els.push(this.expressoes[i].toMathString(mathML))
+	return mathML ? "<mrow><mo>{</mo>"+els.join("<mo>,</mo> ")+"<mo>}</mo></mrow>" : "{"+els.join(", ")+"}"
 }

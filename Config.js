@@ -50,3 +50,26 @@ Config.reset = function (nome) {
 		throw "Configuração "+nome+" não existe"
 	Config.configs[nome].valor = Config.configs[nome].iniValor
 }
+
+// Setters padrão
+Config.setters = {}
+
+// true/false
+Config.setters.bool = function (x) {
+	if (eNumerico(x)) {
+		return !eZero(x)
+	} else if (eDeterminado(x))
+		throw 0
+}
+
+// inteiro
+Config.setters.int = function (x) {
+	if (eNumerico(x)) {
+		x = getNum(x)
+		if (eIntSeguro(x))
+			return x
+		else
+			throw 0
+	} else if (eDeterminado(x))
+		throw 0
+}

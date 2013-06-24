@@ -243,17 +243,17 @@ Unidade.prototype.clonar = function () {
 }
 
 // Retorna a unidade numa string inteligível
-Unidade.prototype.toString = function () {
+Unidade.prototype.toMathString = function (mathML) {
 	var r = [], i, j, exp
 	for (i in this.unidades)
 		for (j in this.unidades[i]) {
 			exp = this.unidades[i][j]
 			if (exp instanceof Fracao && exp.n == 1 && exp.d == 1)
-				r.push(j+i)
+				r.push(mathML ? "<mi>"+j+i+"</mi>" : j+i)
 			else
-				r.push(j+i+"^"+exp)
+				r.push(mathML ? "<msup><mi>"+j+i+"</mi>"+exp.toMathString(true)+"</msup>" : j+i+"^"+exp.toMathString(false))
 		}
-	return r.length ? r.join("*") : "1"
+	return r.length ? (mathML ? r.join("<mo>*</mo>") : r.join("*")) : (mathML ? "<mn>1</mn>" : "1")
 }
 
 // Retorna se é identico à outra unidade

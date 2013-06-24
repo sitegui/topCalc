@@ -25,18 +25,30 @@ Matriz.prototype.clonar = function () {
 }
 
 // Retorna a representação em string
-Matriz.prototype.toString = function () {
-	var i, j, r = "|"
-	for (i=1; i<=this.linhas; i++) {
-		if (i-1)
-			r += "; "
-		for (j=1; j<=this.colunas; j++) {
-			if (j-1)
-				r += ", "
-			r += this.get(i, j)
+Matriz.prototype.toMathString = function (mathML) {
+	var i, j, r
+	if (mathML) {
+		r = "<mo>|</mo><mtable>"
+		for (i=1; i<=this.linhas; i++) {
+			r += "<mtr>"
+			for (j=1; j<=this.colunas; j++)
+				r += "<mtd>"+this.get(i, j).toMathString(true)+"</mtd>"
+			r += "</mtr>"
 		}
+		r += "</mtable><mo>|</mo>"
+	} else {
+		r = "|"
+		for (i=1; i<=this.linhas; i++) {
+			if (i-1)
+				r += "; "
+			for (j=1; j<=this.colunas; j++) {
+				if (j-1)
+					r += ", "
+				r += this.get(i, j).toMathString(false)
+			}
+		}
+		r += "|"
 	}
-	r += "|"
 	return r
 }
 
@@ -103,6 +115,14 @@ Matriz.prototype.multiplicarNum = function (num) {
 	var expressoes = [], i
 	for (i=0; i<this.expressoes.length; i++)
 		expressoes.push(Funcao.executar("*", [this.expressoes[i], num]))
+	return new Matriz(expressoes, this.colunas)
+}
+
+// Retorna a divisão dessa matriz por um número
+Matriz.prototype.dividirNum = function (num) {
+	var expressoes = [], i
+	for (i=0; i<this.expressoes.length; i++)
+		expressoes.push(Funcao.executar("/", [this.expressoes[i], num]))
 	return new Matriz(expressoes, this.colunas)
 }
 

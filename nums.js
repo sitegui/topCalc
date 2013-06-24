@@ -89,6 +89,11 @@ function getNum(x) {
 	throw "Erro em getNum()"
 }
 
+// Diz se o double pode ser trabalhado como inteiro seguramente
+function eIntSeguro(x) {
+	return Math.abs(x)<9007199254740992 && Math.round(x)==x
+}
+
 /*
 
 = Comparações =
@@ -119,9 +124,9 @@ function eZero(x) {
 	return x == 0
 }
 
-// Retorna se o valor dado é um (em termos absolutos)
+// Retorna se o valor dado é 1
 function eUm(x) {
-	return x.abs() == 1
+	return getNum(x) == 1
 }
 
 // Verifica se um valor é numérico

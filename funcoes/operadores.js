@@ -96,8 +96,6 @@ Funcao.registrar("/", "a/b\nRetorna a razão entre dois valores", function (a, b
 		return dividir(a, b)
 	else if (a instanceof Vetor && eNumerico(b))
 		return a.dividir(b)
-	else if (b instanceof Vetor && eNumerico(a))
-		return b.dividir(a)
 	else if (a instanceof Matriz && b instanceof Matriz) {
 		if (b.linhas != b.colunas)
 			throw 0
@@ -110,6 +108,8 @@ Funcao.registrar("/", "a/b\nRetorna a razão entre dois valores", function (a, b
 			if (!eNumerico(info.fatores[i]))
 				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo", true)
 		return a.multiplicar(b.separar(-b.linhas))
+	} else if (a instanceof Matriz && eNumerico(b)) {
+		return a.dividirNum(b)
 	} else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
@@ -154,6 +154,7 @@ Funcao.registrar("^", "a^b\nRetorna um valor elevado a outro", function (a, b) {
 Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", function (a) {
 	var r, i
 	if (eNumerico(a)) {
+		a = getNum(a)
 		if (eIntSeguro(a) && a>=0 && a<1e6) {
 			r = new Fracao(1, 1)
 			for (i=2; i<=a; i++)
@@ -197,7 +198,7 @@ Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='..
 			}
 			retorno = that.executarPuroNoEscopo(b, params)
 			funcao = Funcao.gerar(params, unidades, retorno)
-			funcao.definicao = String(that)
+			funcao.definicao = that.toMathString(false)
 			Funcao.funcoes[a.nome] = funcao
 		} else
 			throw "Definição inválida"
@@ -262,11 +263,40 @@ Funcao.registrar("getAt", "lista[i] ou matriz[i, j]\nRetorna o elemento na posi�
 }, false, false, true)
 
 Funcao.registrar("_", "valor_unidade\nConverter o valor para a unidade desejada", function (valor, unidade) {
+	var retorno, i, tam, vL, uL, args
+	
+	// Trata os parâmetros
 	this.args[0] = valor = this.executarNoEscopo(valor)
-	if (!(unidade instanceof Unidade))
+	this.args[1] = unidade = unbox(unidade)
+	vL = valor instanceof Lista
+	uL = unidade instanceof Lista
+	if (uL) {
+		for (i=0; i<unidade.expressoes.length; i++)
+			if (!(unidade.expressoes[i] instanceof Unidade))
+				unidade.expressoes[i] = Unidade.interpretar(unidade.expressoes[i])
+	} else if (!(unidade instanceof Unidade))
 		unidade = Unidade.interpretar(unidade)
 	
-	if (eNumerico(valor)) {
+	if (vL || uL) {
+		// Distribui sobre listas
+		if (vL && uL)
+			if (valor.expressoes.length != unidade.expressoes.length)
+				throw 0
+			else
+				tam = valor.expressoes.length
+		else if (vL)
+			tam = valor.expressoes.length
+		else
+			tam = unidade.expressoes.length
+		retorno = new Lista
+		for (i=0; i<tam; i++) {
+			args = []
+			args.push(vL ? valor.expressoes[i] : valor)
+			args.push(uL ? unidade.expressoes[i] : unidade)
+			retorno.expressoes.push(Funcao.executar("_", args))
+		}
+		return retorno
+	} else if (eNumerico(valor)) {
 		if (eInfinito(valor))
 			return valor
 		if (valor instanceof ValorComUnidade)
@@ -274,7 +304,7 @@ Funcao.registrar("_", "valor_unidade\nConverter o valor para a unidade desejada"
 		return new ValorComUnidade(valor, unidade)
 	} else if (eDeterminado(valor))
 		throw 0
-}, true, true)
+}, false, true)
 
 // Funções lógicas
 Funcao.registrar("!", "!a\nRetorna 1 para valores nulos, 0 para o restante", function (a) {

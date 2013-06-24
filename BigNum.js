@@ -34,18 +34,29 @@ BigNum.prototype.clonar = function () {
 }
 
 // Retorna uma representação em forma de string
-BigNum.prototype.toString = function () {
+BigNum.prototype.toMathString = function (mathML) {
 	var r = "", i
 	if (this.zero)
-		return "0"
+		return mathML ? "<mn>0</mn>" : "0"
 	if (this.negativo)
-		r += "-"
+		r += mathML ? "<mo>-</mo>" : "-"
 	if (this.pequeno)
-		r += "1/"
+		r += mathML ? "<mfrac><mn>1</mn>" : "1/"
 	i = this.nivel
-	while (i--)
-		r += "10^"
-	r += this.expoente
+	if (mathML) {
+		while (i--)
+			r += "<msup><mn>10</mn>"
+		r += this.expoente.toMathString(mathML)
+		i = this.nivel
+		while (i--)
+			r += "</msup>"
+		if (this.pequeno)
+			r += "</mfrac>"
+	} else {
+		while (i--)
+			r += "10^"
+		r += this.expoente.toMathString(mathML)
+	}
 	return r
 }
 

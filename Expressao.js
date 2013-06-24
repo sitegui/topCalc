@@ -15,9 +15,10 @@ Expressao.prototype.clonar = function () {
 }
 
 // Retorna a representação em string
-Expressao.prototype.toString = function () {
-	if (this.puro)
-		return "'"+this.elementos.join(", ")
-	else
-		return this.elementos.join(", ")
+Expressao.prototype.toMathString = function (mathML) {
+	var i, els
+	els = []
+	for (i=0; i<this.elementos.length; i++)
+		els.push(this.elementos[i].toMathString(mathML))
+	return (this.puro ? (mathML ? "<mo>'</mo>" : "'") : "")+els.join(mathML ? "<mo>, </mo>" : ", ")
 }

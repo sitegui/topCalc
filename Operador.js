@@ -11,6 +11,7 @@ Operador.prototype.clonar = function () {
 }
 
 // Retorna como string
-Operador.prototype.toString = function () {
-	return Console.escaparHTML(this.valor)
+Operador.prototype.toMathString = function (mathML) {
+	var op = Console.escaparHTML(this.valor)
+	return mathML ? "<mo>"+op+"</mo>" : op
 }

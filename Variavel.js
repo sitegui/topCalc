@@ -39,8 +39,8 @@ Variavel.prototype.clonar = function () {
 }
 
 // Transforma em string
-Variavel.prototype.toString = function () {
-	return this.nome
+Variavel.prototype.toMathString = function (mathML) {
+	return mathML ? "<mi>"+this.nome+"</mi>" : this.nome
 }
 
 // Retorna o valor de uma variável

@@ -21,18 +21,20 @@ Complexo.prototype.clonar = function () {
 }
 
 // Retorna uma representação em forma de string
-Complexo.prototype.toString = function () {
-	var i
+Complexo.prototype.toMathString = function (mathML) {
+	var i, i2
 	if (eZero(this.b))
-		return String(this.a)
-	i = String(this.b)+"i"
-	if (i == "1i")
-		i = "i"
-	if (i == "-1i")
-		i = "-i"
+		return this.a.toMathString(mathML)
+	i = this.b.toMathString(false)
+	if (i == "1")
+		i2 = mathML ? "<mi>i</mi>" : "i"
+	else if (i == "-1")
+		i2 = mathML ? "<mo>-</mo><mi>i</mi>" : "-i"
+	else
+		i2 = mathML ? this.b.toMathString(true)+"<mi>i</mi>" : i+"i"
 	if (eZero(this.a))
-		return i
-	return String(this.a)+(i.charAt(0)=="-" ? i : "+"+i)
+		return i2
+	return this.a.toMathString(mathML)+(i.charAt(0)=="-" ? i2 : (mathML ? "<mo>+</mo>" : "+")+i2)
 }
 
 /*

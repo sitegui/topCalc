@@ -11,6 +11,10 @@ Parenteses.prototype.clonar = function () {
 }
 
 // Retorna a representação em string
-Parenteses.prototype.toString = function () {
-	return "("+this.expressoes.join(", ")+")"
+Parenteses.prototype.toMathString = function (mathML) {
+	var i, els
+	els = []
+	for (i=0; i<this.expressoes.length; i++)
+		els.push(this.expressoes[i].toMathString(mathML))
+	return mathML ? "<mrow><mo>(</mo>"+els.join("<mo>,</mo> ")+"<mo>)</mo></mrow>" : "("+els.join(", ")+")"
 }

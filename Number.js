@@ -18,6 +18,14 @@ Number.prototype.clonar = function () {
 	return this
 }
 
+// Cria a configuração de precisão a ser mostrada
+Config.registrar("precisaoImpressa", "Define a precisão a ser mostrada (não afeta precisão dos cálculos)", 7, Config.setters.int)
+
+// Retorna em string
+Number.prototype.toMathString = function (mathML) {
+	return mathML ? "<mn>"+this.toPrecision(Config.get("precisaoImpressa"))+"</mn>" : String(this)
+}
+
 /*
 
 = Operações binárias =

@@ -155,8 +155,8 @@ Funcao.prototype.clonar = function () {
 }
 
 // Retorna uma representação em forma de string
-Funcao.prototype.toString = function () {
-	var a, b, op, pre, nome2
+Funcao.prototype.toMathString = function (mathML) {
+	var a, b, op, pre, nome2, strA, strB, i, args
 	var operadores = {
 		factorial: 0, "%": 0, "²": 0, "³": 0, // rtl
 		"!": 1, "+": 1, "-": 1, "\u221A": 1 // ltr
@@ -184,36 +184,46 @@ Funcao.prototype.toString = function () {
 	nome2 = Console.escaparHTML(this.nome)
 	if (eOperador(this)) {
 		a = unbox(this.args[0])
+		strA = a.toMathString(mathML)
 		if (operadores[this.nome] == 0) {
 			op = this.nome=="factorial" ? "!" : nome2
 			if (eOperador2(a) || (eOperador(a) && operadores[a.nome] > 0))
-				return "("+a+")"+op
-			return String(a)+op
-		} else {
+				return mathML ? "<mrow><mo>(</mo>"+strA+"<mo>)</mo></mrow><mo>"+op+"</mo>" : "("+strA+")"+op
+			return mathML ? strA+"<mo>"+op+"</mo>" : strA+op
+		} else if (mathML && this.nome == "\u221A")
+			return "<msqrt>"+strA+"</msqrt>"
+		else {
 			if (eOperador2(a))
-				return nome2+"("+a+")"
-			return nome2+a
+				return mathML ? "<mi>"+nome2+"</mi><mrow><mo>(</mo>"+strA+"<mo>)</mo></mrow>" : nome2+"("+strA+")"
+			return mathML ? "<mo>"+nome2+"</mo>"+strA : nome2+strA
 		}
 	}
 	if (eOperador2(this)) {
 		a = unbox(this.args[0])
 		b = unbox(this.args[1])
+		strA = a.toMathString(mathML)
+		strB = b.toMathString(mathML)
 		pre = operadores2[this.nome]
-		if (eOperador2(a) && (operadores2[a.nome]>pre || (operadores2[a.nome]==pre && sentidos[pre]==-1)))
-			a = "("+a+")"
-		else
-			a = String(a)
-		if (eOperador2(b) && (operadores2[b.nome]>pre || (operadores2[b.nome]==pre && sentidos[pre]==1)))
-			b = "("+b+")"
-		else
-			b = String(b)
+		if (eOperador2(a) && (operadores2[a.nome]>pre || (operadores2[a.nome]==pre && sentidos[pre]==-1)) && !(mathML && this.nome == "/"))
+			strA = mathML ? "<mrow><mo>(</mo>"+strA+"<mo>)</mo></mrow>" : "("+strA+")"
+		if (eOperador2(b) && (operadores2[b.nome]>pre || (operadores2[b.nome]==pre && sentidos[pre]==1)) && !(mathML && this.nome == "/"))
+			strB = mathML ? "<mrow><mo>(</mo>"+strB+"<mo>)</mo></mrow>" : "("+strB+")"
 		if (this.nome == "_")
-			b = "<span class='unidade'>"+b+"</span>"
+			strB = mathML ? "<mstyle class='unidade'>"+strB+"</mstyle>" : "<span class='unidade'>"+strB+"</span>"
+		if (mathML) {
+			if (this.nome == "^")
+				return "<msup><mrow>"+strA+"</mrow><mrow>"+strB+"</mrow></msup>"
+			else if (this.nome == "/")
+				return "<mfrac><mrow>"+strA+"</mrow><mrow>"+strB+"</mrow></mfrac>"
+		}
 		if (pre > 3)
-			return a+" "+nome2+" "+b
-		return a+nome2+b
+			return mathML ? strA+" <mo>"+nome2+"</mo> "+strB : strA+" "+nome2+" "+strB
+		return mathML ? strA+"<mo>"+nome2+"</mo>"+strB : strA+nome2+strB
 	}
-	return nome2+"("+this.args.join(", ")+")"
+	args = []
+	for (i=0; i<this.args.length; i++)
+		args.push(this.args[i].toMathString(mathML))
+	return mathML ? "<mrow><mi>"+nome2+"</mi><mo>(</mo>"+args.join("<mo>,</mo> ")+"<mo>)</mo></mrow>" : nome2+"("+args.join(", ")+")"
 }
 
 // Executa uma função
