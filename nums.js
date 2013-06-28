@@ -86,7 +86,7 @@ function getNum(x) {
 		return x
 	if (x instanceof Fracao || x instanceof BigNum)
 		return x.getNum()
-	throw "Erro em getNum()"
+	throw "Erro em getNum(), um número real era esperado"
 }
 
 // Diz se o double pode ser trabalhado como inteiro seguramente

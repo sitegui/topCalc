@@ -73,3 +73,11 @@ Config.setters.int = function (x) {
 	} else if (eDeterminado(x))
 		throw 0
 }
+
+// double
+Config.setters.double = function (x) {
+	if (eNumerico(x))
+		return getNum(x)
+	else if (eDeterminado(x))
+		throw 0
+}

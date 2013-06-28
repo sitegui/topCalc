@@ -28,44 +28,50 @@ Funcao.registrar = function (nome, definicao, funcao, aceitaListas, entradaPura,
 	Funcao.funcoes[nome] = funcao
 }
 
+// Aplica uma dada função para os argumentos enviados (aceita listas)
+// funcao é uma function
+// that é um objeto Funcao
+// args é uma array com os argumentos da função
+Funcao.aplicarNasListas = function (funcao, that, args) {
+	var i, len, temLista, tamLista, retorno, j, args2, temp
+	len = args.length
+	temLista = false
+	tamLista = 0
+	for (i=0; i<len; i++) {
+		args[i] = unbox(args[i])
+		if (args[i] instanceof Lista) {
+			if (!temLista)
+				tamLista = args[i].expressoes.length
+			else if (tamLista != args[i].expressoes.length)
+				throw "Tamanhos incompatíveis de listas"
+			temLista = true
+		}
+	}
+	
+	if (!temLista)
+		return funcao.apply(that, args)
+	else {
+		retorno = new Lista
+		for (i=0; i<tamLista; i++) {
+			args2 = []
+			for (j=0; j<len; j++)
+				if (args[j] instanceof Lista)
+					args2.push(args[j].expressoes[i])
+				else
+					args2.push(args[j])
+			temp = funcao.apply(that, args2)
+			temp = temp===undefined ? new Funcao(that.nome, args2) : temp
+			if (!eExpressaoVazia(temp))
+				retorno.expressoes.push(temp)
+		}
+		return retorno
+	}
+}
+
 // Transforma a função para aceitar listas facilmente
 Funcao.fazerAceitarListas = function (funcaoBase) {
 	var retorno = function () {
-		var i, len, temLista, tamLista, retorno, j, args, temp
-		len = arguments.length
-		temLista = false
-		tamLista = 0
-		for (i=0; i<len; i++) {
-			if (ePuro(arguments[i]))
-				continue
-			arguments[i] = unbox(arguments[i])
-			if (arguments[i] instanceof Lista) {
-				if (!temLista)
-					tamLista = arguments[i].expressoes.length
-				else if (tamLista != arguments[i].expressoes.length)
-					throw "Tamanhos incompatíveis de listas"
-				temLista = true
-			}
-		}
-		
-		if (!temLista)
-			return funcaoBase.apply(this, arguments)
-		else {
-			retorno = new Lista
-			for (i=0; i<tamLista; i++) {
-				args = []
-				for (j=0; j<len; j++)
-					if (arguments[j] instanceof Lista)
-						args.push(arguments[j].expressoes[i])
-					else
-						args.push(arguments[j])
-				temp = funcaoBase.apply(this, args)
-				temp = temp===undefined ? new Funcao(this.nome, args) : temp
-				if (!eExpressaoVazia(temp))
-					retorno.expressoes.push(temp)
-			}
-			return retorno
-		}
+		return Funcao.aplicarNasListas(funcaoBase, this, arguments)
 	}
 	retorno.dim = funcaoBase.length
 	return retorno

@@ -346,9 +346,13 @@ function mmc(a, b) {
 			a /= i
 			if (b%i == 0)
 				b /= i
+			if (a == 1 || b == 1)
+				return r*a*b
 		} else if (b%i == 0) {
 			r *= i
 			b /= i
+			if (a == 1 || b == 1)
+				return r*a*b
 		} else
 			i += 2
 	}

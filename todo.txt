@@ -1,1 +1,5 @@
-escape de escopo no throw
+escape de escopo no throw (usar try/finally)
+
+erros no toMathString:
+x-(3+4i)
+(ver outros casos de operadores dentro de números)
