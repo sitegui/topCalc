@@ -32,7 +32,7 @@ Matriz.prototype.toMathString = function (mathML) {
 		for (i=1; i<=this.linhas; i++) {
 			r += "<mtr>"
 			for (j=1; j<=this.colunas; j++)
-				r += "<mtd>"+this.get(i, j).toMathString(true)+"</mtd>"
+				r += "<mtd><mrow>"+this.get(i, j).toMathString(true)+"</mrow></mtd>"
 			r += "</mtr>"
 		}
 		r += "</mtable><mo>|</mo>"

@@ -63,7 +63,7 @@ Funcao.registrar("gauss", "gauss(m)\nAplica o método de eliminação de Gauss n
 			Console.echoInfo("Algoritmo abortado por falta de pivô não-nulo")
 		for (i=0; i<info.fatores.length; i++)
 			if (!eNumerico(info.fatores[i]))
-				Console.echoInfo("Assumindo "+info.fatores[i]+" não é nulo", true)
+				Console.echoInfo("Assumindo "+info.fatores[i].toMathString(false)+" não é nulo", true)
 		return retorno
 	} else if (eDeterminado(m))
 		throw 0
@@ -99,7 +99,7 @@ Funcao.registrar("inverse", "inverse(m)\nRetorna a matriz quadrada m invertida",
 			throw 0
 		for (i=0; i<info.fatores.length; i++)
 			if (!eNumerico(info.fatores[i]))
-				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo", true)
+				Console.echoInfo("Assumindo "+info.fatores[i].toMathString(false)+" não nulo", true)
 		return m.separar(-m.linhas)
 	} else if (eDeterminado(m))
 		throw 0

@@ -11,7 +11,7 @@ Vetor.prototype.clonar = function () {
 }
 
 // Cria a configuração para imprimir vetores
-Config.registrar("vetorEmVersores", "Define se os vetores até 3D serão impressos na forma de soma de versores I, J e K", true, Config.setters.bool)
+Config.registrar("vetorEmVersores", "Define se os vetores até 3D serão impressos na forma de soma de versores I, J e K", false, Config.setters.bool)
 
 // Transforma em string
 Vetor.prototype.toMathString = function (mathML) {
