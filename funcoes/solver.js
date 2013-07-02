@@ -72,7 +72,7 @@ Funcao.registrar("findZero", "findZero(variavel, 'expressao, chute)\nEncontra um
 					fxh = getNum(this.executarNoEscopo(expressao))
 					x2 = x-(h*fx)/(fxh-fx)
 					if (Math.abs(x2) == Infinity || isNaN(x2))
-						throw "Erro ao calcular na iteração, tente outro valor inicial"
+						throw "Erro ao calcular a derivada, tente outro valor inicial"
 					
 					// Verifica a condição de parada
 					if (Math.abs(x2-x) < eps || Math.abs(fx) < eps)
@@ -93,7 +93,7 @@ Funcao.registrar("findZero", "findZero(variavel, 'expressao, chute)\nEncontra um
 	}
 }, false, true)
 
-Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m expressões (em forma de vetor ou matriz) nas variáveis. vars e chute são um vetor de n posições.", function (vars, exps, chute) {
+Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m expressões (em forma de vetor ou matriz) nas variáveis reais. vars e chute são um vetor de n posições.", function (vars, exps, chute) {
 	var i, antes, debug, maxI, eps, that
 	
 	// Pega os nomes das variáveis
@@ -178,6 +178,153 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 	}
 }, false, true)
 
+Funcao.registrar("findComplexZero", "findComplexZero(variavel, 'expressao, chute)\nEncontra um valor complexo que zera uma expressão usando o chute inicial dado", function (variavel, expressao, chute) {
+	var antes, maxI, epsD, eps, debug, that
+	
+	// Trata os argumentos
+	this.args[0] = variavel = unbox(variavel)
+	if (!(variavel instanceof Variavel))
+		throw 0
+	variavel = variavel.nome
+	this.args[1] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	this.args[2] = chute = this.executarNoEscopo(chute)
+	maxI = Config.get("maxPassos")
+	eps = Config.get("epsilon")
+	eps *= eps
+	that = this
+	
+	try {
+		// Cria o sub-escopo
+		antes = Variavel.backup(variavel)
+		debug = Config.get("debug")
+		Config.set("debug", false, true)
+		return Funcao.aplicarNasListas(function (expressao, chute) {
+			var i, fsx, jacob, mapa, indeps, deps, deltas, xs
+			
+			// Extrai a parte real e imaginária do chute inicial
+			if (!eDeterminado(chute))
+				return
+			else if (!eNumerico(chute))
+				throw 0
+			xs = [toComplexo(chute)]
+			xs[0].a = getNum(xs[0].a)
+			xs[0].b = getNum(xs[0].b)
+			
+			// Aplica as iterações
+			for (i=0; i<maxI; i++) {
+				fsx = []
+				jacob = Solver.calcularJacobianaComplexa([variavel], [expressao], xs, fsx, that)
+				mapa = Solver.eliminarNumericamente(jacob, fsx)
+				indeps = Solver.determinarIndependentes(jacob, fsx, mapa)
+				deps = Solver.determinarDependentes(jacob, fsx, mapa, indeps)
+				deltas = Solver.ordenarVars(mapa, deps, indeps)
+				xs[0].a += deltas[0]
+				xs[0].b += deltas[1]
+				
+				// Condição de parada
+				if (Solver.getModuloQuadrado(deltas) < eps || Solver.getModuloQuadrado(fsx) < eps)
+					break
+			}
+				
+			// Retorna o resultado
+			if (i == maxI)
+				Console.echoErro("Número máximo de iterações atingido (o resultado pode não fazer sentido)")
+			return xs[0]
+		}, this, [expressao, chute])
+	} finally {
+		Variavel.restaurar(antes)
+		Config.set("debug", debug, true)
+	}
+}, false, true)
+
+Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um conjunto de m expressões (em forma de vetor ou matriz) nas variáveis complexas. vars e chute são um vetor de n posições.", function (vars, exps, chute) {
+	var i, antes, debug, maxI, eps, that
+	
+	// Pega os nomes das variáveis
+	that = this
+	this.args[0] = vars = unbox(vars)
+	if (!eDeterminado(vars))
+		return
+	else if (!(vars instanceof Vetor))
+		throw 0
+	vars = []
+	for (i=0; i<this.args[0].expressoes.length; i++) {
+		this.args[0].expressoes[i] = unbox(this.args[0].expressoes[i])
+		if (this.args[0].expressoes[i] instanceof Variavel)
+			vars.push(this.args[0].expressoes[i].nome)
+		else
+			throw 0
+	}
+	
+	// Trata os outros argumentos
+	this.args[1] = exps = this.executarNoEscopo(exps, vars)
+	this.args[2] = chute = this.executarNoEscopo(chute)
+	maxI = Config.get("maxPassos")
+	eps = Config.get("epsilon")
+	eps *= eps
+	
+	// Cria o sub-escopo
+	try {
+		antes = Variavel.backup(vars)
+		debug = Config.get("debug")
+		Config.set("debug", false, true)
+		
+		// Aplica a cada combinação de listas
+		return Funcao.aplicarNasListas(function (exps, chute) {
+			var xs, i, jacob, fsx, dsx, j, mapa, deltas, indeps, deps, temp
+			
+			// Trata as expressões
+			if (!eDeterminado(exps))
+				return
+			else if (!(exps instanceof Matriz) && !(exps instanceof Vetor))
+				throw 0
+			exps = exps.expressoes
+			
+			// Pega os valores iniciais
+			if (!eDeterminado(chute))
+				return
+			else if (!(chute instanceof Vetor) || chute.expressoes.length != vars.length)
+				throw 0
+			xs = []
+			for (i=0; i<vars.length; i++) {
+				if (eNumerico(chute.expressoes[i])) {
+					temp = toComplexo(chute.expressoes[i])
+					xs.push(new Complexo(getNum(temp.a), getNum(temp.b)))
+				} else if (eDeterminado(chute.expressoes[i]))
+					throw 0
+				else
+					return
+			}
+			
+			// Aplica as iterações
+			for (i=0; i<maxI; i++) {
+				fsx = []
+				jacob = Solver.calcularJacobianaComplexa(vars, exps, xs, fsx, that)
+				mapa = Solver.eliminarNumericamente(jacob, fsx)
+				indeps = Solver.determinarIndependentes(jacob, fsx, mapa)
+				deps = Solver.determinarDependentes(jacob, fsx, mapa, indeps)
+				deltas = Solver.ordenarVars(mapa, deps, indeps)
+				for (j=0; j<deltas.length/2; j++) {
+					xs[j].a += deltas[2*j]
+					xs[j].b += deltas[2*j+1]
+				}
+				
+				// Condição de parada
+				if (Solver.getModuloQuadrado(deltas) < eps || Solver.getModuloQuadrado(fsx) < eps)
+					break
+			}
+				
+			// Retorna o resultado
+			if (i == maxI)
+				Console.echoErro("Número máximo de iterações atingido (o resultado pode não fazer sentido)")
+			return new Vetor(xs)
+		}, this, [exps, chute])
+	} finally {
+		Variavel.restaurar(antes)
+		Config.set("debug", debug, true)
+	}
+}, false, true)
+
 // Objeto com várias funções usadas por esse módulo
 var Solver = {}
 
@@ -209,6 +356,47 @@ Solver.calcularJacobiana = function (vars, exps, valores, fsx, that) {
 		for (j=0; j<exps.length; j++) {
 			fxh = getNum(that.executarNoEscopo(exps[j]))
 			J[i].push((fxh+fsx[j])/h)
+		}
+	}
+	
+	return J
+}
+
+// O mesmo de Solver.calcularJacobiana(), só que para sistemas no campo dos complexos
+// valores deve ser uma Array de complexos com as propriedades "a" e "b" number
+Solver.calcularJacobianaComplexa = function (vars, exps, valores, fsx, that) {
+	var i, j, h, fxh, k, J, epsD, temp
+	
+	// Calcula os valores de cada expressão
+	for (i=0; i<vars.length; i++)
+		Variavel.valores[vars[i]] = valores[i]
+	for (i=0; i<exps.length; i++) {
+		temp = toComplexo(that.executarNoEscopo(exps[i]))
+		fsx.push(-getNum(temp.a))
+		fsx.push(-getNum(temp.b))
+	}
+	
+	// Monta J
+	J = []
+	epsD = Config.get("epsDerivada")
+	for (i=0; i<vars.length; i++) {
+		J.push([])
+		h = epsD*(Math.abs(valores[i].a)+1)
+		for (k=0; k<vars.length; k++)
+			Variavel.valores[vars[k]] = k==i ? new Complexo(valores[k].a+h, valores[k].b) : valores[k]
+		for (j=0; j<exps.length; j++) {
+			fxh = toComplexo(that.executarNoEscopo(exps[j]))
+			J[2*i].push((getNum(fxh.a)+fsx[2*j])/h)
+			J[2*i].push((getNum(fxh.b)+fsx[2*j+1])/h)
+		}
+		J.push([])
+		h = epsD*(Math.abs(valores[i].b)+1)
+		for (k=0; k<vars.length; k++)
+			Variavel.valores[vars[k]] = k==i ? new Complexo(valores[k].a, valores[k].b+h) : valores[k]
+		for (j=0; j<exps.length; j++) {
+			fxh = toComplexo(that.executarNoEscopo(exps[j]))
+			J[2*i+1].push((getNum(fxh.a)+fsx[2*j])/h)
+			J[2*i+1].push((getNum(fxh.b)+fsx[2*j+1])/h)
 		}
 	}
 	
@@ -252,7 +440,7 @@ Solver.eliminarNumericamente = function (A, b) {
 		if (maior < eps) {
 			for (i2=j; i2<A[0].length; i2++)
 				if (Math.abs(b[mapaI[i2]]) > eps)
-					throw "Absurdo matemático ao tentar resolver o sistema"
+					throw "Absurdo matemático ao tentar resolver o sistema, tente outro chute inicial"
 			break
 		}
 		
@@ -322,7 +510,7 @@ Solver.determinarIndependentes = function (A, b, mapa) {
 	// Resolve o sistema
 	mapa2 = Solver.eliminarNumericamente(A2, b2)
 	if (A2.length != mapa2.num)
-		throw "Falha ao tentar resolver"
+		throw "Falha ao tentar resolver, tente outro chute inicial"
 	
 	// Monta o retorno na ordem correta
 	r = []
