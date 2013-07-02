@@ -82,13 +82,13 @@ numeros: "Os valores numéricos são representados de 4 formas:\n"+
 	"- Complexo: um valor complexo na forma @a+b*i@ (com a e b reais)\n"+
 	"Os números são encaixados em cada tipo automaticamente, como for melhor\n\n"+
 	"As formas de se escrever um número como entrada são:\n"+
-	"- double, exemplos: @2@, @2.7@, @1e100@, @.12e-7@ Formalmente: \\d*(\\.\\d*)?(e[+-]?\\d+)?\n"+
-	"- inteiro hexadecimal, exemplo: @0x2F805B@ Formalmente: 0x[0-9a-f]+\n"+
-	"- inteiro binário, exemplo: @0b10101001@ Formalmente: 0b[01]+\n"+
-	"- inteiro em outra base, exemplo: @gui_36@ Formalmente: [0-9a-z]+_\\d+",
+	"- double, exemplos: @2@, @2.7@, @1e100@, @.12e-7@\n"+
+	"- inteiro hexadecimal, exemplo: @0x2F805B@\n"+
+	"- inteiro binário, exemplo: @0b10101001@\n"+
+	"- inteiro em outra base, exemplo: @gui_36@",
 operadores: "Os operadores são internamente tratados como funções normais\n"+
 	"Os operadores disponíveis são:\n"+
-	"- aritméticos: @a+b@, @a-b@, @a*b@, @a/b@, @a^b@ (elevado), @a%b@ (resto da divisão), @+n@, @-n@\n"+
+	"- aritméticos: @a+b@, @a-b@, @a*b@, @a/b@, @a^b@ (elevado), @a%b@ (resto da divisão), @a\u2A2Fb@ (produto vetorial), @+n@, @-n@, @n²@, @n³@, @\u221An@\n"+
 	"- comparação: @a<b@, @a>b@, @a<=b@, @a>=b@, @a==b@, @a!=b@ (diferente)\n"+
 	"- lógicos: @!a@ (not), @a&&b@ (e), @a||b@ (ou)\n"+
 	"- outros: @n!@ (fatorial), @n%@ (porcentagem, @v[n]@ (entrada do vetor), @m[i, j]@ (entrada da matriz), @a_b@ (aplicador de unidade)\n"+
@@ -130,7 +130,8 @@ graficos: "Para plotar gráficos, use a função plot, exemplos:\n"+
 	"Outras opções de gráficos (animados ou com parâmetros) são:\n"+
 	"@animate(a, 1/10, 10, x, 0, pi, sin(x)^a)@\n"+
 	"@animate(a, 1, 7, x, -2, 2, for(j, 1, round(a^2), j*(1-i)*x))@\n"+
-	"@slider(f, 1, 5, x, -3pi, 3pi, a*sin(x)+b*sin(f*x))@",
+	"@slider(f, 1, 5, x, -3pi, 3pi, a*sin(x)+b*sin(f*x))@\n"+
+	"@listPlot({3, 14, 15, 92, 65, 35, 89, 79, 32, 38, 46, 26, 43, 38, 32, 79, 5})@",
 unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
 	"@1_s@, @pi_rad@, @x_(N*m)@, @17_(kW/m^2)@\n"+
 	"O operador _ aplica e transforma unidades, por exemplo: @20_ºC_ºF@ → 68_ºF\n"+

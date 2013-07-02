@@ -277,7 +277,7 @@ function interpretar(expressao) {
 	for (i=0; i<expressao.elementos.length-1; i++) {
 		el = expressao.elementos[i]
 		elDepois = expressao.elementos[i+1]
-		if (!(el instanceof Operador) && !(elDepois instanceof Operador)) {
+		if ((!(el instanceof Operador) || el.valor == "²" || el.valor == "³") && (!(elDepois instanceof Operador) || elDepois.valor == "\u221A")) {
 			if (elDepois instanceof Vetor && (elDepois.expressoes.length == 1 || elDepois.expressoes.length == 2)) {
 				expressao.elementos.splice(i, 2, new Funcao("getAt", [el].concat(elDepois.expressoes)))
 				i--
@@ -288,25 +288,35 @@ function interpretar(expressao) {
 		}
 	}
 	
-	var aplicarUnarios = function (ops, sentido) {
-		var temp, nome
-		for (i=0; i<expressao.elementos.length; i++) {
-			j = sentido==1 ? i : expressao.elementos.length-i-1
-			el = expressao.elementos[j]
-			elAntes = j==0 ? null : expressao.elementos[j-1]
-			elDepois = j==expressao.elementos.length-1 ? null : expressao.elementos[j+1]
-			if (sentido == -1) {
-				temp = elDepois
-				elDepois = elAntes
-				elAntes = temp
+	// Aplica os operadores unários !, %, ², ³ (ltr)
+	for (i=0; i<expressao.elementos.length; i++) {
+		el = expressao.elementos[i]
+		elAntes = i==0 ? null : expressao.elementos[i-1]
+		elDepois = i==expressao.elementos.length-1 ? null : expressao.elementos[i+1]
+		if (el instanceof Operador && ["!", "%", "²", "³"].indexOf(el.valor) != -1) {
+			if (elAntes && !(elAntes instanceof Operador) && (elDepois == null || elDepois instanceof Operador)) {
+				expressao.elementos.splice(i-1, 2, new Funcao(el.valor == "!" ? "factorial" : el.valor, [elAntes]))
+				i--
 			}
-			if (el instanceof Operador && ops.indexOf(el.valor) != -1) {
-				if (elAntes && !(elAntes instanceof Operador) && (elDepois == null || elDepois instanceof Operador)) {
-					nome = el.valor == "!" && sentido == 1 ? "factorial" : el.valor
-					expressao.elementos.splice(sentido==1 ? j-1 : j, 2, new Funcao(nome, [elAntes]))
-					i--
-				}
+		}
+	}
+	
+	// Aplica os operadores unários !, +, -, \u221A (rtl) e o binário ^ (rtl)
+	for (i=expressao.elementos.length-1; i>=0; i--) {
+		el = expressao.elementos[i]
+		elAntes = i==0 ? null : expressao.elementos[i-1]
+		elDepois = i==expressao.elementos.length-1 ? null : expressao.elementos[i+1]
+		if (el instanceof Operador && ["!", "+", "-", "\u221A"].indexOf(el.valor) != -1) {
+			if (elDepois && !(elDepois instanceof Operador) && (elAntes == null || elAntes instanceof Operador)) {
+				expressao.elementos.splice(i, 2, new Funcao(el.valor, [elDepois]))
+				i++
 			}
+		} else if (el instanceof Operador && el.valor == "^") {
+			if (elAntes && !(elAntes instanceof Operador) && elDepois && !(elDepois instanceof Operador)) {
+				expressao.elementos.splice(i-1, 3, new Funcao(el.valor, [elAntes, elDepois]))
+				i++
+			} else
+				throw "Uso incorreto do operador ^"
 		}
 	}
 	
@@ -327,9 +337,6 @@ function interpretar(expressao) {
 	}
 	
 	// Aplica os operadores ordem de precedência
-	aplicarUnarios(["!", "%", "²", "³"], 1)
-	aplicarUnarios(["!", "+", "-", "\u221A"], -1)
-	aplicarBinarios(["^"], -1)
 	aplicarBinarios(["_"], 1)
 	aplicarBinarios(["*", "/", "%", "\u2A2F"], 1)
 	aplicarBinarios(["+", "-"], 1)
@@ -337,7 +344,7 @@ function interpretar(expressao) {
 	aplicarBinarios(["==", "!=", "\u2260"], 1)
 	aplicarBinarios(["&&"], 1)
 	aplicarBinarios(["||"], 1)
-	aplicarBinarios(["=", "+=", "-=", "*=", "/=", "%=", "_=", "&&=", "||="], -1)
+	aplicarBinarios(["=", "+=", "-=", "*=", "/=", "%=", "_=", "&&=", "||=", "^="], -1)
 	
 	if (expressao.elementos.length > 1)
 		throw "Expressão inválida"

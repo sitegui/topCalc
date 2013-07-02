@@ -1,12 +1,7 @@
 escape de escopo no throw (usar try/finally)
 
-erros no toMathString:
-x-(3+4i)
-(ver outros casos de operadores dentro de números)
-
 a = 3.8-0.4*x
 b = 2.5+x
 c = 0.7-0.6*x
 plot(x, 0, 2, {a+b+c, 7})
-
-x²y
+(o problema é nos ticks do eixo y)

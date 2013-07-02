@@ -332,6 +332,7 @@ ConsoleInput.tabelaChars = [
 [/\\<=/g, "\u2264"],
 [/\\>=/g, "\u2265"],
 [/\\v\//g, "\u221A"],
+[/\\sqrt/g, "\u221A"],
 [/\\oo/g, "\u221E"],
 [/\\x/g, "\u2A2F"],
 [/\\times/g, "\u2A2F"],

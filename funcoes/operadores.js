@@ -385,7 +385,7 @@ Funcao.registrar("||", "a||b\nRetorna se a ou b são não nulos", function (a, b
 
 // Operadores de atribuição compostos
 ;(function () {
-	var ops = ["+", "-", "*", "/", "%", "&&", "||", "_"]
+	var ops = ["+", "-", "*", "/", "%", "&&", "||", "_", "^"]
 	ops.forEach(function (op) {
 		Funcao.registrar(op+"=", "a"+op+"=b\nMesmo que a = a"+op+"b", function (a, b) {
 			return this.executarNoEscopo(new Funcao("=", [a, new Funcao(op, [a, b])]))

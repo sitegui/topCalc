@@ -162,30 +162,38 @@ Funcao.prototype.clonar = function () {
 
 // Retorna uma representação em forma de string
 Funcao.prototype.toMathString = function (mathML) {
-	var a, b, op, pre, nome2, strA, strB, i, args
+	var a, b, op, pre, nome2, strA, strB, i, args, preA, preB
 	var operadores = {
 		factorial: 0, "%": 0, "²": 0, "³": 0, // rtl
 		"!": 1, "+": 1, "-": 1, "\u221A": 1 // ltr
 	}
 	var operadores2 = {
-		"^": 0, // ltr
-		"_": 1, // rtl
-		"*": 2, "/": 2, "%": 2, "undefined": 2, "\u2A2F": 2, // rtl
-		"+": 3, "-": 3, // rtl
-		"<": 4, "<=": 4, ">": 4, ">=": 4, "\u2264": 4, "\u2265": 4, // rtl
-		"==": 5, "!=": 5, "\u2260": 5, // rtl
-		"&&": 6, // rtl
-		"||": 7, // rtl
-		"=": 8 // ltr
+		"^": 1, // ltr
+		"_": 2, // rtl
+		"*": 3, "/": 3, "%": 3, "\u2A2F": 3, // rtl
+		"+": 4, "-": 4, // rtl
+		"<": 5, "<=": 5, ">": 5, ">=": 5, "\u2264": 5, "\u2265": 5, // rtl
+		"==": 6, "!=": 6, "\u2260": 6, // rtl
+		"&&": 7, // rtl
+		"||": 8, // rtl
+		"=": 9 // ltr
 	}
-	var sentidos = [-1, 1, 1, 1, 1, 1, 1, 1, -1]
+	var sentidos = [0, -1, 1, 1, 1, 1, 1, 1, 1, -1]
 	var eOperador = function (x) {
 		return x instanceof Funcao && x.nome in operadores && x.args.length == 1
 	}
 	var eOperador2 = function (x) {
 		if (x instanceof Fracao && x.d != 1)
-			return true
-		return x instanceof Funcao && x.nome in operadores2 && x.args.length == 2
+			return operadores2["/"]
+		if (x instanceof Complexo && !eZero(x.b))
+			return operadores2["+"]
+		if (x instanceof ValorComUnidade)
+			return operadores2["_"]
+		if (x instanceof BigNum)
+			return operadores2["^"]
+		if (x instanceof Funcao && x.nome in operadores2 && x.args.length == 2)
+			return operadores2[x.nome]
+		return 0
 	}
 	nome2 = Console.escaparHTML(this.nome)
 	if (eOperador(this)) {
@@ -199,20 +207,23 @@ Funcao.prototype.toMathString = function (mathML) {
 		} else if (mathML && this.nome == "\u221A")
 			return "<msqrt>"+strA+"</msqrt>"
 		else {
-			if (eOperador2(a))
+			if (eOperador2(a) && a.nome != "^")
 				return mathML ? "<mi>"+nome2+"</mi><mrow><mo>(</mo>"+strA+"<mo>)</mo></mrow>" : nome2+"("+strA+")"
 			return mathML ? "<mo>"+nome2+"</mo>"+strA : nome2+strA
 		}
 	}
-	if (eOperador2(this)) {
+	if (pre = eOperador2(this)) {
 		a = unbox(this.args[0])
 		b = unbox(this.args[1])
 		strA = a.toMathString(mathML)
 		strB = b.toMathString(mathML)
-		pre = operadores2[this.nome]
-		if (eOperador2(a) && (operadores2[a.nome]>pre || (operadores2[a.nome]==pre && sentidos[pre]==-1)) && !(mathML && this.nome == "/"))
+		preA = eOperador2(a)
+		preB = eOperador2(b)
+		if (this.nome == "^" && a instanceof Funcao && ["!", "+", "-", "\u221A"].indexOf(a.nome) != -1 && a.args.length == 1)
 			strA = mathML ? "<mrow><mo>(</mo>"+strA+"<mo>)</mo></mrow>" : "("+strA+")"
-		if (eOperador2(b) && (operadores2[b.nome]>pre || (operadores2[b.nome]==pre && sentidos[pre]==1)) && !(mathML && this.nome == "/"))
+		else if (preA && (preA>pre || (preA==pre && sentidos[pre]==-1)) && !(mathML && this.nome == "/"))
+			strA = mathML ? "<mrow><mo>(</mo>"+strA+"<mo>)</mo></mrow>" : "("+strA+")"
+		if (preB && (preB>pre || (preB==pre && sentidos[pre]==1)) && !(mathML && (this.nome == "/" || this.nome == "^")))
 			strB = mathML ? "<mrow><mo>(</mo>"+strB+"<mo>)</mo></mrow>" : "("+strB+")"
 		if (this.nome == "_")
 			strB = mathML ? "<mstyle class='unidade'>"+strB+"</mstyle>" : "<span class='unidade'>"+strB+"</span>"
@@ -222,7 +233,7 @@ Funcao.prototype.toMathString = function (mathML) {
 			else if (this.nome == "/")
 				return "<mfrac><mrow>"+strA+"</mrow><mrow>"+strB+"</mrow></mfrac>"
 		}
-		if (pre > 3)
+		if (pre > 4)
 			return mathML ? strA+" <mo>"+nome2+"</mo> "+strB : strA+" "+nome2+" "+strB
 		return mathML ? strA+"<mo>"+nome2+"</mo>"+strB : strA+nome2+strB
 	}
