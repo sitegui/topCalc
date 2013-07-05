@@ -240,10 +240,17 @@ Funcao.prototype.toMathString = function (mathML) {
 			return mathML ? strA+" <mo>"+nome2+"</mo> "+strB : strA+" "+nome2+" "+strB
 		return mathML ? strA+"<mo>"+nome2+"</mo>"+strB : strA+nome2+strB
 	}
+	if (this.nome == "getAt") {
+		strA = this.args[0].toMathString(mathML)
+		strB = this.args[1].toMathString(mathML)
+		if (mathML)
+			return strA+"<mrow><mo>[</mo>"+strB+(this.args.length==3 ? "<mo>,</mo> "+this.args[2].toMathString(true) : "")+"<mo>]</mo></mrow>"
+		return strA+"["+strB+(this.args.length==3 ? ", "+this.args[2].toMathString(false) : "")+"]"
+	}
 	args = []
 	for (i=0; i<this.args.length; i++)
 		args.push(this.args[i].toMathString(mathML))
-	return mathML ? "<mrow><mi>"+nome2+"</mi><mo>(</mo>"+args.join("<mo>,</mo> ")+"<mo>)</mo></mrow>" : nome2+"("+args.join(", ")+")"
+	return mathML ? "<mi>"+nome2+"</mi><mrow><mo>(</mo>"+args.join("<mo>,</mo> ")+"<mo>)</mo></mrow>" : nome2+"("+args.join(", ")+")"
 }
 
 // Executa uma função

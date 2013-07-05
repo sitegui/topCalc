@@ -288,7 +288,7 @@ Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='..
 			}
 			r = this.executarPuroNoEscopo(b, params.concat(includes))
 			funcao = Funcao.gerar(params, unidades, r)
-			funcao.definicao = new Funcao("=", [a, b]).toMathString(false)
+			funcao.definicao = new Funcao("=", [a, r]).toMathString(false)
 			Funcao.funcoes[a.nome] = funcao
 			return r
 		}

@@ -6,6 +6,4 @@ plot(x, 0, 2, {a+b+c, 7})
 
 remover necessidade de unbox (depende da remoção de expressão pura)
 
-toMathString para x[t] = 2
-
 escopo em Funcao.executar
