@@ -66,23 +66,25 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 		that = this
 		quadros = 50
 		funcs = expressao instanceof Lista ? expressao.expressoes : [expressao]
-
-		antes = Variavel.backup(variavel)
-		datas = []
 		
-		for (i=inicio; i<=fim; i+=(fim-inicio)/quadros) {
-			// Plota
-			Variavel.valores[variavel] = i
-			funcs2 = funcs.map(function (x) {
-				return that.executarPuroNoEscopo(x, [variavelX])
-			})
-			canvas = plot2canvas(that, variavelX, xMin, xMax, funcs2)
-			canvas.getContext("2d").fillStyle = "white"
-			canvas.getContext("2d").font = "15px sans-serif"
-			canvas.getContext("2d").fillText(variavel+" = "+i.toPrecision(3), 7, 15)
-			datas.push(canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height))
+		try {
+			antes = Variavel.backup(variavel)
+			datas = []
+			for (i=inicio; i<=fim; i+=(fim-inicio)/quadros) {
+				// Plota
+				Variavel.valores[variavel] = i
+				funcs2 = funcs.map(function (x) {
+					return that.executarPuroNoEscopo(x, [variavelX])
+				})
+				canvas = plot2canvas(that, variavelX, xMin, xMax, funcs2)
+				canvas.getContext("2d").fillStyle = "white"
+				canvas.getContext("2d").font = "15px sans-serif"
+				canvas.getContext("2d").fillText(variavel+" = "+i.toPrecision(3), 7, 15)
+				datas.push(canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height))
+			}
+		} finally {
+			Variavel.restaurar(antes)
 		}
-		Variavel.restaurar(antes)
 		
 		// Mostra na tela
 		div = document.createElement("div")
@@ -177,16 +179,19 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, '
 	
 	var desenhar = function () {
 		var backup, i, funcs2
-		backup = Variavel.backup(vars)
 		
-		for (i=0; i<vars.length; i++)
-			Variavel.valores[vars[i]] = valores[i]
-		
-		funcs2 = funcs.map(function (x) {
-			return that.executarNoEscopo(x, [varX])
-		})
-		div.replaceChild(plot2canvas(that, varX, inicioX, fimX, funcs2), div.lastChild)
-		Variavel.restaurar(backup)
+		try {
+			backup = Variavel.backup(vars)
+			for (i=0; i<vars.length; i++)
+				Variavel.valores[vars[i]] = valores[i]
+			
+			funcs2 = funcs.map(function (x) {
+				return that.executarNoEscopo(x, [varX])
+			})
+			div.replaceChild(plot2canvas(that, varX, inicioX, fimX, funcs2), div.lastChild)
+		} finally {
+			Variavel.restaurar(backup)
+		}
 	}
 	
 	// Percorre a expressão recursivamente, buscando por variáveis
@@ -463,35 +468,38 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		antes = Variavel.backup(variavel)
 		complexo = false
 		
-		// Executa a expressão para cada valor de x e salva os resultados
-		debug = Config.get("debug")
-		Config.set("debug", false, true)
-		for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
-			Variavel.valores[variavel] = x
-			try {
-				y = that.executarNoEscopo(exp)
-				if (eNumerico(y)) {
-					if (y instanceof Complexo) {
-						xsC.push(x)
-						ysC.push(getNum(y.b))
-						y = y.a
-						complexo = true
-					} else {
-						xsC.push(x)
-						ysC.push(0)
+		try {
+			// Executa a expressão para cada valor de x e salva os resultados
+			debug = Config.get("debug")
+			Config.set("debug", false, true)
+			for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
+				Variavel.valores[variavel] = x
+				try {
+					y = that.executarNoEscopo(exp)
+					if (eNumerico(y)) {
+						if (y instanceof Complexo) {
+							xsC.push(x)
+							ysC.push(getNum(y.b))
+							y = y.a
+							complexo = true
+						} else {
+							xsC.push(x)
+							ysC.push(0)
+						}
+						xs.push(x)
+						ys.push(getNum(y))
 					}
-					xs.push(x)
-					ys.push(getNum(y))
+				} catch (e) {
 				}
-			} catch (e) {
 			}
+			if (!complexo) {
+				xsC = []
+				ysC = []
+			}
+		} finally {
+			Config.set("debug", debug, true)
+			Variavel.restaurar(antes)
 		}
-		if (!complexo) {
-			xsC = []
-			ysC = []
-		}
-		Config.set("debug", debug, true)
-		Variavel.restaurar(antes)
 		
 		// Escolhe a escala vertical
 		ys2 = []

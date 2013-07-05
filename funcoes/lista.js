@@ -20,14 +20,17 @@ Funcao.registrar("for", "for(variavel, inicio, fim, 'expressao)\nRetorna uma lis
 		if (!eIntSeguro(inicio) || !eIntSeguro(fim))
 			throw 0
 		lista = new Lista
-		antes = Variavel.backup(variavel)
 		
-		for (i=inicio; i<=fim; i++) {
-			Variavel.valores[variavel] = new Fracao(i, 1)
-			lista.expressoes.push(this.executarNoEscopo(expressao))
+		try {
+			antes = Variavel.backup(variavel)
+			for (i=inicio; i<=fim; i++) {
+				Variavel.valores[variavel] = new Fracao(i, 1)
+				lista.expressoes.push(this.executarNoEscopo(expressao))
+			}
+		} finally {
+			Variavel.restaurar(antes)
 		}
 		
-		Variavel.restaurar(antes)
 		return lista
 	} else if (eDeterminado(inicio) && eDeterminado(fim))
 		throw 0
@@ -214,18 +217,23 @@ Funcao.registrar("every", "every(lista, variavel, 'expressao)\nRetorna zero se e
 	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = null
-		antes = Variavel.backup(variavel)
-		for (i=0; i<lista.expressoes.length; i++) {
-			Variavel.valores[variavel] = lista.expressoes[i]
-			cada = this.executarNoEscopo(expressao)
-			if (eNumerico(cada))
-				if (eZero(cada))
-					return new Fracao(0, 1)
-				else
-					continue
-			retorno = retorno===null ? cada : Funcao.executar("&&", [retorno, cada])
+		
+		try {
+			antes = Variavel.backup(variavel)
+			for (i=0; i<lista.expressoes.length; i++) {
+				Variavel.valores[variavel] = lista.expressoes[i]
+				cada = this.executarNoEscopo(expressao)
+				if (eNumerico(cada))
+					if (eZero(cada))
+						return new Fracao(0, 1)
+					else
+						continue
+				retorno = retorno===null ? cada : Funcao.executar("&&", [retorno, cada])
+			}
+		} finally {
+			Variavel.restaurar(antes)
 		}
-		Variavel.restaurar(antes)
+		
 		if (retorno === null)
 			return new Fracao(1, 1)
 		return retorno
@@ -243,18 +251,22 @@ Funcao.registrar("some", "some(lista, variavel, 'expressao)\nRetorna zero se exp
 	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = null
-		antes = Variavel.backup(variavel)
-		for (i=0; i<lista.expressoes.length; i++) {
-			Variavel.valores[variavel] = lista.expressoes[i]
-			cada = this.executarNoEscopo(expressao)
-			if (eNumerico(cada))
-				if (!eZero(cada))
-					return new Fracao(1, 1)
-				else
-					continue
-			retorno = retorno===null ? cada : Funcao.executar("||", [retorno, cada])
+		
+		try {
+			antes = Variavel.backup(variavel)
+			for (i=0; i<lista.expressoes.length; i++) {
+				Variavel.valores[variavel] = lista.expressoes[i]
+				cada = this.executarNoEscopo(expressao)
+				if (eNumerico(cada))
+					if (!eZero(cada))
+						return new Fracao(1, 1)
+					else
+						continue
+				retorno = retorno===null ? cada : Funcao.executar("||", [retorno, cada])
+			}
+		} finally {
+			Variavel.restaurar(antes)
 		}
-		Variavel.restaurar(antes)
 		if (retorno === null)
 			return new Fracao(0, 1)
 		return retorno
@@ -272,16 +284,21 @@ Funcao.registrar("filter", "filter(lista, variavel, 'expressao)\nRetorna uma lis
 	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = new Lista
-		antes = Variavel.backup(variavel)
-		for (i=0; i<lista.expressoes.length; i++) {
-			Variavel.valores[variavel] = lista.expressoes[i]
-			cada = this.executarNoEscopo(expressao)
-			if (!eNumerico(cada))
-				return
-			if (!eZero(cada))
-				retorno.expressoes.push(lista.expressoes[i])
+		
+		try {
+			antes = Variavel.backup(variavel)
+			for (i=0; i<lista.expressoes.length; i++) {
+				Variavel.valores[variavel] = lista.expressoes[i]
+				cada = this.executarNoEscopo(expressao)
+				if (!eNumerico(cada))
+					return
+				if (!eZero(cada))
+					retorno.expressoes.push(lista.expressoes[i])
+			}
+		} finally {
+			Variavel.restaurar(antes)
 		}
-		Variavel.restaurar(antes)
+		
 		return retorno
 	} else if (eDeterminado(lista))
 		throw 0
@@ -297,12 +314,17 @@ Funcao.registrar("map", "map(lista, variavel, 'expressao)\nRetorna uma lista com
 	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = new Lista
-		antes = Variavel.backup(variavel)
-		for (i=0; i<lista.expressoes.length; i++) {
-			Variavel.valores[variavel] = lista.expressoes[i]
-			retorno.expressoes.push(this.executarNoEscopo(expressao))
+		
+		try {
+			antes = Variavel.backup(variavel)
+			for (i=0; i<lista.expressoes.length; i++) {
+				Variavel.valores[variavel] = lista.expressoes[i]
+				retorno.expressoes.push(this.executarNoEscopo(expressao))
+			}
+		} finally {
+			Variavel.restaurar(antes)
 		}
-		Variavel.restaurar(antes)
+		
 		return retorno
 	} else if (eDeterminado(lista))
 		throw 0
@@ -329,13 +351,18 @@ Funcao.registrar("reduce", "reduce(lista, varA, varB, 'expressao) ou reduce(list
 				inicio = lista.expressoes[0]
 			else
 				throw 0
-		antes = Variavel.backup([varA, varB])
-		for (i=ini; i<lista.expressoes.length; i++) {
-			Variavel.valores[varA] = inicio
-			Variavel.valores[varB] = lista.expressoes[i]
-			inicio = this.executarNoEscopo(expressao)
+		
+		try {
+			antes = Variavel.backup([varA, varB])
+			for (i=ini; i<lista.expressoes.length; i++) {
+				Variavel.valores[varA] = inicio
+				Variavel.valores[varB] = lista.expressoes[i]
+				inicio = this.executarNoEscopo(expressao)
+			}
+		} finally {
+			Variavel.restaurar(antes)
 		}
-		Variavel.restaurar(antes)
+		
 		return inicio
 	} else if (eDeterminado(lista))
 		throw 0
@@ -362,13 +389,18 @@ Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, 'expressao) ou r
 				inicio = lista.expressoes[lista.expressoes.length-1]
 			else
 				throw 0
-		antes = Variavel.backup([varA, varB])
-		for (i=ini; i>=0; i--) {
-			Variavel.valores[varA] = inicio
-			Variavel.valores[varB] = lista.expressoes[i]
-			inicio = this.executarNoEscopo(expressao)
+		
+		try {
+			antes = Variavel.backup([varA, varB])
+			for (i=ini; i>=0; i--) {
+				Variavel.valores[varA] = inicio
+				Variavel.valores[varB] = lista.expressoes[i]
+				inicio = this.executarNoEscopo(expressao)
+			}
+		} finally {
+			Variavel.restaurar(antes)
 		}
-		Variavel.restaurar(antes)
+		
 		return inicio
 	} else if (eDeterminado(lista))
 		throw 0

@@ -183,14 +183,19 @@ Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, 'exp)\nMonta u
 		if (!eIntSeguro(nLinhas) || !eIntSeguro(nColunas) || nLinhas <= 0 || nColunas <= 0)
 			throw 0
 		retorno = new Matriz
-		antes = Variavel.backup([varI.nome, varJ.nome])
-		for (i=1; i<=nLinhas; i++)
-			for (j=1; j<=nColunas; j++) {
-				Variavel.valores[varI.nome] = new Fracao(i, 1)
-				Variavel.valores[varJ.nome] = new Fracao(j, 1)
-				retorno.expressoes.push(this.executarNoEscopo(exp))
-			}
-		Variavel.restaurar(antes)
+		
+		try {
+			antes = Variavel.backup([varI.nome, varJ.nome])
+			for (i=1; i<=nLinhas; i++)
+				for (j=1; j<=nColunas; j++) {
+					Variavel.valores[varI.nome] = new Fracao(i, 1)
+					Variavel.valores[varJ.nome] = new Fracao(j, 1)
+					retorno.expressoes.push(this.executarNoEscopo(exp))
+				}
+		} finally {
+			Variavel.restaurar(antes)
+		}
+		
 		retorno.colunas = nColunas
 		retorno.linhas = nLinhas
 		return retorno
