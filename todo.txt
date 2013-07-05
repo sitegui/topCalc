@@ -5,3 +5,9 @@ b = 2.5+x
 c = 0.7-0.6*x
 plot(x, 0, 2, {a+b+c, 7})
 (o problema é nos ticks do eixo y)
+
+remover necessidade de unbox
+
+toMathString para x[t] = 2
+
+escopo em Funcao.executar

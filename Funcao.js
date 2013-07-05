@@ -169,16 +169,17 @@ Funcao.prototype.toMathString = function (mathML) {
 	}
 	var operadores2 = {
 		"^": 1, // ltr
-		"_": 2, // rtl
-		"*": 3, "/": 3, "%": 3, "\u2A2F": 3, // rtl
-		"+": 4, "-": 4, // rtl
-		"<": 5, "<=": 5, ">": 5, ">=": 5, "\u2264": 5, "\u2265": 5, // rtl
-		"==": 6, "!=": 6, "\u2260": 6, // rtl
-		"&&": 7, // rtl
-		"||": 8, // rtl
-		"=": 9 // ltr
+		":": 2, // rtl
+		"_": 3, // rtl
+		"*": 4, "/": 4, "%": 4, "\u2A2F": 4, // rtl
+		"+": 5, "-": 5, // rtl
+		"<": 6, "<=": 6, ">": 6, ">=": 6, "\u2264": 6, "\u2265": 6, // rtl
+		"==": 7, "!=": 7, "\u2260": 7, // rtl
+		"&&": 8, // rtl
+		"||": 9, // rtl
+		"=": 10 // ltr
 	}
-	var sentidos = [0, -1, 1, 1, 1, 1, 1, 1, 1, -1]
+	var sentidos = [0, -1, 1, 1, 1, 1, 1, 1, 1, 1, -1]
 	var eOperador = function (x) {
 		return x instanceof Funcao && x.nome in operadores && x.args.length == 1
 	}
@@ -233,7 +234,7 @@ Funcao.prototype.toMathString = function (mathML) {
 			else if (this.nome == "/")
 				return "<mfrac><mrow>"+strA+"</mrow><mrow>"+strB+"</mrow></mfrac>"
 		}
-		if (pre > 4)
+		if (pre > 5)
 			return mathML ? strA+" <mo>"+nome2+"</mo> "+strB : strA+" "+nome2+" "+strB
 		return mathML ? strA+"<mo>"+nome2+"</mo>"+strB : strA+nome2+strB
 	}

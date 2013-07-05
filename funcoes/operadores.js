@@ -164,29 +164,119 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 	} else if (eDeterminado(a))
 		throw 0
 }, true)
+
 Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='...\nDefine ou redefine uma variável, função ou unidade", function (a, b) {
-	var that = this
-	var definir = function (a, b) {
-		var retorno, i, len, params = [], unidades = {}, temp, funcao
-		a = unbox(a)
-		if (a instanceof Variavel) {
-			retorno = that.executarPuroNoEscopo(b)
-			Variavel.valores[a.nome] = retorno
-		} else if (a instanceof Funcao && a.nome == "_") {
+	var i, includes, r, temp, params, unidades, funcao, valor, j
+	
+	// Trata os argumentos
+	this.args[0] = a = unbox(a)
+	this.args[1] = b = unbox(b)
+	
+	// Verifica se está se usando o operador ":"
+	includes = []
+	if (a instanceof Funcao && a.nome == ":") {
+		// Trata o segundo argumento de a
+		a.args[1] = unbox(a.args[1])
+		includes = a.args[1] instanceof Parenteses ? a.args[1].expressoes : [a.args[1]]
+		for (i=0; i<includes.length; i++) {
+			includes[i] = unbox(includes[i])
+			if (includes[i] instanceof Variavel)
+				includes[i] = includes[i].nome
+			else
+				throw "Os valores importados com : devem ser variáveis"
+		}
+		a = unbox(a.args[0])
+	}
+	
+	// Distribui sobre os elementos do vetor/matriz
+	if (a instanceof Vetor || a instanceof Matriz || a instanceof Lista) {
+		b = this.executarNoEscopo(b, includes)
+		if (a instanceof Vetor || a instanceof Lista) {
+			if (!(b instanceof Lista || b instanceof Vetor) || b.expressoes.length != a.expressoes.length)
+				throw "Dimensões inválidas"
+			r = new a.constructor
+		} else if (a instanceof Matriz) {
+			if (!(b instanceof Matriz) || b.linhas != a.linhas || b.colunas != a.colunas)
+				throw "Dimensões inválidas"
+			r = new Matriz
+			r.linhas = a.linhas
+			r.colunas = a.colunas
+		}
+		
+		for (i=0; i<a.expressoes.length; i++)
+			r.expressoes.push(this.executarNoEscopo(new Funcao("=", [a.expressoes[i], b.expressoes[i]]), includes))
+		return r
+	}
+	
+	if (a instanceof Variavel)
+		// Caso mais simples: a = 2
+		return Variavel.valores[a.nome] = this.executarNoEscopo(b, includes)
+	else if (a instanceof Funcao) {
+		if (a.nome == "_") {
+			// Define uma unidade
 			a.args[0] = unbox(a.args[0])
 			a.args[1] = unbox(a.args[1])
 			if (!(a.args[0] instanceof Fracao) || a.args[0].n != 1 || a.args[0].d != 1)
 				throw "O valor tem de ser 1"
 			if (!(a.args[1] instanceof Variavel))
 				throw "A unidade deve ser simples"
-			retorno = that.executarNoEscopo(b)
-			if (!(retorno instanceof ValorComUnidade))
+			r = this.executarNoEscopo(b, includes)
+			if (!(r instanceof ValorComUnidade))
 				throw "O valor deve ser associado a unidades"
-			Unidade.unidades[a.args[1].nome] = [retorno.unidade.getBases(), multiplicar(retorno.valor, retorno.unidade.getFator())]
-		} else if (a instanceof Funcao) {
-			len = a.args.length
+			Unidade.unidades[a.args[1].nome] = [r.unidade.getBases(), multiplicar(r.valor, r.unidade.getFator())]
+			return r
+		} else if (a.nome == "getAt") {
+			// Define uma posição de uma lista, vetor ou matriz
+			r = this.executarNoEscopo(b, includes)
 			
-			for (i=0; i<len; i++) {
+			// Trata a variável
+			a.args[0] = unbox(a.args[0])
+			if (!(a.args[0] instanceof Variavel))
+				throw "Definição inválida"
+			valor = Variavel.valores[a.args[0].nome]
+			if (a.args.length == 2 && !(valor instanceof Lista || valor instanceof Vetor))
+				throw "A variável deve ser uma lista ou vetor"
+			else if (a.args.length == 3 && !(valor instanceof Matriz))
+				throw "A variável deve ser uma matriz"
+			
+			// Trata o índice
+			a.args[1] = this.executarNoEscopo(a.args[1])
+			if (!eDeterminado(a.args[1]))
+				return
+			if (!eNumerico(a.args[1]))
+				throw "Índice inválido"
+			i = getNum(a.args[1])
+			if (a.args.length == 2) {
+				// Caso de lista ou vetor
+				if (i < 0)
+					i += valor.expressoes.length+1
+				if (eIntSeguro(i) && i > 0 && i <= valor.expressoes.length)
+					valor.expressoes[i-1] = r
+				else
+					throw "Índice inválido"
+			} else {
+				// Caso de matriz
+				a.args[2] = this.executarNoEscopo(a.args[2])
+				if (!eDeterminado(a.args[2]))
+					return
+				if (!eNumerico(a.args[2]))
+					throw "Índice inválido"
+				if (i < 0)
+					i += valor.linhas+1
+				j = getNum(a.args[2])
+				if (j < 0)
+					j += valor.colunas+1
+				if (eIntSeguro(i) && i > 0 && i <= valor.linhas && eIntSeguro(j) && j > 0 && j <= valor.colunas)
+					valor.set(i, j, r)
+				else
+					throw "Índice inválido"
+			}
+			return r
+		} else {
+			// Definição de uma nova função
+			params = []
+			unidades = []
+			for (i=0; i<a.args.length; i++) {
 				temp = unbox(a.args[i])
 				if (temp instanceof Funcao && temp.nome == "_" && temp.args[0] instanceof Variavel) {
 					params.push(temp.args[0].nome)
@@ -196,33 +286,15 @@ Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='..
 				else
 					throw "Parâmetro inválido na declaração da função"
 			}
-			retorno = that.executarPuroNoEscopo(b, params)
-			funcao = Funcao.gerar(params, unidades, retorno)
-			funcao.definicao = that.toMathString(false)
+			r = this.executarPuroNoEscopo(b, params.concat(includes))
+			funcao = Funcao.gerar(params, unidades, r)
+			funcao.definicao = new Funcao("=", [a, b]).toMathString(false)
 			Funcao.funcoes[a.nome] = funcao
-		} else
-			throw "Definição inválida"
-		return retorno.clonar()
-	}
-	var i, len, retorno
-	
-	if (a instanceof Lista || a instanceof Vetor) {
-		len = a.expressoes.length
-		retorno = new a.constructor
-		b = this.executarNoEscopo(b)
-		if (b instanceof a.constructor) {
-			if (b.expressoes.length != len)
-				throw "Tamanhos incompatíveis"
-			for (i=0; i<len; i++)
-				retorno.expressoes.push(definir(a.expressoes[i], b.expressoes[i]))
-		} else {
-			for (i=0; i<len; i++)
-				retorno.expressoes.push(definir(a.expressoes[i], b))
+			return r
 		}
-	} else
-		retorno = definir(a, b)
+	}
 	
-	return retorno
+	throw "Definição inválida"
 }, false, true)
 
 Funcao.registrar("getAt", "lista[i] ou matriz[i, j]\nRetorna o elemento na posição de uma lista ou matriz", function (lista, i, j) {

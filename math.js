@@ -187,7 +187,7 @@ function inflar(str) {
 
 // Separa uma string em Operadores, Variáveis e Números
 function separar(str) {
-	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_", "+=", "-=", "*=", "/=", "%=", "^=", "&&=", "||=", "_=", "²", "³", "\u221A", "\u2264", "\u2265", "\u2260", "\u2A2F"]
+	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_", "+=", "-=", "*=", "/=", "%=", "^=", "&&=", "||=", "_=", "²", "³", "\u221A", "\u2264", "\u2265", "\u2260", "\u2A2F", ":"]
 	var getOperador = function (str) {
 		if (operadores.indexOf(str) != -1)
 			return new Operador(str)
@@ -338,6 +338,7 @@ function interpretar(expressao) {
 	
 	// Aplica os operadores ordem de precedência
 	aplicarBinarios(["_"], 1)
+	aplicarBinarios([":"], 1)
 	aplicarBinarios(["*", "/", "%", "\u2A2F"], 1)
 	aplicarBinarios(["+", "-"], 1)
 	aplicarBinarios(["<", "<=", ">", ">=", "\u2264", "\u2265"], 1)

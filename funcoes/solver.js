@@ -25,13 +25,12 @@ Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a de
 			var h, x, fx, fxh
 			
 			if (eNumerico(valor)) {
-				x = getNum(valor)
-				h = epsD*(Math.abs(x)+1)
-				Variavel.valores[variavel] = x
-				fx = getNum(this.executarNoEscopo(expressao))
-				Variavel.valores[variavel] = x+h
-				fxh = getNum(this.executarNoEscopo(expressao))
-				return (fxh-fx)/h
+				h = Funcao.executar("*", [epsD, Funcao.executar("+", [Funcao.executar("abs", [valor]), 1])])
+				Variavel.valores[variavel] = valor
+				fx = this.executarNoEscopo(expressao)
+				Variavel.valores[variavel] = somar(valor, h)
+				fxh = this.executarNoEscopo(expressao)
+				return Funcao.executar("/", [Funcao.executar("-", [fxh, fx]), h])
 			} else if (eDeterminado(valor))
 				throw 0
 		}, this, [expressao, valor])

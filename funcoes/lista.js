@@ -35,7 +35,7 @@ Funcao.registrar("for", "for(variavel, inicio, fim, 'expressao)\nRetorna uma lis
 
 Funcao.registrar("length", "length(lista) ou length(matriz)\nRetorna o tamanho de uma lista/vetor ou matriz", function (lista) {
 	if (lista instanceof Lista || lista instanceof Vetor)
-		return lista.expressoes.length
+		return new Fracao(lista.expressoes.length, 1)
 	else if (lista instanceof Matriz)
 		return new Lista([new Fracao(lista.linhas, 1), new Fracao(lista.colunas, 1)])
 	else if (eDeterminado(lista))
