@@ -2,7 +2,7 @@
 
 // Módulo para resolver equações numericamente
 
-Config.registrar("epsDerivada", "Passo usado para calcular a derivada de uma expressão", 1e-8, Config.setters.double)
+Config.registrar("epsDerivada", "Passo usado para calcular a derivada de uma expressão", 1e-7, Config.setters.double)
 Config.registrar("epsilon", "Precisão buscada pelos métodos numéricos", 1e-14, Config.setters.double)
 Config.registrar("maxPassos", "Número máximo de iterações feitas pelos métodos numéricos", 100, Config.setters.int)
 
@@ -31,6 +31,44 @@ Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a de
 				Variavel.valores[variavel] = somar(valor, h)
 				fxh = this.executarNoEscopo(expressao)
 				return Funcao.executar("/", [Funcao.executar("-", [fxh, fx]), h])
+			} else if (eDeterminado(valor))
+				throw 0
+		}, this, [expressao, valor])
+	} finally {
+		Variavel.restaurar(antes)
+	}
+}, false, true)
+
+Funcao.registrar("derivate2", "derivate2(variavel, expressao, ponto)\nRetorna a segunda derivada aproximada da expressão num dado ponto", function (variavel, expressao, valor) {
+	var antes, epsD
+	
+	// Trata os argumentos
+	this.args[0] = variavel = unbox(variavel)
+	if (!(variavel instanceof Variavel))
+		throw 0
+	variavel = variavel.nome
+	this.args[1] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = valor = this.executarNoEscopo(valor)
+	epsD = Config.get("epsDerivada")
+	
+	try {
+		// Cria o sub-escopo
+		antes = Variavel.backup(variavel)
+		return Funcao.aplicarNasListas(function (expressao, valor) {
+			var h1, h2, x, fx, fxh, fxhh, a, b
+			
+			if (eNumerico(valor)) {
+				h1 = multiplicar(epsD, somar(abs(valor), 1))
+				h2 = multiplicar(epsD, somar(abs(valor+h1), 1))
+				Variavel.valores[variavel] = valor
+				fx = this.executarNoEscopo(expressao)
+				Variavel.valores[variavel] = somar(valor, h1)
+				fxh = this.executarNoEscopo(expressao)
+				Variavel.valores[variavel] = somar(somar(valor, h1), h2)
+				fxhh = this.executarNoEscopo(expressao)
+				a = Funcao.executar("/", [Funcao.executar("-", [fxhh, fxh]), h2])
+				b = Funcao.executar("/", [Funcao.executar("-", [fxh, fx]), h1])
+				return Funcao.executar("/", [Funcao.executar("-", [a, b]), h1])
 			} else if (eDeterminado(valor))
 				throw 0
 		}, this, [expressao, valor])

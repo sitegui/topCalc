@@ -2,29 +2,37 @@
 
 // Funções para listas
 
-Funcao.registrar("for", "for(variavel, inicio, fim, 'expressao)\nRetorna uma lista dos valores da expressão executada para os diferentes valores inteiros da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao) {
-	var lista, i, antes
+Funcao.registrar("for", "for(variavel, inicio, fim, 'expressao, passo=1)\nRetorna uma lista dos valores da expressão executada para os diferentes valores da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao, passo) {
+	var lista, i, antes, max, min, exato
 	
+	// Trata os argumentos
+	if (this.args.length != 4 && this.args.length != 5)
+		throw "Número inválido de argumentos para for()"
 	this.args[0] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	this.args[1] = inicio = this.executarNoEscopo(inicio)
 	this.args[2] = fim = this.executarNoEscopo(fim)
-	
 	variavel = variavel.nome
 	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	if (this.args.length == 5)
+		this.args[4] = passo = this.executarNoEscopo(passo)
+	else
+		passo = new Fracao(1, 1)
 	
-	if (eNumerico(inicio) && eNumerico(fim)) {
+	if (eNumerico(inicio) && eNumerico(fim) && eNumerico(passo)) {
 		inicio = getNum(inicio)
 		fim = getNum(fim)
-		if (!eIntSeguro(inicio) || !eIntSeguro(fim))
-			throw 0
+		passo = getNum(passo)
 		lista = new Lista
+		max = Math.max(inicio, fim)
+		min = Math.min(inicio, fim)
+		exato = eIntSeguro(inicio) && eIntSeguro(fim) && eIntSeguro(passo)
+		antes = Variavel.backup(variavel)
 		
 		try {
-			antes = Variavel.backup(variavel)
-			for (i=inicio; i<=fim; i++) {
-				Variavel.valores[variavel] = new Fracao(i, 1)
+			for (i=inicio; i>=min && i<=max; i+=passo) {
+				Variavel.valores[variavel] = exato ? new Fracao(i, 1) : i
 				lista.expressoes.push(this.executarNoEscopo(expressao))
 			}
 		} finally {
@@ -32,9 +40,9 @@ Funcao.registrar("for", "for(variavel, inicio, fim, 'expressao)\nRetorna uma lis
 		}
 		
 		return lista
-	} else if (eDeterminado(inicio) && eDeterminado(fim))
+	} else if (eDeterminado(inicio) && eDeterminado(fim) && eDeterminado(passo))
 		throw 0
-}, true, true)
+}, true, true, true)
 
 Funcao.registrar("length", "length(lista) ou length(matriz)\nRetorna o tamanho de uma lista/vetor ou matriz", function (lista) {
 	if (lista instanceof Lista || lista instanceof Vetor)

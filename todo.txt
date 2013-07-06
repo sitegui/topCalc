@@ -7,3 +7,5 @@ plot(x, 0, 2, {a+b+c, 7})
 remover necessidade de unbox (depende da remoção de expressão pura)
 
 escopo em Funcao.executar
+
+x:a = findZero(x, x^2-a, 1)

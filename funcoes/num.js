@@ -456,6 +456,13 @@ Funcao.registrar("toBase", "toBase(num, base)\nRetorna o número inteiro num esc
 		throw 0
 }, true)
 
+Funcao.registrar("d", "d(x)\nRetorna um valor relativamente pequeno (dx) em comparação com x", function (x) {
+	if (eNumerico(x)) {
+		return multiplicar(Config.get("epsDerivada"), somar(abs(x), 1))
+	} else if (eDeterminado(x))
+		throw 0
+}, true)
+
 // Constantes
 Variavel.valores.e = Math.E
 Variavel.valores.ln2 = Math.LN2
