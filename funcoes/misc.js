@@ -5,28 +5,27 @@
 // Retorna o valor de uma variável
 Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou a definição de uma função", function (variavel) {
 	var valor
-	this.args[0] = variavel = unbox(variavel)
 	if (variavel instanceof Variavel) {
-		valor = this.getVariavelDireto(variavel)
+		valor = variavel.getDireto()
 		if (valor !== null) {
 			Console.echoInfo(valor.toMathString(false), true)
-			return new Expressao
+			return null
 		}
 	} else if (variavel instanceof Funcao) {
 		valor = variavel.getDefinicao()
 		if (valor !== null) {
 			Console.echoInfo("Módulo "+Funcao.funcoes[variavel.nome].modulo+"\n"+valor, true)
-			return new Expressao
+			return null
 		}
 	} else if (eDeterminado(variavel))
 		throw 0
 }, true, true)
 
-Funcao.registrar("if", "if(oq, 'casoSim, 'casoNao)\nRetorna um valor ou outro dependendo da condição", function (oq, sim, nao) {
+Funcao.registrar("if", "if(oq, casoSim, casoNao)\nRetorna um valor ou outro dependendo da condição", function (oq, sim, nao) {
 	var r
 	this.args[0] = oq = this.executarNoEscopo(oq)
-	this.args[1] = sim = this.executarPuroNoEscopo(sim)
-	this.args[2] = nao = this.executarPuroNoEscopo(nao)
+	this.args[1] = sim = this.executarNoEscopo(sim)
+	this.args[2] = nao = this.executarNoEscopo(nao)
 	if (eNumerico(oq)) {
 		r = eZero(oq) ? nao : sim
 		return this.executarNoEscopo(r)
@@ -36,22 +35,19 @@ Funcao.registrar("if", "if(oq, 'casoSim, 'casoNao)\nRetorna um valor ou outro de
 
 // Remove a definição de uma variável ou função
 Funcao.registrar("unset", "unset(x) ou unset(f()) ou unset(1_x)\nExclui uma variável, função ou unidade", function (variavel) {
-	this.args[0] = variavel = unbox(variavel)
 	if (variavel instanceof Variavel) {
 		delete Variavel.valores[variavel.nome]
-		return new Expressao
+		return null
 	} else if (variavel instanceof Funcao && variavel.nome == "_") {
-		variavel.args[0] = unbox(variavel.args[0])
-		variavel.args[1] = unbox(variavel.args[1])
 		if (!(variavel.args[0] instanceof Fracao) || variavel.args[0].n != 1 || variavel.args[0].d != 1)
 			throw 0
 		if (!(variavel.args[1] instanceof Variavel))
 			throw 0
 		delete Unidade.unidades[variavel.args[1].nome]
-		return new Expressao
+		return null
 	} else if (variavel instanceof Funcao) {
 		delete Funcao.funcoes[variavel.nome]
-		return new Expressao
+		return null
 	} else if (eDeterminado(variavel))
 		throw 0
 }, true, true)
@@ -68,7 +64,6 @@ var ajudaInfo = {
 	"- @help(operadores)@\n"+
 	"- @help(variaveis)@\n"+
 	"- @help(funcoes)@\n"+
-	"- @help(expressoes)@\n"+
 	"- @help(listas)@\n"+
 	"- @help(vetores)@\n"+
 	"- @help(matrizes)@\n"+
@@ -102,13 +97,7 @@ funcoes: "Funções podem ser definidas na forma @f(x)=valor@ (como @f(x)=x^2@ o
 	"Várias funções já existem por padrão, como os operadores, @sqrt(x)@, @for(var,ini,fim,exp)@, @num(valor)@\n"+
 	"Para pegar a definição de uma função, use @get(f())@\n"+
 	"Para remover uma função, use @unset(f())@\n"+
-	"Para ver a lista de todas as funções definidas, use @funcs()@\n"+
-	"Na descrição da função, argumentos com um ' indicam que expressões puras serão tratadas de forma diferente",
-expressoes: "Uma expressão é um conjunto de números, variáveis, operadores e funções\n\n"+
-	"Uma expressão \"pura\" começa com uma aspas simples (') e indica que ela deve ser executada depois. Exemplos:\n"+
-	"@for(i, 1, 3, rand(1, 6))@ → {4, 4, 4}\n@for(i, 1, 3, 'rand(1, 6))@ → {4, 5, 3}\n\n"+
-	"@f(x) = {x, 2x}@\n@f(rand(1, 6))@ → {2, 4}\n@f('rand(1, 6))@ → {1, 10}\n\n"+
-	"@g(n) = if(n <= 1, 1, n*g(n-1)), h(n) = if(n <= 1, 1, 'n*h(n-1))@\n@g(5), h(5)@ → Erro, 120",
+	"Para ver a lista de todas as funções definidas, use @funcs()@",
 listas: "Uma lista é escrita na forma @{a, b, c}@ e pode ter quantos elementos desejar\n"+
 	"A grande maioria das funções e operadores distribuem sobre listas:\n"+
 	"@{3, 14}+15@ → {18, 29}\n"+
@@ -141,7 +130,6 @@ unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {
-		tema = unbox(tema)
 		if (tema instanceof Variavel) {
 			if (tema.nome in ajudaInfo)
 				setTimeout(function () {
@@ -155,21 +143,24 @@ Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 		setTimeout(function () {
 			Console.echoInfo(Console.escaparHTML(ajudaInfo[""]), true)
 		}, 250)
-	return new Expressao
+	return null
 }, false, true, true)
 Variavel.valores["help"] = new Funcao("help", [])
 
 Funcao.registrar("feedback", "feedback()\nAbre uma janela para nos enviar uma mensagem", function () {
 	window.open('/fale_conosco/?assunto=topCalc', 'janelaFaleConosco', 'width=500,height=500')
-	return new Expressao()
+	return null
 })
 
 // Exibe as variáveis definidas
 Funcao.registrar("vars", "vars()\nMostra uma lista de todas as variáveis definidas", function () {
 	setTimeout(function () {
-		Console.echoInfo(Object.keys(Variavel.valores).sort().join("\n"))
+		var vars = [], i
+		for (i in Variavel.valores)
+			vars.push(i+": "+Variavel.valores[i].toMathString(false))
+		Console.echoInfo(vars.sort().join("\n"), true)
 	}, 250)
-	return new Expressao
+	return null
 })
 
 // Exibe as variáveis definidas
@@ -187,7 +178,6 @@ Funcao.registrar("funcs", "funcs() ou funcs(modulo)\nMostra uma lista de todas a
 		}, 250)
 	} else {
 		// Lista as funções do módulo
-		modulo = unbox(modulo)
 		if (!(modulo instanceof Variavel))
 			throw 0
 		itens = []
@@ -199,23 +189,21 @@ Funcao.registrar("funcs", "funcs() ou funcs(modulo)\nMostra uma lista de todas a
 			Console.echoInfo(itens.sort().join("\n"))
 		}, 250)
 	}
-	return new Expressao
+	return null
 }, false, true, true)
 
 Funcao.registrar("setConfig", "setConfig(nome, valor)\nDefine um novo valor para uma configuração. Para saber a lista de configurações disponíveis, use configs()", function (nome, valor) {
-	nome = unbox(nome)
 	valor = this.executarNoEscopo(valor)
 	if (nome instanceof Variavel) {
 		nome = nome.nome
 		Config.set(nome, valor)
-		return new Expressao
+		return null
 	} else if (eDeterminado(nome))
 		throw 0
 }, false, true)
 
 Funcao.registrar("getConfig", "getConfig(nome)\nMostra o valor atual de uma configuração. Para saber a lista de configurações disponíveis, use configs()", function (nome) {
 	var valor
-	nome = unbox(nome)
 	if (nome instanceof Variavel) {
 		nome = nome.nome
 		valor = Config.get(nome)
@@ -223,17 +211,16 @@ Funcao.registrar("getConfig", "getConfig(nome)\nMostra o valor atual de uma conf
 			Console.echoErro("Configuração "+nome+" não existe")
 		else
 			Console.echo(valor)
-		return new Expressao
+		return null
 	} else if (eDeterminado(nome))
 		throw 0
 }, false, true)
 
 Funcao.registrar("resetConfig", "resetConfig(nome)\nVolta a configuração ao seu valor inicial. Para saber a lista de configurações disponíveis, use configs()", function (nome) {
-	nome = unbox(nome)
 	if (nome instanceof Variavel) {
 		nome = nome.nome
 		Config.reset(nome)
-		return new Expressao
+		return null
 	} else if (eDeterminado(nome))
 		throw 0
 }, false, true)
@@ -246,13 +233,13 @@ Funcao.registrar("configs", "configs()\nMostra todas configurações disponívei
 	}
 	configs.sort()
 	Console.echo(configs.join("\n"))
-	return new Expressao
+	return null
 })
 
 // Limpa o console
 Funcao.registrar("clear", "clear()\nLimpa o console", function () {
 	setTimeout(Console.limpar, 250)
-	return new Expressao
+	return null
 })
 
 Funcao.registrar("units", "units()\nMostra todas as unidades e prefixos válidos", function () {
@@ -274,7 +261,7 @@ Funcao.registrar("units", "units()\nMostra todas as unidades e prefixos válidos
 		str += i+" → "+Unidade.unidades[i][1].toMathString(false)+(base ? "*"+base : "")+"\n"
 	}
 	Console.echoInfo(str)
-	return new Expressao
+	return null
 })
 
 Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
@@ -312,7 +299,7 @@ Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
 			backup.funcoes[i] = Funcao.funcoes[i]
 		for (i in Variavel.valores)
 			backup.variaveis[i] = Variavel.valores[i]
-		return new Expressao
+		return null
 	})
 	Funcao.registrar("restaurar", "restaurar()\nRestaura o estado do backup", function () {
 		var i
@@ -321,5 +308,6 @@ Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
 		Funcao.funcoes = backup.funcoes
 		Variavel.valores = backup.variaveis
 		backup = null
+		return null
 	})
 })()

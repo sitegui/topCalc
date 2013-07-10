@@ -2,19 +2,18 @@
 
 // Funções para listas
 
-Funcao.registrar("for", "for(variavel, inicio, fim, 'expressao, passo=1)\nRetorna uma lista dos valores da expressão executada para os diferentes valores da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao, passo) {
+Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna uma lista dos valores da expressão executada para os diferentes valores da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao, passo) {
 	var lista, i, antes, max, min, exato
 	
 	// Trata os argumentos
 	if (this.args.length != 4 && this.args.length != 5)
 		throw "Número inválido de argumentos para for()"
-	this.args[0] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	this.args[1] = inicio = this.executarNoEscopo(inicio)
 	this.args[2] = fim = this.executarNoEscopo(fim)
 	variavel = variavel.nome
-	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	this.args[3] = expressao = this.executarNoEscopo(expressao, [variavel])
 	if (this.args.length == 5)
 		this.args[4] = passo = this.executarNoEscopo(passo)
 	else
@@ -94,7 +93,7 @@ Funcao.registrar("unshift", "unshift(lista, a1, a2, ...)\nAdiciona os termos no 
 Funcao.registrar("sort", "sort(lista)\nOrdena uma lista numérica do menor para o maior", function (lista) {
 	var args
 	if (lista instanceof Lista) {
-		args = lista.expressoes.map(unbox)
+		args = lista.expressoes
 		if (args.every(eNumerico)) {
 			args.sort(function (a, b) {
 				return eIdentico(max(a, b), a) ? 1 : -1
@@ -108,7 +107,7 @@ Funcao.registrar("sort", "sort(lista)\nOrdena uma lista numérica do menor para 
 Funcao.registrar("rsort", "rsort(lista)\nOrdena uma lista numérica do maior para o menor", function (lista) {
 	var args
 	if (lista instanceof Lista) {
-		args = lista.expressoes.map(unbox)
+		args = lista.expressoes
 		if (args.every(eNumerico)) {
 			args.sort(function (a, b) {
 				return eIdentico(min(a, b), a) ? 1 : -1
@@ -215,14 +214,13 @@ Funcao.registrar("product", "product(n1, n2, ...)\nRetorna o produto de todos os
 	}
 }, false, false, true)
 
-Funcao.registrar("every", "every(lista, variavel, 'expressao)\nRetorna zero se expressao avalia para zero para algum elemento", function (lista, variavel, expressao) {
+Funcao.registrar("every", "every(lista, variavel, expressao)\nRetorna zero se expressao avalia para zero para algum elemento", function (lista, variavel, expressao) {
 	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = null
 		
@@ -249,14 +247,13 @@ Funcao.registrar("every", "every(lista, variavel, 'expressao)\nRetorna zero se e
 		throw 0
 }, false, true)
 
-Funcao.registrar("some", "some(lista, variavel, 'expressao)\nRetorna zero se expressao não avalia para zero para todos os elementos", function (lista, variavel, expressao) {
+Funcao.registrar("some", "some(lista, variavel, expressao)\nRetorna zero se expressao não avalia para zero para todos os elementos", function (lista, variavel, expressao) {
 	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = null
 		
@@ -282,14 +279,13 @@ Funcao.registrar("some", "some(lista, variavel, 'expressao)\nRetorna zero se exp
 		throw 0
 }, false, true)
 
-Funcao.registrar("filter", "filter(lista, variavel, 'expressao)\nRetorna uma lista somente com os elementos que expressao não avalia como nulo", function (lista, variavel, expressao) {
+Funcao.registrar("filter", "filter(lista, variavel, expressao)\nRetorna uma lista somente com os elementos que expressao não avalia como nulo", function (lista, variavel, expressao) {
 	var i, cada, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = new Lista
 		
@@ -312,14 +308,13 @@ Funcao.registrar("filter", "filter(lista, variavel, 'expressao)\nRetorna uma lis
 		throw 0
 }, false, true)
 
-Funcao.registrar("map", "map(lista, variavel, 'expressao)\nRetorna uma lista com os valores de expressao avaliado sobre cada elemento da lista", function (lista, variavel, expressao) {
+Funcao.registrar("map", "map(lista, variavel, expressao)\nRetorna uma lista com os valores de expressao avaliado sobre cada elemento da lista", function (lista, variavel, expressao) {
 	var i, retorno, antes
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[2] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = new Lista
 		
@@ -338,18 +333,16 @@ Funcao.registrar("map", "map(lista, variavel, 'expressao)\nRetorna uma lista com
 		throw 0
 }, false, true)
 
-Funcao.registrar("reduce", "reduce(lista, varA, varB, 'expressao) ou reduce(lista, varA, varB, 'expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
+Funcao.registrar("reduce", "reduce(lista, varA, varB, expressao) ou reduce(lista, varA, varB, expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
 	var i, ini, antes
 	if (arguments.length < 4 || arguments.length > 5)
 		throw 0
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = varA = unbox(varA)
-	this.args[2] = varB = unbox(varB)
 	if (!(varA instanceof Variavel) || !(varB instanceof Variavel))
 		throw 0
 	varA = varA.nome
 	varB = varB.nome
-	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [varA, varB])
+	this.args[3] = expressao = this.executarNoEscopo(expressao, [varA, varB])
 	if (inicio !== undefined)
 		this.args[4] = inicio = this.executarNoEscopo(inicio)
 	if (lista instanceof Lista) {
@@ -376,18 +369,16 @@ Funcao.registrar("reduce", "reduce(lista, varA, varB, 'expressao) ou reduce(list
 		throw 0
 }, false, true, true)
 
-Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, 'expressao) ou reduceRight(lista, varA, varB, 'expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
+Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, expressao) ou reduceRight(lista, varA, varB, expressao, inicio)\nAplica uma função sobre um acumulador e cada valor da lista para reduzir a um único valor", function (lista, varA, varB, expressao, inicio) {
 	var i, ini, antes
 	if (arguments.length < 4 || arguments.length > 5)
 		throw 0
 	this.args[0] = lista = this.executarNoEscopo(lista)
-	this.args[1] = varA = unbox(varA)
-	this.args[2] = varB = unbox(varB)
 	if (!(varA instanceof Variavel) || !(varB instanceof Variavel))
 		throw 0
 	varA = varA.nome
 	varB = varB.nome
-	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [varA, varB])
+	this.args[3] = expressao = this.executarNoEscopo(expressao, [varA, varB])
 	if (inicio !== undefined)
 		this.args[4] = inicio = this.executarNoEscopo(inicio)
 	if (lista instanceof Lista) {

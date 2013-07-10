@@ -4,18 +4,16 @@
 
 Config.registrar("numPontosPlot", "Define o número de pontos a serem calculados para montar um gráfico", 300, Config.setters.int)
 
-Funcao.registrar("plot", "plot(variavel, inicio, fim, 'expressao)\nDesenha uma função (ou várias) na tela", function (variavel, inicio, fim, expressao) {
+Funcao.registrar("plot", "plot(variavel, inicio, fim, expressao)\nDesenha uma função (ou várias) na tela", function (variavel, inicio, fim, expressao) {
 	var funcs, xMin, xMax, canvas, that, div
 	
 	// Trata os argumentos
-	this.args[0] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	this.args[1] = inicio = this.executarNoEscopo(inicio)
 	this.args[2] = fim = this.executarNoEscopo(fim)
 	variavel = variavel.nome
-	this.args[3] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
-	expressao = unbox(expressao)
+	this.args[3] = expressao = this.executarNoEscopo(expressao, [variavel])
 	
 	if (eNumerico(inicio) && eNumerico(fim)) {
 		// Calcula os valores
@@ -38,12 +36,10 @@ Funcao.registrar("plot", "plot(variavel, inicio, fim, 'expressao)\nDesenha uma f
 		throw 0
 }, false, true)
 
-Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, fimX, 'expressao)\nMostra uma animação dos gráficos gerados com plot(variavelX, inicioX, fimX, expressao)", function (variavel, inicio, fim, variavelX, inicioX, fimX, expressao) {
+Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, fimX, expressao)\nMostra uma animação dos gráficos gerados com plot(variavelX, inicioX, fimX, expressao)", function (variavel, inicio, fim, variavelX, inicioX, fimX, expressao) {
 	var funcs, xMin, xMax, canvas, that, div, quadros, antes, i, datas, img, pos, trocar, t0, iniciarTrocas, funcs2, tempo
 	
 	// Trata os argumentos
-	this.args[0] = variavel = unbox(variavel)
-	this.args[3] = variavelX = unbox(variavelX)
 	if (!(variavel instanceof Variavel) || !(variavelX instanceof Variavel))
 		throw 0
 	this.args[1] = inicio = this.executarNoEscopo(inicio)
@@ -52,8 +48,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 	this.args[5] = fimX = this.executarNoEscopo(fimX)
 	variavel = variavel.nome
 	variavelX = variavelX.nome
-	this.args[6] = expressao = this.executarPuroNoEscopo(expressao, [variavel, variavelX])
-	expressao = unbox(expressao)
+	this.args[6] = expressao = this.executarNoEscopo(expressao, [variavel, variavelX])
 	
 	if (eNumerico(inicio) && eNumerico(fim) && eNumerico(inicioX) && eNumerico(fimX)) {
 		// Calcula os valores
@@ -74,7 +69,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 				// Plota
 				Variavel.valores[variavel] = i
 				funcs2 = funcs.map(function (x) {
-					return that.executarPuroNoEscopo(x, [variavelX])
+					return that.executarNoEscopo(x, [variavelX])
 				})
 				canvas = plot2canvas(that, variavelX, xMin, xMax, funcs2)
 				canvas.getContext("2d").fillStyle = "white"
@@ -130,7 +125,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 		throw 0
 }, false, true)
 
-Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, 'expX)\nPermite plotar um gráfico com um dado número de parâmetros visualmente ajustáveis. Variáveis não definidas serão adicionadas como parâmetros automaticamente", function () {
+Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, expX)\nPermite plotar um gráfico com um dado número de parâmetros visualmente ajustáveis. Variáveis não definidas serão adicionadas como parâmetros automaticamente", function () {
 	var varX, inicioX, fimX, expX, len
 	var vars, mins, maxs, varI, minI, maxI, i, numerico, div, valores, that, funcs
 	
@@ -138,7 +133,7 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, '
 	len = arguments.length
 	if (len < 4 || (len-4)%3 != 0)
 		throw 0
-	this.args[len-4] = varX = unbox(this.args[len-4])
+	varX = this.args[len-4]
 	if (!(varX instanceof Variavel))
 		throw 0
 	varX = varX.nome
@@ -154,7 +149,7 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, '
 	valores = []
 	that = this
 	for (i=0; i<arguments.length-4; i+=3) {
-		varI = unbox(arguments[i])
+		varI = arguments[i]
 		if (!(varI instanceof Variavel))
 			throw 0
 		this.args[i+1] = minI = this.executarNoEscopo(arguments[i+1])
@@ -167,7 +162,7 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, '
 		mins.push(minI)
 		maxs.push(maxI)
 	}
-	this.args[len-1] = expX = unbox(this.executarPuroNoEscopo(this.args[len-1], vars.concat(varX)))
+	expX = this.executarNoEscopo(this.args[len-1], vars.concat(varX))
 	funcs = expX instanceof Lista ? expX.expressoes : [expX]
 	
 	var gerarOnChange = function (i) {
@@ -196,9 +191,7 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, '
 	
 	// Percorre a expressão recursivamente, buscando por variáveis
 	var acharVars = function (exp) {
-		if (exp instanceof Expressao)
-			exp.elementos.forEach(acharVars)
-		else if (exp instanceof Parenteses || exp instanceof Lista || exp instanceof Vetor || exp instanceof Matriz)
+		if (exp instanceof Parenteses || exp instanceof Lista || exp instanceof Vetor || exp instanceof Matriz)
 			exp.expressoes.forEach(acharVars)
 		else if (exp instanceof Funcao)
 			exp.args.forEach(acharVars)
@@ -337,7 +330,7 @@ Funcao.registrar("listPlot", "listPlot(A1, A2, ...)\nPlota os valores de uma ou 
 	div = document.createElement("div")
 	div.appendChild(canvas)
 	Console.echoDiv(div)
-	return new Expressao()
+	return null
 }, false, false, true)
 
 /*
@@ -455,7 +448,7 @@ function gerarSlider(onde, nome, min, max, valor, onchange) {
 // funcs é uma array de expressões matemáticas
 // Retorna um canvas com o desenho
 function plot2canvas(that, variavel, xMin, xMax, funcs) {
-	var passos, xss, yss, yMax, yMin, i, j, canvas, cntxt, w, h, dX, dY, valores, x, y, ticks, debug
+	var passos, xss, yss, yMax, yMin, i, j, canvas, cntxt, w, h, dX, dY, valores, x, y, ticks
 	
 	// Calcula os valores para uma função
 	// Retorna [xs, ys, xsC, ysC, yMax, yMin]
@@ -470,8 +463,6 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		
 		try {
 			// Executa a expressão para cada valor de x e salva os resultados
-			debug = Config.get("debug")
-			Config.set("debug", false, true)
 			for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
 				Variavel.valores[variavel] = x
 				try {
@@ -497,7 +488,6 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 				ysC = []
 			}
 		} finally {
-			Config.set("debug", debug, true)
 			Variavel.restaurar(antes)
 		}
 		

@@ -165,17 +165,15 @@ Funcao.registrar("cols", "cols(m)\nRetorna o número de colunas da matriz", func
 		throw 0
 }, true)
 
-Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, 'exp)\nMonta uma matriz com nLinhas por nColunas, com exp sendo uma expressão com as variáveis varI e varJ", function (nLinhas, nColunas, varI, varJ, exp) {
+Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, exp)\nMonta uma matriz com nLinhas por nColunas, com exp sendo uma expressão com as variáveis varI e varJ", function (nLinhas, nColunas, varI, varJ, exp) {
 	var retorno, i, j, antes
 	
 	// Trata os argumentos
 	this.args[0] = nLinhas = this.executarNoEscopo(nLinhas)
 	this.args[1] = nColunas = this.executarNoEscopo(nColunas)
-	this.args[2] = varI = unbox(varI)
-	this.args[3] = varJ = unbox(varJ)
 	if (!(varI instanceof Variavel) || !(varJ instanceof Variavel))
 		throw 0
-	this.args[4] = exp = this.executarPuroNoEscopo(exp, [varI.nome, varJ.nome])
+	this.args[4] = exp = this.executarNoEscopo(exp, [varI.nome, varJ.nome])
 	
 	if (eNumerico(nLinhas) && eNumerico(nColunas)) {
 		nLinhas = getNum(nLinhas)

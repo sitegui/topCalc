@@ -10,7 +10,6 @@ Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a de
 	var antes, epsD
 	
 	// Trata os argumentos
-	this.args[0] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
@@ -43,7 +42,6 @@ Funcao.registrar("derivate2", "derivate2(variavel, expressao, ponto)\nRetorna a 
 	var antes, epsD
 	
 	// Trata os argumentos
-	this.args[0] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
@@ -77,15 +75,14 @@ Funcao.registrar("derivate2", "derivate2(variavel, expressao, ponto)\nRetorna a 
 	}
 }, false, true)
 
-Funcao.registrar("findZero", "findZero(variavel, 'expressao, chute)\nEncontra um valor real que zera uma expressão real usando o chute inicial dado", function (variavel, expressao, chute) {
-	var antes, maxI, epsD, eps, debug
+Funcao.registrar("findZero", "findZero(variavel, expressao, chute)\nEncontra um valor real que zera uma expressão real usando o chute inicial dado", function (variavel, expressao, chute) {
+	var antes, maxI, epsD, eps
 	
 	// Trata os argumentos
-	this.args[0] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[1] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	this.args[1] = expressao = this.executarNoEscopo(expressao, [variavel])
 	this.args[2] = chute = this.executarNoEscopo(chute)
 	maxI = Config.get("maxPassos")
 	epsD = Config.get("epsDerivada")
@@ -94,8 +91,6 @@ Funcao.registrar("findZero", "findZero(variavel, 'expressao, chute)\nEncontra um
 	try {
 		// Cria o sub-escopo
 		antes = Variavel.backup(variavel)
-		debug = Config.get("debug")
-		Config.set("debug", false, true)
 		return Funcao.aplicarNasListas(function (expressao, chute) {
 			var i, h, x, fx, fxh, x2
 			if (eNumerico(chute)) {
@@ -126,23 +121,20 @@ Funcao.registrar("findZero", "findZero(variavel, 'expressao, chute)\nEncontra um
 		}, this, [expressao, chute])
 	} finally {
 		Variavel.restaurar(antes)
-		Config.set("debug", debug, true)
 	}
 }, false, true)
 
 Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m expressões (em forma de vetor ou matriz) nas variáveis reais. vars e chute são um vetor de n posições.", function (vars, exps, chute) {
-	var i, antes, debug, maxI, eps, that
+	var i, antes, maxI, eps, that
 	
 	// Pega os nomes das variáveis
 	that = this
-	this.args[0] = vars = unbox(vars)
 	if (!eDeterminado(vars))
 		return
 	else if (!(vars instanceof Vetor))
 		throw 0
 	vars = []
 	for (i=0; i<this.args[0].expressoes.length; i++) {
-		this.args[0].expressoes[i] = unbox(this.args[0].expressoes[i])
 		if (this.args[0].expressoes[i] instanceof Variavel)
 			vars.push(this.args[0].expressoes[i].nome)
 		else
@@ -159,8 +151,6 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 	// Cria o sub-escopo
 	try {
 		antes = Variavel.backup(vars)
-		debug = Config.get("debug")
-		Config.set("debug", false, true)
 		
 		// Aplica a cada combinação de listas
 		return Funcao.aplicarNasListas(function (exps, chute) {
@@ -211,19 +201,17 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 		}, this, [exps, chute])
 	} finally {
 		Variavel.restaurar(antes)
-		Config.set("debug", debug, true)
 	}
 }, false, true)
 
-Funcao.registrar("findComplexZero", "findComplexZero(variavel, 'expressao, chute)\nEncontra um valor complexo que zera uma expressão usando o chute inicial dado", function (variavel, expressao, chute) {
-	var antes, maxI, epsD, eps, debug, that
+Funcao.registrar("findComplexZero", "findComplexZero(variavel, expressao, chute)\nEncontra um valor complexo que zera uma expressão usando o chute inicial dado", function (variavel, expressao, chute) {
+	var antes, maxI, epsD, eps, that
 	
 	// Trata os argumentos
-	this.args[0] = variavel = unbox(variavel)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[1] = expressao = this.executarPuroNoEscopo(expressao, [variavel])
+	this.args[1] = expressao = this.executarNoEscopo(expressao, [variavel])
 	this.args[2] = chute = this.executarNoEscopo(chute)
 	maxI = Config.get("maxPassos")
 	eps = Config.get("epsilon")
@@ -233,8 +221,6 @@ Funcao.registrar("findComplexZero", "findComplexZero(variavel, 'expressao, chute
 	try {
 		// Cria o sub-escopo
 		antes = Variavel.backup(variavel)
-		debug = Config.get("debug")
-		Config.set("debug", false, true)
 		return Funcao.aplicarNasListas(function (expressao, chute) {
 			var i, fsx, jacob, mapa, indeps, deps, deltas, xs
 			
@@ -270,23 +256,20 @@ Funcao.registrar("findComplexZero", "findComplexZero(variavel, 'expressao, chute
 		}, this, [expressao, chute])
 	} finally {
 		Variavel.restaurar(antes)
-		Config.set("debug", debug, true)
 	}
 }, false, true)
 
 Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um conjunto de m expressões (em forma de vetor ou matriz) nas variáveis complexas. vars e chute são um vetor de n posições.", function (vars, exps, chute) {
-	var i, antes, debug, maxI, eps, that
+	var i, antes, maxI, eps, that
 	
 	// Pega os nomes das variáveis
 	that = this
-	this.args[0] = vars = unbox(vars)
 	if (!eDeterminado(vars))
 		return
 	else if (!(vars instanceof Vetor))
 		throw 0
 	vars = []
 	for (i=0; i<this.args[0].expressoes.length; i++) {
-		this.args[0].expressoes[i] = unbox(this.args[0].expressoes[i])
 		if (this.args[0].expressoes[i] instanceof Variavel)
 			vars.push(this.args[0].expressoes[i].nome)
 		else
@@ -303,8 +286,6 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 	// Cria o sub-escopo
 	try {
 		antes = Variavel.backup(vars)
-		debug = Config.get("debug")
-		Config.set("debug", false, true)
 		
 		// Aplica a cada combinação de listas
 		return Funcao.aplicarNasListas(function (exps, chute) {
@@ -358,7 +339,6 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 		}, this, [exps, chute])
 	} finally {
 		Variavel.restaurar(antes)
-		Config.set("debug", debug, true)
 	}
 }, false, true)
 

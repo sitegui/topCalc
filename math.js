@@ -4,16 +4,17 @@
 Console.oninput = function (input) {
 	var cmd, retornos
 	try {
-		cmd = inflar(input)
-		cmd.expressoes.map(interpretar)
+		cmd = interpretar(inflar(input))
 		cmd.expressoes.forEach(function (x) {
 			var r, inicio, fim
 			inicio = Date.now()
 			try {
 				executar.logId = ""
 				r = executar(x)
-				Variavel.valores["ans"] = r
-				Console.echo(math2str(r), true)
+				if (r !== null) {
+					Variavel.valores["ans"] = r
+					Console.echo(math2str(r), true)
+				}
 			} catch (e) {
 				Console.echoErro(e)
 			}
@@ -35,7 +36,7 @@ Object.defineProperty(Array.prototype, "clonar", {value: function () {
 }})
 
 // Define a configuração de ativação do debug
-Config.registrar("debug", "Define se a execução está no modo debug", false, Config.setters.bool)
+Config.registrar("debug", "Define se a execução está no modo debug (0 = desligado, 1 = ligado, 2 = passo-a-passo)", 0, Config.setters.int)
 
 // Adiciona a configuração de imprimir com MathML ou não
 Config.registrar("usarMathML", "Indica se as expressões devem ser impressas no formato MathML ou como strings simples", false, Config.setters.bool)
@@ -74,7 +75,7 @@ function math2str(obj) {
 function inflar(str) {
 	var i, len, c, retorno, niveis, nivelAtual, novo, cache, salvarCache, matriz, posColuna, classe
 	retorno = new Parenteses
-	retorno.expressoes.push(new Expressao)
+	retorno.expressoes.push([])
 	len = str.length
 	niveis = [retorno]
 	nivelAtual = retorno.expressoes[0]
@@ -84,7 +85,7 @@ function inflar(str) {
 	
 	var salvarCache = function () {
 		if (cache.length > 0) {
-			nivelAtual.elementos.push(cache)
+			nivelAtual.push(cache)
 			cache = ""
 		}
 	}
@@ -100,7 +101,7 @@ function inflar(str) {
 		else
 			posColuna = len
 		for (i=len-m.colunas; i<len; i++)
-			if (m.expressoes[i].elementos.length == 0)
+			if (m.expressoes[i].length == 0)
 				throw "Elemento vazio inesperado"
 	}
 	
@@ -109,8 +110,8 @@ function inflar(str) {
 		if (c == "(" || c == "{" || c == "[") {
 			salvarCache()
 			novo = c=="(" ? new Parenteses : (c=="{" ? new Lista : new Vetor)
-			novo.expressoes.push(new Expressao)
-			nivelAtual.elementos.push(novo)
+			novo.expressoes.push([])
+			nivelAtual.push(novo)
 			niveis.push(nivelAtual)
 			niveis.push(novo)
 			nivelAtual = novo.expressoes[0]
@@ -118,6 +119,9 @@ function inflar(str) {
 			salvarCache()
 			classe = c==")" ? Parenteses : (c=="}" ? Lista : Vetor)
 			if (niveis.length > 1 && niveis[niveis.length-1] instanceof classe) {
+				if (nivelAtual.length == 0 && niveis[niveis.length-1].expressoes.length == 1)
+					// Trata casos como "random()"
+					niveis[niveis.length-1].expressoes.pop()
 				niveis.pop()
 				nivelAtual = niveis.pop()
 			} else
@@ -132,8 +136,8 @@ function inflar(str) {
 			salvarCache()
 			if (!matriz) {
 				novo = new Matriz
-				novo.expressoes.push(new Expressao)
-				nivelAtual.elementos.push(novo)
+				novo.expressoes.push([])
+				nivelAtual.push(novo)
 				niveis.push(nivelAtual)
 				niveis.push(novo)
 				nivelAtual = novo.expressoes[0]
@@ -153,13 +157,11 @@ function inflar(str) {
 					throw "Uso incorreto de ;"
 				validarColunas()
 			}
-			novo = new Expressao
+			novo = []
 			niveis[niveis.length-1].expressoes.push(novo)
 			nivelAtual = novo
 		} else if (c == " " || c == "\n")
 			salvarCache()
-		else if (c == "'" && nivelAtual.elementos.length == 0 && cache == "")
-			nivelAtual.puro = true
 		else
 			cache += c
 	}
@@ -168,21 +170,7 @@ function inflar(str) {
 	if (niveis.length > 1)
 		throw "Aninhamento inválido"
 	
-	// Remove expressões vazias
-	var limpar = function (obj) {
-		var i
-		if (obj instanceof Parenteses || obj instanceof Lista || obj instanceof Vetor) {
-			for (i=0; i<obj.expressoes.length; i++) {
-				if (obj.expressoes[i].elementos.length == 0)
-					obj.expressoes.splice(i--, 1)
-				else
-					obj.expressoes[i].elementos.forEach(limpar)
-			}
-		}
-	}
-	limpar(retorno)
-	
-	return retorno
+	return [retorno]
 }
 
 // Separa uma string em Operadores, Variáveis e Números
@@ -247,73 +235,75 @@ function separar(str) {
 	return partes
 }
 
-// Interpreta uma expressão (in-place)
+// Interpreta uma expressão já inflada
+// Em caso de sucesso, retorna a expressão
+// Em caso de falha, lança uma exceção
 function interpretar(expressao) {
 	var i, el, len, j, args, elAntes, elDepois, comando
 	
 	// Faz uma expansão básica
-	for (i=0; i<expressao.elementos.length; i++) {
-		el = expressao.elementos[i]
+	for (i=0; i<expressao.length; i++) {
+		el = expressao[i]
 		if (typeof el == "string") {
 			args = [i, 1].concat(separar(el))
-			;[].splice.apply(expressao.elementos, args)
+			;[].splice.apply(expressao, args)
 			i += args.length-3
 		} else if (el instanceof Parenteses || el instanceof Lista || el instanceof Vetor || el instanceof Matriz) {
 			len = el.expressoes.length
 			for (j=0; j<len; j++)
-				interpretar(el.expressoes[j])
+				el.expressoes[j] = interpretar(el.expressoes[j])
 		}
 	}
 	
 	// Transforma variável seguido de parênteses em função
-	for (i=0; i<expressao.elementos.length-1; i++) {
-		el = expressao.elementos[i]
-		elDepois = expressao.elementos[i+1]
+	for (i=0; i<expressao.length-1; i++) {
+		el = expressao[i]
+		elDepois = expressao[i+1]
 		if (el instanceof Variavel && elDepois instanceof Parenteses)
-			expressao.elementos.splice(i, 2, new Funcao(el.nome, elDepois.expressoes))
+			expressao.splice(i, 2, new Funcao(el.nome, elDepois.expressoes))
 	}
 	
 	// Coloca multiplicações implícitas e acesso de lista/vetor
-	for (i=0; i<expressao.elementos.length-1; i++) {
-		el = expressao.elementos[i]
-		elDepois = expressao.elementos[i+1]
+	for (i=0; i<expressao.length-1; i++) {
+		el = expressao[i]
+		elDepois = expressao[i+1]
 		if ((!(el instanceof Operador) || el.valor == "²" || el.valor == "³") && (!(elDepois instanceof Operador) || elDepois.valor == "\u221A")) {
 			if (elDepois instanceof Vetor && (elDepois.expressoes.length == 1 || elDepois.expressoes.length == 2)) {
-				expressao.elementos.splice(i, 2, new Funcao("getAt", [el].concat(elDepois.expressoes)))
+				expressao.splice(i, 2, new Funcao("getAt", [el].concat(elDepois.expressoes)))
 				i--
 			} else {
-				expressao.elementos.splice(i+1, 0, new Operador("*"))
+				expressao.splice(i+1, 0, new Operador("*"))
 				i++
 			}
 		}
 	}
 	
 	// Aplica os operadores unários !, %, ², ³ (ltr)
-	for (i=0; i<expressao.elementos.length; i++) {
-		el = expressao.elementos[i]
-		elAntes = i==0 ? null : expressao.elementos[i-1]
-		elDepois = i==expressao.elementos.length-1 ? null : expressao.elementos[i+1]
+	for (i=0; i<expressao.length; i++) {
+		el = expressao[i]
+		elAntes = i==0 ? null : expressao[i-1]
+		elDepois = i==expressao.length-1 ? null : expressao[i+1]
 		if (el instanceof Operador && ["!", "%", "²", "³"].indexOf(el.valor) != -1) {
 			if (elAntes && !(elAntes instanceof Operador) && (elDepois == null || elDepois instanceof Operador)) {
-				expressao.elementos.splice(i-1, 2, new Funcao(el.valor == "!" ? "factorial" : el.valor, [elAntes]))
+				expressao.splice(i-1, 2, new Funcao(el.valor == "!" ? "factorial" : el.valor, [elAntes]))
 				i--
 			}
 		}
 	}
 	
 	// Aplica os operadores unários !, +, -, \u221A (rtl) e o binário ^ (rtl)
-	for (i=expressao.elementos.length-1; i>=0; i--) {
-		el = expressao.elementos[i]
-		elAntes = i==0 ? null : expressao.elementos[i-1]
-		elDepois = i==expressao.elementos.length-1 ? null : expressao.elementos[i+1]
+	for (i=expressao.length-1; i>=0; i--) {
+		el = expressao[i]
+		elAntes = i==0 ? null : expressao[i-1]
+		elDepois = i==expressao.length-1 ? null : expressao[i+1]
 		if (el instanceof Operador && ["!", "+", "-", "\u221A"].indexOf(el.valor) != -1) {
 			if (elDepois && !(elDepois instanceof Operador) && (elAntes == null || elAntes instanceof Operador)) {
-				expressao.elementos.splice(i, 2, new Funcao(el.valor, [elDepois]))
+				expressao.splice(i, 2, new Funcao(el.valor, [elDepois]))
 				i++
 			}
 		} else if (el instanceof Operador && el.valor == "^") {
 			if (elAntes && !(elAntes instanceof Operador) && elDepois && !(elDepois instanceof Operador)) {
-				expressao.elementos.splice(i-1, 3, new Funcao(el.valor, [elAntes, elDepois]))
+				expressao.splice(i-1, 3, new Funcao(el.valor, [elAntes, elDepois]))
 				i++
 			} else
 				throw "Uso incorreto do operador ^"
@@ -321,14 +311,14 @@ function interpretar(expressao) {
 	}
 	
 	var aplicarBinarios = function (ops, sentido) {
-		for (i=0; i<expressao.elementos.length; i++) {
-			j = sentido==1 ? i : expressao.elementos.length-i-1
-			el = expressao.elementos[j]
-			elAntes = j==0 ? null : expressao.elementos[j-1]
-			elDepois = j==expressao.elementos.length-1 ? null : expressao.elementos[j+1]
+		for (i=0; i<expressao.length; i++) {
+			j = sentido==1 ? i : expressao.length-i-1
+			el = expressao[j]
+			elAntes = j==0 ? null : expressao[j-1]
+			elDepois = j==expressao.length-1 ? null : expressao[j+1]
 			if (el instanceof Operador && ops.indexOf(el.valor) != -1) {
 				if (elAntes && !(elAntes instanceof Operador) && elDepois && !(elDepois instanceof Operador)) {
-					expressao.elementos.splice(j-1, 3, new Funcao(el.valor, [elAntes, elDepois]))
+					expressao.splice(j-1, 3, new Funcao(el.valor, [elAntes, elDepois]))
 					i--
 				} else
 					throw "Uso incorreto do operador "+el.valor
@@ -347,42 +337,18 @@ function interpretar(expressao) {
 	aplicarBinarios(["||"], 1)
 	aplicarBinarios(["=", "+=", "-=", "*=", "/=", "%=", "_=", "&&=", "||=", "^="], -1)
 	
-	if (expressao.elementos.length > 1)
+	if (expressao.length > 1)
 		throw "Expressão inválida"
-}
-
-// Retira o único elemento de uma expressão, se possível
-function unbox(expressao) {
-	if (expressao instanceof Expressao && expressao.elementos.length == 1)
-		return expressao.elementos[0]
-	else
-		return expressao
+	
+	return expressao[0]
 }
 
 // Verifica se um valor está bem determinado (não pode mudar de tipo)
 function eDeterminado(valor) {
 	var i, len
-	if (valor instanceof Expressao && valor.elementos.length == 0)
-		return true
-	if (valor instanceof Expressao && valor.elementos.length == 1)
-		return eDeterminado(valor.elementos[0])
 	if (valor instanceof Vetor || valor instanceof Lista || valor instanceof Matriz || eNumerico(valor))
 		return true
 	return false
-}
-
-// Retorna se um dado objeto é uma expressão pura
-function ePuro(obj) {
-	if (obj instanceof Expressao && obj.puro)
-		return true
-	if (obj instanceof Parenteses && obj.expressoes.length == 1 && obj.expressoes[0].puro)
-		return true
-	return false
-}
-
-// Retorna se um dado objeto é uma expressão vazia
-function eExpressaoVazia(obj) {
-	return obj instanceof Expressao && obj.elementos.length == 0
 }
 
 // Executa um objeto matemático (sem alterar o argumento)
@@ -396,11 +362,7 @@ function executar(expressao) {
 	}
 	vars = Array.isArray(arguments[1]) ? arguments[1] : []
 	var calc = function (obj) {
-		if (obj instanceof Expressao) {
-			if (obj.elementos.length == 0)
-				return new Expressao
-			return calc(obj.elementos[0])
-		} else if (obj instanceof Funcao)
+		if (obj instanceof Funcao)
 			return obj.executar(vars)
 		else if (obj instanceof Variavel) {
 			if (vars.indexOf(obj.nome) != -1)
@@ -426,7 +388,7 @@ function executar(expressao) {
 	}
 	var r = calc(expressao)
 	if (debug) {
-		div.textContent += " ⇒ "+r.toMathString(false)
+		div.innerHTML += " ⇒ "+(r === null ? "&empty;" : r.toMathString(false))
 		executar.logId = executar.logId.substr(0, executar.logId.length-1)
 	}
 	return r

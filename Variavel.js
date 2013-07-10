@@ -57,9 +57,8 @@ Variavel.prototype.get = function (vars) {
 
 // Retorna o valor mais imediato de uma variável (sem executá-lo)
 // vars contém uma lista de variáveis que devem ser tidas como indefinidas
-Variavel.prototype.getDireto = function (vars) {
-	vars = vars===undefined ? [] : vars
-	if (vars.indexOf(this.nome) == -1 && this.nome in Variavel.valores)
+Variavel.prototype.getDireto = function () {
+	if (this.nome in Variavel.valores)
 		return Variavel.valores[this.nome]
 	else
 		return null

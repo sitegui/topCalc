@@ -154,7 +154,6 @@ Unidade.unidades = {
 // Retorna um novo objeto Unidade ou throw em caso de erro
 Unidade.interpretar = function (expressao) {
 	var arg0, arg1, r
-	expressao = unbox(expressao)
 	if (expressao instanceof Fracao && expressao.n == 1 && expressao.d == 1)
 		return new Unidade
 	if (expressao instanceof Funcao) {

@@ -38,7 +38,6 @@ Funcao.aplicarNasListas = function (funcao, that, args) {
 	temLista = false
 	tamLista = 0
 	for (i=0; i<len; i++) {
-		args[i] = unbox(args[i])
 		if (args[i] instanceof Lista) {
 			if (!temLista)
 				tamLista = args[i].expressoes.length
@@ -61,8 +60,7 @@ Funcao.aplicarNasListas = function (funcao, that, args) {
 					args2.push(args[j])
 			temp = funcao.apply(that, args2)
 			temp = temp===undefined ? new Funcao(that.nome, args2) : temp
-			if (!eExpressaoVazia(temp))
-				retorno.expressoes.push(temp)
+			retorno.expressoes.push(temp)
 		}
 		return retorno
 	}
@@ -89,8 +87,6 @@ Funcao.gerar = function (params, unidades, definicao) {
 			return new exp.constructor(exp.expressoes.map(filtrar))
 		else if (exp instanceof Matriz)
 			return new Matriz(exp.expressoes.map(filtrar), exp.colunas)
-		else if (exp instanceof Expressao)
-			return new Expressao(exp.elementos.map(filtrar))
 		else if (exp instanceof Funcao)
 			return new Funcao(exp.nome, exp.args.map(filtrar))
 		else if (exp instanceof Variavel && params.indexOf(exp.nome) != -1)
@@ -200,7 +196,7 @@ Funcao.prototype.toMathString = function (mathML) {
 	}
 	nome2 = Console.escaparHTML(this.nome)
 	if (eOperador(this)) {
-		a = unbox(this.args[0])
+		a = this.args[0]
 		strA = a.toMathString(mathML)
 		if (operadores[this.nome] == 0) {
 			op = this.nome=="factorial" ? "!" : nome2
@@ -216,8 +212,8 @@ Funcao.prototype.toMathString = function (mathML) {
 		}
 	}
 	if (pre = eOperador2(this)) {
-		a = unbox(this.args[0])
-		b = unbox(this.args[1])
+		a = this.args[0]
+		b = this.args[1]
 		strA = a.toMathString(mathML)
 		strB = b.toMathString(mathML)
 		preA = eOperador2(a)
@@ -264,7 +260,7 @@ Funcao.prototype.executar = function (vars) {
 			throw "Quantidade inválida de parâmetros para "+this.nome+", recebido "+this.args.length+" e esperado "+funcao.dim
 		if (!funcao.entradaPura)
 			copia = new Funcao(this.nome, this.args.map(function (x) {
-				return that.executarPuroNoEscopo(x)
+				return that.executarNoEscopo(x)
 			}))
 		else
 			copia = this.clonar()
@@ -280,68 +276,28 @@ Funcao.prototype.executar = function (vars) {
 		return retorno!==undefined ? retorno : copia
 	} else
 		return new Funcao(this.nome, this.args.map(function (x) {
-			return that.executarPuroNoEscopo(x)
+			return that.executarNoEscopo(x)
 		}))
 }
 
 // Executa uma expressão no escopo atual
 Funcao.prototype.executarNoEscopo = function (obj, subvars) {
-	if (subvars)
-		return executar(obj, this.escopo.concat(subvars))
-	else
-		return executar(obj, this.escopo)
-}
-
-// Executa uma expressão pura no escopo atual
-// Se a expressão não for pura, faz o mesmo que Funcao::executarNoEscopo
-// Se for, somente as variáveis são abertas, sem executar nenhuma função
-Funcao.prototype.executarPuroNoEscopo = function (obj, subvars) {
-	var vars
-	var trocar = function (obj) {
-		var r
-		if (obj instanceof Expressao) {
-			r = new Expressao(obj.elementos.map(trocar))
-			r.puro = obj.puro
-			return r
-		} else if (obj instanceof Parenteses)
-			return new Parenteses(obj.expressoes.map(trocar))
-		else if (obj instanceof Lista)
-			return new Lista(obj.expressoes.map(trocar))
-		else if (obj instanceof Vetor)
-			return new Vetor(obj.expressoes.map(trocar))
-		else if (obj instanceof Matriz)
-			return new Matriz(obj.expressoes.map(trocar), obj.colunas)
-		else if (obj instanceof Funcao)
-			return new Funcao(obj.nome, obj.args.map(trocar))
-		else if (obj instanceof Variavel) {
-			if (obj.nome in Variavel.valores && vars.indexOf(obj.nome) == -1)
-				return Variavel.valores[obj.nome]
-			return new Variavel(obj.nome)
-		} else
-			return obj.clonar()
-	}
+	var debug, r
 	
-	if (!ePuro(obj))
-		return this.executarNoEscopo(obj, subvars)
-	else {
-		if (subvars)
-			vars = this.escopo.concat(subvars)
-		else
-			vars = this.escopo
-		return trocar(obj)
-	}
-}
-
-// Retorna o valor de uma variável no escopo atual
-// variavel deve ser uma instância de Variavel
-Funcao.prototype.getVariavel = function (variavel) {
-	return variavel.get(this.escopo)
-}
-
-// Retorna o valor mais imediato de uma variável no escopo atual (sem executá-lo)
-// variavel deve ser uma instância de Variavel
-Funcao.prototype.getVariavelDireto = function (variavel) {
-	return variavel.getDireto(this.escopo)
+	// Desativa o debug caso não se deseje saber passo-a-passo
+	debug = Config.get("debug")
+	if (debug == 1)
+		Config.set("debug", 0, true)
+	
+	if (subvars)
+		r = executar(obj, this.escopo.concat(subvars))
+	else
+		r = executar(obj, this.escopo)
+	
+	if (debug == 1)
+		Config.set("debug", 1, true)
+	
+	return r
 }
 
 // Retorna a definição de uma função (ou null caso seja nativa ou inexistente)

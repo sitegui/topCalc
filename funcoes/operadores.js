@@ -165,27 +165,21 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 		throw 0
 }, true)
 
-Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='...\nDefine ou redefine uma variável, função ou unidade", function (a, b) {
+Funcao.registrar("=", "x=... ou f(x)=... ou 1_x=... ou {x,y}=... ou [x,y]=...\nDefine ou redefine uma variável, função ou unidade", function (a, b) {
 	var i, includes, r, temp, params, unidades, funcao, valor, j
-	
-	// Trata os argumentos
-	this.args[0] = a = unbox(a)
-	this.args[1] = b = unbox(b)
 	
 	// Verifica se está se usando o operador ":"
 	includes = []
 	if (a instanceof Funcao && a.nome == ":") {
 		// Trata o segundo argumento de a
-		a.args[1] = unbox(a.args[1])
 		includes = a.args[1] instanceof Parenteses ? a.args[1].expressoes : [a.args[1]]
 		for (i=0; i<includes.length; i++) {
-			includes[i] = unbox(includes[i])
 			if (includes[i] instanceof Variavel)
 				includes[i] = includes[i].nome
 			else
 				throw "Os valores importados com : devem ser variáveis"
 		}
-		a = unbox(a.args[0])
+		a = a.args[0]
 	}
 	
 	// Distribui sobre os elementos do vetor/matriz
@@ -214,8 +208,6 @@ Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='..
 	else if (a instanceof Funcao) {
 		if (a.nome == "_") {
 			// Define uma unidade
-			a.args[0] = unbox(a.args[0])
-			a.args[1] = unbox(a.args[1])
 			if (!(a.args[0] instanceof Fracao) || a.args[0].n != 1 || a.args[0].d != 1)
 				throw "O valor tem de ser 1"
 			if (!(a.args[1] instanceof Variavel))
@@ -230,7 +222,6 @@ Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='..
 			r = this.executarNoEscopo(b, includes)
 			
 			// Trata a variável
-			a.args[0] = unbox(a.args[0])
 			if (!(a.args[0] instanceof Variavel))
 				throw "Definição inválida"
 			valor = Variavel.valores[a.args[0].nome]
@@ -277,7 +268,7 @@ Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='..
 			params = []
 			unidades = []
 			for (i=0; i<a.args.length; i++) {
-				temp = unbox(a.args[i])
+				temp = a.args[i]
 				if (temp instanceof Funcao && temp.nome == "_" && temp.args[0] instanceof Variavel) {
 					params.push(temp.args[0].nome)
 					unidades[temp.args[0].nome] = Unidade.interpretar(temp.args[1])
@@ -286,7 +277,7 @@ Funcao.registrar("=", "x='... ou f(x)='... ou 1_x=... ou {x,y}='... ou [x,y]='..
 				else
 					throw "Parâmetro inválido na declaração da função"
 			}
-			r = this.executarPuroNoEscopo(b, params.concat(includes))
+			r = this.executarNoEscopo(b, params.concat(includes))
 			funcao = Funcao.gerar(params, unidades, r)
 			funcao.definicao = new Funcao("=", [a, r]).toMathString(false)
 			Funcao.funcoes[a.nome] = funcao
@@ -339,7 +330,6 @@ Funcao.registrar("_", "valor_unidade\nConverter o valor para a unidade desejada"
 	
 	// Trata os parâmetros
 	this.args[0] = valor = this.executarNoEscopo(valor)
-	this.args[1] = unidade = unbox(unidade)
 	vL = valor instanceof Lista
 	uL = unidade instanceof Lista
 	if (uL) {
