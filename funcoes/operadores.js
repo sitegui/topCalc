@@ -198,7 +198,7 @@ Funcao.registrar("=", "x=... ou f(x)=... ou 1_x=... ou {x,y}=... ou [x,y]=...\nD
 		}
 		
 		for (i=0; i<a.expressoes.length; i++)
-			r.expressoes.push(this.executarNoEscopo(new Funcao("=", [a.expressoes[i], b.expressoes[i]]), includes))
+			r.expressoes.push(Funcao.executar("=", [a.expressoes[i], b.expressoes[i]]))
 		return r
 	}
 	
@@ -469,7 +469,6 @@ Funcao.registrar("||", "a||b\nRetorna se a ou b são não nulos", function (a, b
 })()
 
 // Define os comportamentos de pre-execução
-Funcao.funcoes["="].preExecucao = 
 Funcao.funcoes["+="].preExecucao = 
 Funcao.funcoes["-="].preExecucao = 
 Funcao.funcoes["*="].preExecucao = 
@@ -479,3 +478,50 @@ Funcao.funcoes["&&="].preExecucao =
 Funcao.funcoes["||="].preExecucao = 
 Funcao.funcoes["_="].preExecucao = 
 Funcao.funcoes["^="].preExecucao = Funcao.gerarPreExecucao([0], 1)
+Funcao.funcoes["="].preExecucao = function () {
+	var includes, i, temp, a, params
+	
+	// Verifica se está se usando o operador ":"
+	includes = []
+	a = this.args[0]
+	if (a instanceof Funcao && a.nome == ":") {
+		// Trata o segundo argumento de a
+		temp = a.args[1] instanceof Parenteses ? a.args[1].expressoes : [a.args[1]]
+		for (i=0; i<temp.length; i++) {
+			if (temp[i] instanceof Variavel)
+				includes.push(temp[i].nome)
+			else
+				throw "Os valores importados com : devem ser variáveis"
+		}
+		a = a.args[0]
+	}
+	
+	if (a instanceof Variavel)
+		// Caso mais simples x = 2
+		this.args[1] = this.executarNoEscopo(this.args[1], includes)
+	else if (a instanceof Funcao) {
+		if (a.nome == "_")
+			// Declaração de unidade
+			this.args[1] = this.executarNoEscopo(this.args[1], includes)
+		else if (a.nome == "getAt") {
+			// Acesso de vetor/lista/matriz
+			this.args[1] = this.executarNoEscopo(this.args[1], includes)
+			a.args[0] = this.executarNoEscopo(a.args[0])
+			if (a.args.length == 2)
+				a.args[1] = this.executarNoEscopo(a.args[1])
+		} else {
+			// Declaração de nova função
+			params = []
+			for (i=0; i<a.args.length; i++) {
+				temp = a.args[i]
+				if (temp instanceof Funcao && temp.nome == "_" && temp.args[0] instanceof Variavel)
+					params.push(temp.args[0].nome)
+				else if (temp instanceof Variavel)
+					params.push(temp.nome)
+				else
+					throw "Parâmetro inválido na declaração da função"
+			}
+			this.args[1] = this.preExecutarNoEscopo(this.args[1], params.concat(includes))
+		}
+	}
+}
