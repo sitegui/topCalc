@@ -13,7 +13,7 @@ Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a de
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[1] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[1] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	this.args[2] = valor = this.executarNoEscopo(valor)
 	epsD = Config.get("epsDerivada")
 	
@@ -24,11 +24,11 @@ Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a de
 			var h, x, fx, fxh
 			
 			if (eNumerico(valor)) {
-				h = Funcao.executar("*", [epsD, Funcao.executar("+", [Funcao.executar("abs", [valor]), 1])])
+				h = multiplicar(epsD, somar(abs(valor), 1))
 				Variavel.valores[variavel] = valor
-				fx = this.executarNoEscopo(expressao)
+				fx = this.executarNoEscopo(expressao, null, [variavel])
 				Variavel.valores[variavel] = somar(valor, h)
-				fxh = this.executarNoEscopo(expressao)
+				fxh = this.executarNoEscopo(expressao, null, [variavel])
 				return Funcao.executar("/", [Funcao.executar("-", [fxh, fx]), h])
 			} else if (eDeterminado(valor))
 				throw 0
@@ -45,7 +45,7 @@ Funcao.registrar("derivate2", "derivate2(variavel, expressao, ponto)\nRetorna a 
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[1] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[1] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	this.args[2] = valor = this.executarNoEscopo(valor)
 	epsD = Config.get("epsDerivada")
 	
@@ -59,11 +59,11 @@ Funcao.registrar("derivate2", "derivate2(variavel, expressao, ponto)\nRetorna a 
 				h1 = multiplicar(epsD, somar(abs(valor), 1))
 				h2 = multiplicar(epsD, somar(abs(valor+h1), 1))
 				Variavel.valores[variavel] = valor
-				fx = this.executarNoEscopo(expressao)
+				fx = this.executarNoEscopo(expressao, null, [variavel])
 				Variavel.valores[variavel] = somar(valor, h1)
-				fxh = this.executarNoEscopo(expressao)
+				fxh = this.executarNoEscopo(expressao, null, [variavel])
 				Variavel.valores[variavel] = somar(somar(valor, h1), h2)
-				fxhh = this.executarNoEscopo(expressao)
+				fxhh = this.executarNoEscopo(expressao, null, [variavel])
 				a = Funcao.executar("/", [Funcao.executar("-", [fxhh, fxh]), h2])
 				b = Funcao.executar("/", [Funcao.executar("-", [fxh, fx]), h1])
 				return Funcao.executar("/", [Funcao.executar("-", [a, b]), h1])
@@ -82,7 +82,7 @@ Funcao.registrar("findZero", "findZero(variavel, expressao, chute)\nEncontra um 
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[1] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[1] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	this.args[2] = chute = this.executarNoEscopo(chute)
 	maxI = Config.get("maxPassos")
 	epsD = Config.get("epsDerivada")
@@ -99,9 +99,9 @@ Funcao.registrar("findZero", "findZero(variavel, expressao, chute)\nEncontra um 
 					// Calcula o próximo valor x2 = x - f(x)/f'(x)
 					h = epsD*(Math.abs(x)+1)
 					Variavel.valores[variavel] = x
-					fx = getNum(this.executarNoEscopo(expressao))
+					fx = getNum(this.executarNoEscopo(expressao, null, [variavel]))
 					Variavel.valores[variavel] = x+h
-					fxh = getNum(this.executarNoEscopo(expressao))
+					fxh = getNum(this.executarNoEscopo(expressao, null, [variavel]))
 					x2 = x-(h*fx)/(fxh-fx)
 					if (Math.abs(x2) == Infinity || isNaN(x2))
 						throw "Erro ao calcular a derivada, tente outro valor inicial"
@@ -129,9 +129,7 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 	
 	// Pega os nomes das variáveis
 	that = this
-	if (!eDeterminado(vars))
-		return
-	else if (!(vars instanceof Vetor))
+	if (!(vars instanceof Vetor))
 		throw 0
 	vars = []
 	for (i=0; i<this.args[0].expressoes.length; i++) {
@@ -142,7 +140,7 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 	}
 	
 	// Trata os outros argumentos
-	this.args[1] = exps = this.executarNoEscopo(exps, vars)
+	this.args[1] = exps = this.preExecutarNoEscopo(exps, vars)
 	this.args[2] = chute = this.executarNoEscopo(chute)
 	maxI = Config.get("maxPassos")
 	eps = Config.get("epsilon")
@@ -211,7 +209,7 @@ Funcao.registrar("findComplexZero", "findComplexZero(variavel, expressao, chute)
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[1] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[1] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	this.args[2] = chute = this.executarNoEscopo(chute)
 	maxI = Config.get("maxPassos")
 	eps = Config.get("epsilon")
@@ -264,9 +262,7 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 	
 	// Pega os nomes das variáveis
 	that = this
-	if (!eDeterminado(vars))
-		return
-	else if (!(vars instanceof Vetor))
+	if (!(vars instanceof Vetor))
 		throw 0
 	vars = []
 	for (i=0; i<this.args[0].expressoes.length; i++) {
@@ -277,7 +273,7 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 	}
 	
 	// Trata os outros argumentos
-	this.args[1] = exps = this.executarNoEscopo(exps, vars)
+	this.args[1] = exps = this.preExecutarNoEscopo(exps, vars)
 	this.args[2] = chute = this.executarNoEscopo(chute)
 	maxI = Config.get("maxPassos")
 	eps = Config.get("epsilon")
@@ -342,6 +338,29 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 	}
 }, false, true)
 
+// Define os comportamentos de pre-execução
+Funcao.funcoes.derivate.preExecucao = 
+Funcao.funcoes.derivate2.preExecucao = 
+Funcao.funcoes.findComplexZero.preExecucao = 
+Funcao.funcoes.findZero.preExecucao = Funcao.gerarPreExecucao([0], 1)
+Funcao.funcoes.solve.preExecucao = 
+Funcao.funcoes.solveComplex.preExecucao = function () {
+	var vars = [], i
+	
+	if (!(this.args[0] instanceof Vetor))
+		throw 0
+	for (i=0; i<this.args[0].expressoes.length; i++) {
+		if (this.args[0].expressoes[i] instanceof Variavel)
+			vars.push(this.args[0].expressoes[i].nome)
+		else
+			throw 0
+	}
+	
+	// Trata os outros argumentos
+	this.args[1] = this.executarNoEscopo(this.args[1], vars)
+	this.args[2] = this.executarNoEscopo(this.args[2])
+}
+
 // Objeto com várias funções usadas por esse módulo
 var Solver = {}
 
@@ -360,7 +379,7 @@ Solver.calcularJacobiana = function (vars, exps, valores, fsx, that) {
 	for (i=0; i<vars.length; i++)
 		Variavel.valores[vars[i]] = valores[i]
 	for (i=0; i<exps.length; i++)
-		fsx.push(-getNum(that.executarNoEscopo(exps[i])))
+		fsx.push(-getNum(that.executarNoEscopo(exps[i], null, vars)))
 	
 	// Monta J
 	J = []
@@ -371,7 +390,7 @@ Solver.calcularJacobiana = function (vars, exps, valores, fsx, that) {
 		for (k=0; k<vars.length; k++)
 			Variavel.valores[vars[k]] = k==i ? valores[k]+h : valores[k]
 		for (j=0; j<exps.length; j++) {
-			fxh = getNum(that.executarNoEscopo(exps[j]))
+			fxh = getNum(that.executarNoEscopo(exps[j], null, vars))
 			J[i].push((fxh+fsx[j])/h)
 		}
 	}
@@ -388,7 +407,7 @@ Solver.calcularJacobianaComplexa = function (vars, exps, valores, fsx, that) {
 	for (i=0; i<vars.length; i++)
 		Variavel.valores[vars[i]] = valores[i]
 	for (i=0; i<exps.length; i++) {
-		temp = toComplexo(that.executarNoEscopo(exps[i]))
+		temp = toComplexo(that.executarNoEscopo(exps[i], null, vars))
 		fsx.push(-getNum(temp.a))
 		fsx.push(-getNum(temp.b))
 	}
@@ -402,7 +421,7 @@ Solver.calcularJacobianaComplexa = function (vars, exps, valores, fsx, that) {
 		for (k=0; k<vars.length; k++)
 			Variavel.valores[vars[k]] = k==i ? new Complexo(valores[k].a+h, valores[k].b) : valores[k]
 		for (j=0; j<exps.length; j++) {
-			fxh = toComplexo(that.executarNoEscopo(exps[j]))
+			fxh = toComplexo(that.executarNoEscopo(exps[j], null, vars))
 			J[2*i].push((getNum(fxh.a)+fsx[2*j])/h)
 			J[2*i].push((getNum(fxh.b)+fsx[2*j+1])/h)
 		}
@@ -411,7 +430,7 @@ Solver.calcularJacobianaComplexa = function (vars, exps, valores, fsx, that) {
 		for (k=0; k<vars.length; k++)
 			Variavel.valores[vars[k]] = k==i ? new Complexo(valores[k].a, valores[k].b+h) : valores[k]
 		for (j=0; j<exps.length; j++) {
-			fxh = toComplexo(that.executarNoEscopo(exps[j]))
+			fxh = toComplexo(that.executarNoEscopo(exps[j], null, vars))
 			J[2*i+1].push((getNum(fxh.a)+fsx[2*j])/h)
 			J[2*i+1].push((getNum(fxh.b)+fsx[2*j+1])/h)
 		}

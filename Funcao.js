@@ -77,28 +77,6 @@ Funcao.fazerAceitarListas = function (funcaoBase) {
 
 // Gera uma função com base nos parâmetros e sua definição
 Funcao.gerar = function (params, unidades, definicao) {
-	var i
-	
-	// Muda os nomes dos parâmetros de "x" para "_x"
-	// Isso serve para evitar conflitos de escopo, como em:
-	// f(x)=x+1, slider(x, -5pi, 5pi, f(a*x))
-	var filtrar = function (exp) {
-		if (exp instanceof Vetor || exp instanceof Lista || exp instanceof Parenteses)
-			return new exp.constructor(exp.expressoes.map(filtrar))
-		else if (exp instanceof Matriz)
-			return new Matriz(exp.expressoes.map(filtrar), exp.colunas)
-		else if (exp instanceof Funcao)
-			return new Funcao(exp.nome, exp.args.map(filtrar))
-		else if (exp instanceof Variavel && params.indexOf(exp.nome) != -1)
-			return new Variavel("_"+exp.nome)
-		else
-			return exp.clonar()
-	}
-	definicao = filtrar(definicao)
-	
-	for (i=0; i<params.length; i++)
-		params[i] = "_"+params[i]
-	
 	var retorno = function () {
 		var escopoPai, i, retorno
 		
@@ -113,7 +91,7 @@ Funcao.gerar = function (params, unidades, definicao) {
 				else
 					Variavel.valores[params[i]] = arguments[i]
 			}
-			retorno = this.executarNoEscopo(definicao)
+			retorno = this.executarNoEscopo(definicao, null, params)
 		} finally {
 			Variavel.restaurar(escopoPai)
 		}
@@ -163,19 +141,19 @@ Funcao.prototype.toMathString = function (mathML) {
 	var a, b, op, pre, nome2, strA, strB, i, args, preA, preB
 	var operadores = {
 		factorial: 0, "%": 0, "²": 0, "³": 0, // rtl
-		"!": 1, "+": 1, "-": 1, "\u221A": 1 // ltr
+		"!": 1, "+": 1, "-": 1, "\u221A": 1, "'": 1 // ltr
 	}
 	var operadores2 = {
-		"^": 1, // ltr
-		":": 2, // rtl
-		"_": 3, // rtl
-		"*": 4, "/": 4, "%": 4, "\u2A2F": 4, // rtl
-		"+": 5, "-": 5, // rtl
-		"<": 6, "<=": 6, ">": 6, ">=": 6, "\u2264": 6, "\u2265": 6, // rtl
-		"==": 7, "!=": 7, "\u2260": 7, // rtl
-		"&&": 8, // rtl
-		"||": 9, // rtl
-		"=": 10 // ltr
+		"^": 1, // rtl
+		":": 2, // ltr
+		"_": 3, // ltr
+		"*": 4, "/": 4, "%": 4, "\u2A2F": 4, // ltr
+		"+": 5, "-": 5, // ltr
+		"<": 6, "<=": 6, ">": 6, ">=": 6, "\u2264": 6, "\u2265": 6, // ltr
+		"==": 7, "!=": 7, "\u2260": 7, // ltr
+		"&&": 8, // ltr
+		"||": 9, // ltr
+		"=": 10, "+=": 10, "-=": 10, "*=": 10, "/=": 10, "%=": 10, "_=": 10, "&&=": 10, "||=": 10, "^=": 10 // rtl
 	}
 	var sentidos = [0, -1, 1, 1, 1, 1, 1, 1, 1, 1, -1]
 	var eOperador = function (x) {
@@ -266,7 +244,10 @@ Funcao.prototype.executar = function (vars) {
 			copia = this.clonar()
 		copia.escopo = vars
 		try {
-			retorno = funcao.apply(copia, copia.args)
+			if (executar.preExecutar != 2)
+				retorno = funcao.apply(copia, copia.args)
+			else if (funcao.preExecucao)
+				retorno = funcao.preExecucao.apply(copia)
 		} catch (e) {
 			if (e === 0)
 				throw "Resultado de "+this.nome+" indefinido"
@@ -281,21 +262,49 @@ Funcao.prototype.executar = function (vars) {
 }
 
 // Executa uma expressão no escopo atual
-Funcao.prototype.executarNoEscopo = function (obj, subvars) {
-	var debug, r
+// exp é a expressão a ser executada
+// escopo é uma Array com os nomes das variáveis a serem incluídas no escopo (opcional)
+// antiEscopo é uma Array com os nomes das variáveis a serem excluídas do escopo (opcional)
+Funcao.prototype.executarNoEscopo = function (exp, escopo, antiEscopo) {
+	var debug, r, subescopo, i
 	
 	// Desativa o debug caso não se deseje saber passo-a-passo
 	debug = Config.get("debug")
-	if (debug == 1)
+	if (debug == 1 && antiEscopo)
 		Config.set("debug", 0, true)
 	
-	if (subvars)
-		r = executar(obj, this.escopo.concat(subvars))
-	else
-		r = executar(obj, this.escopo)
+	escopo = escopo ? this.escopo.concat(escopo) : this.escopo
+	if (antiEscopo) {
+		subescopo = []
+		for (i=0; i<escopo.length; i++)
+			if (antiEscopo.indexOf(escopo[i]) == -1)
+				subescopo.push(escopo[i])
+	} else
+		subescopo = escopo
 	
-	if (debug == 1)
+	r = executar(exp, subescopo)
+	
+	if (debug == 1 && antiEscopo)
 		Config.set("debug", 1, true)
+	
+	return r
+}
+
+// Pré-executa uma expressão no escopo atual
+// A diferença entre pré-executar e executar, é que pré-executar somente substitui as variáveis pelo seu valor no escopo atual
+// exp é a expressão a ser executada
+// escopo é uma Array com os nomes das variáveis a serem incluídas no escopo (opcional)
+Funcao.prototype.preExecutarNoEscopo = function (exp, escopo) {
+	var r, antes
+	
+	try {
+		antes = executar.preExecutar
+		if (executar.preExecutar == 0)
+			executar.preExecutar = 1
+		r = executar(exp, escopo ? this.escopo.concat(escopo) : this.escopo)
+	} finally {
+		executar.preExecutar = antes
+	}
 	
 	return r
 }
@@ -306,4 +315,27 @@ Funcao.prototype.getDefinicao = function () {
 		return Funcao.funcoes[this.nome].definicao
 	else
 		return null
+}
+
+// Função de pre-execução básica
+// vars é uma Array com índices dos argumentos que devem ser tratados como variáveis
+// exp é o índice do argumento que deve ser executada no subescopo das variáveis definidas por vars
+Funcao.gerarPreExecucao = function (vars, exp) {
+	return function () {
+		var i, subescopo = []
+		
+		// Valida e pega os nomes das variáveis
+		for (i=0; i<vars.length; i++) {
+			if (!(this.args[vars[i]] instanceof Variavel))
+				throw 0
+			subescopo.push(this.args[vars[i]].nome)
+		}
+		
+		// Trata todos os argumentos
+		for (i=0; i<this.args.length; i++)
+			if (i == exp)
+				this.args[i] = this.executarNoEscopo(this.args[i], subescopo)
+			else if (vars.indexOf(i) == -1)
+				this.args[i] = this.executarNoEscopo(this.args[i])
+	}
 }

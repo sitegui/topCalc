@@ -173,7 +173,7 @@ Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, exp)\nMonta um
 	this.args[1] = nColunas = this.executarNoEscopo(nColunas)
 	if (!(varI instanceof Variavel) || !(varJ instanceof Variavel))
 		throw 0
-	this.args[4] = exp = this.executarNoEscopo(exp, [varI.nome, varJ.nome])
+	this.args[4] = exp = this.preExecutarNoEscopo(exp, [varI.nome, varJ.nome])
 	
 	if (eNumerico(nLinhas) && eNumerico(nColunas)) {
 		nLinhas = getNum(nLinhas)
@@ -188,7 +188,7 @@ Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, exp)\nMonta um
 				for (j=1; j<=nColunas; j++) {
 					Variavel.valores[varI.nome] = new Fracao(i, 1)
 					Variavel.valores[varJ.nome] = new Fracao(j, 1)
-					retorno.expressoes.push(this.executarNoEscopo(exp))
+					retorno.expressoes.push(this.executarNoEscopo(exp, null, [varI.nome, varJ.nome]))
 				}
 		} finally {
 			Variavel.restaurar(antes)
@@ -200,3 +200,6 @@ Funcao.registrar("matrix", "matrix(nLinhas, nColunas, varI, varJ, exp)\nMonta um
 	} else if (eDeterminado(nLinhas) && eDeterminado(nColunas))
 		throw 0
 }, true, true)
+
+// Define os comportamentos de pre-execução
+Funcao.funcoes.matrix.preExecucao = Funcao.gerarPreExecucao([2, 3], 4)

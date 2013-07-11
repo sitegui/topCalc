@@ -175,7 +175,7 @@ function inflar(str) {
 
 // Separa uma string em Operadores, Variáveis e Números
 function separar(str) {
-	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_", "+=", "-=", "*=", "/=", "%=", "^=", "&&=", "||=", "_=", "²", "³", "\u221A", "\u2264", "\u2265", "\u2260", "\u2A2F", ":"]
+	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_", "+=", "-=", "*=", "/=", "%=", "^=", "&&=", "||=", "_=", "²", "³", "\u221A", "\u2264", "\u2265", "\u2260", "\u2A2F", ":", "'"]
 	var getOperador = function (str) {
 		if (operadores.indexOf(str) != -1)
 			return new Operador(str)
@@ -291,12 +291,12 @@ function interpretar(expressao) {
 		}
 	}
 	
-	// Aplica os operadores unários !, +, -, \u221A (rtl) e o binário ^ (rtl)
+	// Aplica os operadores unários !, +, -, \u221A, ' (rtl) e o binário ^ (rtl)
 	for (i=expressao.length-1; i>=0; i--) {
 		el = expressao[i]
 		elAntes = i==0 ? null : expressao[i-1]
 		elDepois = i==expressao.length-1 ? null : expressao[i+1]
-		if (el instanceof Operador && ["!", "+", "-", "\u221A"].indexOf(el.valor) != -1) {
+		if (el instanceof Operador && ["!", "+", "-", "\u221A", "'"].indexOf(el.valor) != -1) {
 			if (elDepois && !(elDepois instanceof Operador) && (elAntes == null || elAntes instanceof Operador)) {
 				expressao.splice(i, 2, new Funcao(el.valor, [elDepois]))
 				i++
@@ -353,22 +353,22 @@ function eDeterminado(valor) {
 
 // Executa um objeto matemático (sem alterar o argumento)
 // Retorna um outro objeto matemático (sem referências ao argumento)
-function executar(expressao) {
-	var div, vars, debug
+function executar(expressao /*, escopo*/) {
+	var div, escopo, debug
 	debug = Config.get("debug")
 	if (debug) {
 		div = Console.echoInfo(executar.logId+expressao.toMathString(false), true)
 		executar.logId += "\t"
 	}
-	vars = Array.isArray(arguments[1]) ? arguments[1] : []
+	escopo = Array.isArray(arguments[1]) ? arguments[1] : []
 	var calc = function (obj) {
 		if (obj instanceof Funcao)
-			return obj.executar(vars)
+			return obj.executar(escopo)
 		else if (obj instanceof Variavel) {
-			if (vars.indexOf(obj.nome) != -1)
+			if (escopo.indexOf(obj.nome) != -1)
 				return obj.clonar()
 			else
-				return obj.get(vars)
+				return obj.get(escopo)
 		} else if (obj instanceof Fracao)
 			return obj.clonar()
 		else if (obj instanceof Parenteses) {
@@ -393,3 +393,9 @@ function executar(expressao) {
 	}
 	return r
 }
+
+// Indica o modo de execução
+// 0 = normal
+// 1 = somente altera as variáveis no argumento de funções '
+// 2 = somente altera as variáveis em todos os lugares
+executar.preExecutar = 0

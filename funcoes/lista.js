@@ -13,7 +13,7 @@ Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna
 	this.args[1] = inicio = this.executarNoEscopo(inicio)
 	this.args[2] = fim = this.executarNoEscopo(fim)
 	variavel = variavel.nome
-	this.args[3] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[3] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	if (this.args.length == 5)
 		this.args[4] = passo = this.executarNoEscopo(passo)
 	else
@@ -32,7 +32,7 @@ Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna
 		try {
 			for (i=inicio; i>=min && i<=max; i+=passo) {
 				Variavel.valores[variavel] = exato ? new Fracao(i, 1) : i
-				lista.expressoes.push(this.executarNoEscopo(expressao))
+				lista.expressoes.push(this.executarNoEscopo(expressao, null, [variavel]))
 			}
 		} finally {
 			Variavel.restaurar(antes)
@@ -220,7 +220,7 @@ Funcao.registrar("every", "every(lista, variavel, expressao)\nRetorna zero se ex
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = null
 		
@@ -228,7 +228,7 @@ Funcao.registrar("every", "every(lista, variavel, expressao)\nRetorna zero se ex
 			antes = Variavel.backup(variavel)
 			for (i=0; i<lista.expressoes.length; i++) {
 				Variavel.valores[variavel] = lista.expressoes[i]
-				cada = this.executarNoEscopo(expressao)
+				cada = this.executarNoEscopo(expressao, null, [variavel])
 				if (eNumerico(cada))
 					if (eZero(cada))
 						return new Fracao(0, 1)
@@ -253,7 +253,7 @@ Funcao.registrar("some", "some(lista, variavel, expressao)\nRetorna zero se expr
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = null
 		
@@ -261,7 +261,7 @@ Funcao.registrar("some", "some(lista, variavel, expressao)\nRetorna zero se expr
 			antes = Variavel.backup(variavel)
 			for (i=0; i<lista.expressoes.length; i++) {
 				Variavel.valores[variavel] = lista.expressoes[i]
-				cada = this.executarNoEscopo(expressao)
+				cada = this.executarNoEscopo(expressao, null, [variavel])
 				if (eNumerico(cada))
 					if (!eZero(cada))
 						return new Fracao(1, 1)
@@ -285,7 +285,7 @@ Funcao.registrar("filter", "filter(lista, variavel, expressao)\nRetorna uma list
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = new Lista
 		
@@ -293,7 +293,7 @@ Funcao.registrar("filter", "filter(lista, variavel, expressao)\nRetorna uma list
 			antes = Variavel.backup(variavel)
 			for (i=0; i<lista.expressoes.length; i++) {
 				Variavel.valores[variavel] = lista.expressoes[i]
-				cada = this.executarNoEscopo(expressao)
+				cada = this.executarNoEscopo(expressao, null, [variavel])
 				if (!eNumerico(cada))
 					return
 				if (!eZero(cada))
@@ -314,7 +314,7 @@ Funcao.registrar("map", "map(lista, variavel, expressao)\nRetorna uma lista com 
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	this.args[2] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[2] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	if (lista instanceof Lista) {
 		retorno = new Lista
 		
@@ -322,7 +322,7 @@ Funcao.registrar("map", "map(lista, variavel, expressao)\nRetorna uma lista com 
 			antes = Variavel.backup(variavel)
 			for (i=0; i<lista.expressoes.length; i++) {
 				Variavel.valores[variavel] = lista.expressoes[i]
-				retorno.expressoes.push(this.executarNoEscopo(expressao))
+				retorno.expressoes.push(this.executarNoEscopo(expressao, null, [variavel]))
 			}
 		} finally {
 			Variavel.restaurar(antes)
@@ -342,7 +342,7 @@ Funcao.registrar("reduce", "reduce(lista, varA, varB, expressao) ou reduce(lista
 		throw 0
 	varA = varA.nome
 	varB = varB.nome
-	this.args[3] = expressao = this.executarNoEscopo(expressao, [varA, varB])
+	this.args[3] = expressao = this.preExecutarNoEscopo(expressao, [varA, varB])
 	if (inicio !== undefined)
 		this.args[4] = inicio = this.executarNoEscopo(inicio)
 	if (lista instanceof Lista) {
@@ -358,7 +358,7 @@ Funcao.registrar("reduce", "reduce(lista, varA, varB, expressao) ou reduce(lista
 			for (i=ini; i<lista.expressoes.length; i++) {
 				Variavel.valores[varA] = inicio
 				Variavel.valores[varB] = lista.expressoes[i]
-				inicio = this.executarNoEscopo(expressao)
+				inicio = this.executarNoEscopo(expressao, null, [varA, varB])
 			}
 		} finally {
 			Variavel.restaurar(antes)
@@ -378,7 +378,7 @@ Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, expressao) ou re
 		throw 0
 	varA = varA.nome
 	varB = varB.nome
-	this.args[3] = expressao = this.executarNoEscopo(expressao, [varA, varB])
+	this.args[3] = expressao = this.preExecutarNoEscopo(expressao, [varA, varB])
 	if (inicio !== undefined)
 		this.args[4] = inicio = this.executarNoEscopo(inicio)
 	if (lista instanceof Lista) {
@@ -394,7 +394,7 @@ Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, expressao) ou re
 			for (i=ini; i>=0; i--) {
 				Variavel.valores[varA] = inicio
 				Variavel.valores[varB] = lista.expressoes[i]
-				inicio = this.executarNoEscopo(expressao)
+				inicio = this.executarNoEscopo(expressao, null, [varA, varB])
 			}
 		} finally {
 			Variavel.restaurar(antes)
@@ -404,3 +404,12 @@ Funcao.registrar("reduceRight", "reduceRight(lista, varA, varB, expressao) ou re
 	} else if (eDeterminado(lista))
 		throw 0
 }, false, true, true)
+
+// Define os comportamentos de pre-execução
+Funcao.funcoes.every.preExecucao = 
+Funcao.funcoes.filter.preExecucao = 
+Funcao.funcoes.map.preExecucao = 
+Funcao.funcoes.some.preExecucao = Funcao.gerarPreExecucao([1], 2)
+Funcao.funcoes["for"].preExecucao = Funcao.gerarPreExecucao([0], 3)
+Funcao.funcoes.reduce.preExecucao = 
+Funcao.funcoes.reduceRight.preExecucao = Funcao.gerarPreExecucao([1, 2], 3)

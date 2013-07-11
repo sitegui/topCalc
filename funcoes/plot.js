@@ -13,7 +13,7 @@ Funcao.registrar("plot", "plot(variavel, inicio, fim, expressao)\nDesenha uma fu
 	this.args[1] = inicio = this.executarNoEscopo(inicio)
 	this.args[2] = fim = this.executarNoEscopo(fim)
 	variavel = variavel.nome
-	this.args[3] = expressao = this.executarNoEscopo(expressao, [variavel])
+	this.args[3] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
 	
 	if (eNumerico(inicio) && eNumerico(fim)) {
 		// Calcula os valores
@@ -48,7 +48,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 	this.args[5] = fimX = this.executarNoEscopo(fimX)
 	variavel = variavel.nome
 	variavelX = variavelX.nome
-	this.args[6] = expressao = this.executarNoEscopo(expressao, [variavel, variavelX])
+	this.args[6] = expressao = this.preExecutarNoEscopo(expressao, [variavel, variavelX])
 	
 	if (eNumerico(inicio) && eNumerico(fim) && eNumerico(inicioX) && eNumerico(fimX)) {
 		// Calcula os valores
@@ -69,7 +69,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 				// Plota
 				Variavel.valores[variavel] = i
 				funcs2 = funcs.map(function (x) {
-					return that.executarNoEscopo(x, [variavelX])
+					return that.preExecutarNoEscopo(x, [variavelX])
 				})
 				canvas = plot2canvas(that, variavelX, xMin, xMax, funcs2)
 				canvas.getContext("2d").fillStyle = "white"
@@ -162,7 +162,7 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, e
 		mins.push(minI)
 		maxs.push(maxI)
 	}
-	expX = this.executarNoEscopo(this.args[len-1], vars.concat(varX))
+	expX = this.preExecutarNoEscopo(this.args[len-1], vars.concat(varX))
 	funcs = expX instanceof Lista ? expX.expressoes : [expX]
 	
 	var gerarOnChange = function (i) {
@@ -181,7 +181,7 @@ Funcao.registrar("slider", "slider(var1, min1, max1, ..., varX, inicioX, fimX, e
 				Variavel.valores[vars[i]] = valores[i]
 			
 			funcs2 = funcs.map(function (x) {
-				return that.executarNoEscopo(x, [varX])
+				return that.preExecutarNoEscopo(x, [varX])
 			})
 			div.replaceChild(plot2canvas(that, varX, inicioX, fimX, funcs2), div.lastChild)
 		} finally {
@@ -466,7 +466,7 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 			for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
 				Variavel.valores[variavel] = x
 				try {
-					y = that.executarNoEscopo(exp)
+					y = that.executarNoEscopo(exp, null, [variavel])
 					if (eNumerico(y)) {
 						if (y instanceof Complexo) {
 							xsC.push(x)
@@ -621,4 +621,28 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 	}
 	
 	return canvas
+}
+
+// Define os comportamentos de pre-execução
+Funcao.funcoes.animate.preExecucao = Funcao.gerarPreExecucao([0, 3], 6)
+Funcao.funcoes.plot.preExecucao = Funcao.gerarPreExecucao([0], 3)
+Funcao.funcoes.slider.preExecucao = function () {
+	var len, vars, i
+	
+	len = this.args.length
+	if (len < 4 || (len-4)%3 != 0)
+		throw 0
+	if (!(this.args[len-4] instanceof Variavel))
+		throw 0
+	this.args[len-3] = this.executarNoEscopo(this.args[len-3])
+	this.args[len-2] = this.executarNoEscopo(this.args[len-2])
+	vars = [this.args[len-4].nome]
+	for (i=0; i<this.args.length-4; i+=3) {
+		if (!(this.args[i] instanceof Variavel))
+			throw 0
+		this.args[i+1] = this.executarNoEscopo(this.args[i+1])
+		this.args[i+2] = this.executarNoEscopo(this.args[i+2])
+		vars.push(this.args[i].nome)
+	}
+	this.args[len-1] = this.executarNoEscopo(this.args[len-1], vars)
 }

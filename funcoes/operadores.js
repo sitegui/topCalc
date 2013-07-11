@@ -182,9 +182,9 @@ Funcao.registrar("=", "x=... ou f(x)=... ou 1_x=... ou {x,y}=... ou [x,y]=...\nD
 		a = a.args[0]
 	}
 	
-	// Distribui sobre os elementos do vetor/matriz
+	// Distribui sobre os elementos do vetor/matriz/lista
 	if (a instanceof Vetor || a instanceof Matriz || a instanceof Lista) {
-		b = this.executarNoEscopo(b, includes)
+		b = this.preExecutarNoEscopo(b, includes)
 		if (a instanceof Vetor || a instanceof Lista) {
 			if (!(b instanceof Lista || b instanceof Vetor) || b.expressoes.length != a.expressoes.length)
 				throw "Dimensões inválidas"
@@ -204,7 +204,7 @@ Funcao.registrar("=", "x=... ou f(x)=... ou 1_x=... ou {x,y}=... ou [x,y]=...\nD
 	
 	if (a instanceof Variavel)
 		// Caso mais simples: a = 2
-		return Variavel.valores[a.nome] = this.executarNoEscopo(b, includes)
+		return Variavel.valores[a.nome] = this.preExecutarNoEscopo(b, includes)
 	else if (a instanceof Funcao) {
 		if (a.nome == "_") {
 			// Define uma unidade
@@ -212,14 +212,14 @@ Funcao.registrar("=", "x=... ou f(x)=... ou 1_x=... ou {x,y}=... ou [x,y]=...\nD
 				throw "O valor tem de ser 1"
 			if (!(a.args[1] instanceof Variavel))
 				throw "A unidade deve ser simples"
-			r = this.executarNoEscopo(b, includes)
+			r = this.preExecutarNoEscopo(b, includes)
 			if (!(r instanceof ValorComUnidade))
 				throw "O valor deve ser associado a unidades"
 			Unidade.unidades[a.args[1].nome] = [r.unidade.getBases(), multiplicar(r.valor, r.unidade.getFator())]
 			return r
 		} else if (a.nome == "getAt") {
 			// Define uma posição de uma lista, vetor ou matriz
-			r = this.executarNoEscopo(b, includes)
+			r = this.preExecutarNoEscopo(b, includes)
 			
 			// Trata a variável
 			if (!(a.args[0] instanceof Variavel))
@@ -277,7 +277,7 @@ Funcao.registrar("=", "x=... ou f(x)=... ou 1_x=... ou {x,y}=... ou [x,y]=...\nD
 				else
 					throw "Parâmetro inválido na declaração da função"
 			}
-			r = this.executarNoEscopo(b, params.concat(includes))
+			r = this.preExecutarNoEscopo(b, params.concat(includes))
 			funcao = Funcao.gerar(params, unidades, r)
 			funcao.definicao = new Funcao("=", [a, r]).toMathString(false)
 			Funcao.funcoes[a.nome] = funcao
@@ -368,6 +368,19 @@ Funcao.registrar("_", "valor_unidade\nConverter o valor para a unidade desejada"
 		throw 0
 }, false, true)
 
+Funcao.registrar("'", "'exp\nEvita da expressão ser executada antes da hora", function (exp) {
+	var r
+	
+	if (executar.preExecutar == 1) {
+		// Entra no modo de substituir variáveis
+		executar.preExecutar = 2
+		r = this.executarNoEscopo(exp)
+		executar.preExecutar = 1
+		return new Funcao("'", [r])
+	}
+	return this.executarNoEscopo(exp)
+}, false, true)
+
 // Funções lógicas
 Funcao.registrar("!", "!a\nRetorna 1 para valores nulos, 0 para o restante", function (a) {
 	if (eNumerico(a))
@@ -454,3 +467,15 @@ Funcao.registrar("||", "a||b\nRetorna se a ou b são não nulos", function (a, b
 		}, false, true)
 	})
 })()
+
+// Define os comportamentos de pre-execução
+Funcao.funcoes["="].preExecucao = 
+Funcao.funcoes["+="].preExecucao = 
+Funcao.funcoes["-="].preExecucao = 
+Funcao.funcoes["*="].preExecucao = 
+Funcao.funcoes["/="].preExecucao = 
+Funcao.funcoes["%="].preExecucao = 
+Funcao.funcoes["&&="].preExecucao = 
+Funcao.funcoes["||="].preExecucao = 
+Funcao.funcoes["_="].preExecucao = 
+Funcao.funcoes["^="].preExecucao = Funcao.gerarPreExecucao([0], 1)

@@ -24,8 +24,8 @@ Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou
 Funcao.registrar("if", "if(oq, casoSim, casoNao)\nRetorna um valor ou outro dependendo da condição", function (oq, sim, nao) {
 	var r
 	this.args[0] = oq = this.executarNoEscopo(oq)
-	this.args[1] = sim = this.executarNoEscopo(sim)
-	this.args[2] = nao = this.executarNoEscopo(nao)
+	this.args[1] = sim = this.preExecutarNoEscopo(sim)
+	this.args[2] = nao = this.preExecutarNoEscopo(nao)
 	if (eNumerico(oq)) {
 		r = eZero(oq) ? nao : sim
 		return this.executarNoEscopo(r)
@@ -87,7 +87,8 @@ operadores: "Os operadores são internamente tratados como funções normais\n"+
 	"- comparação: @a<b@, @a>b@, @a<=b@, @a>=b@, @a==b@, @a!=b@ (diferente)\n"+
 	"- lógicos: @!a@ (not), @a&&b@ (e), @a||b@ (ou)\n"+
 	"- outros: @n!@ (fatorial), @n%@ (porcentagem, @v[n]@ (entrada do vetor), @m[i, j]@ (entrada da matriz), @a_b@ (aplicador de unidade)\n"+
-	"- atribuições: @a=b@, @a+=b@, @a-=b@, @a*=b@, @a/=b@, @a%=b@, @a^=b@, @a&&=b@, @a||=b@, @a_=b@",
+	"- atribuições: @a=b@, @a+=b@, @a-=b@, @a*=b@, @a/=b@, @a%=b@, @a^=b@, @a&&=b@, @a||=b@, @a_=b@\n"+
+	"- pós-execução: @f(x) = x*'random()@ (só executa random() quando executar a função f)",
 variaveis: "Variáveis são definidas na forma @x=valor@ (como @x=2@ ou @x=a+1@)\n"+
 	"Algumas variáveis já existem por padrão, como @pi@, @e@, @inf@, @i@, etc\n"+
 	"Para pegar o valor direto de uma variável, use @get(x)@\n"+
