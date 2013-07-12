@@ -80,10 +80,12 @@ Fracao.prototype.modulo = function (outro) {
 }
 Fracao.prototype.atan2 = function (outro) {
 	if (this.getNum() == 0)
-		if (outro.getNum() == 0)
+		if (outro.n == 0)
 			throw "atan2(0, 0) é indefinido"
-		else
+		else if (outro.n > 0)
 			return new Fracao(0, 1, this.base)
+		else
+			return Math.PI
 	return this.getNum().atan2(outro.getNum())
 }
 Fracao.prototype.pow = function (outro) {
@@ -125,12 +127,15 @@ Fracao.prototype.pow = function (outro) {
 	}
 	pot = outro.abs()
 	if (tn < 0 && pot.d != 2 && pot.d%2 == 0)
-		return toComplexo(Number(this)).pow(toComplexo(outro))
+		return toComplexo(this).pow(toComplexo(outro))
 	pn = intPow(tn, pot)
 	pd = intPow(td, pot)
 	if (pn === null || pd === null)
-		if (tn < 0 && pot.n%2 == 1)
-			return subtrair(0, this.abs().getNum().pow(outro.getNum()))
+		if (tn < 0)
+			if (pot.d%2 == 1)
+				return subtrair(0, this.abs().getNum().pow(outro.getNum()))
+			else
+				return new Complexo(0, this.abs().getNum().pow(outro.getNum()))
 		else
 			return this.getNum().pow(outro.getNum())
 	if (tn < 0 && pot.d == 2)
