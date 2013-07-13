@@ -140,7 +140,7 @@ Funcao.prototype.clonar = function () {
 Funcao.prototype.toMathString = function (mathML) {
 	var a, b, op, pre, nome2, strA, strB, i, args, preA, preB
 	var operadores = {
-		factorial: 0, "%": 0, "²": 0, "³": 0, // rtl
+		factorial: 0, "!!": 0, "%": 0, "²": 0, "³": 0, // rtl
 		"!": 1, "+": 1, "-": 1, "\u221A": 1, "'": 1 // ltr
 	}
 	var operadores2 = {

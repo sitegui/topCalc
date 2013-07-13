@@ -175,7 +175,7 @@ function inflar(str) {
 
 // Separa uma string em Operadores, Variáveis e Números
 function separar(str) {
-	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_", "+=", "-=", "*=", "/=", "%=", "^=", "&&=", "||=", "_=", "²", "³", "\u221A", "\u2264", "\u2265", "\u2260", "\u2A2F", ":", "'"]
+	var operadores = ["+", "-", "*", "/", "%", "^", "!", "=", "<", "<=", ">", ">=", "==", "!=", "&&", "||", "_", "+=", "-=", "*=", "/=", "%=", "^=", "&&=", "||=", "_=", "²", "³", "\u221A", "\u2264", "\u2265", "\u2260", "\u2A2F", ":", "'", "!!"]
 	var getOperador = function (str) {
 		if (operadores.indexOf(str) != -1)
 			return new Operador(str)
@@ -278,12 +278,12 @@ function interpretar(expressao) {
 		}
 	}
 	
-	// Aplica os operadores unários !, %, ², ³ (ltr)
+	// Aplica os operadores unários !, !!, %, ², ³ (ltr)
 	for (i=0; i<expressao.length; i++) {
 		el = expressao[i]
 		elAntes = i==0 ? null : expressao[i-1]
 		elDepois = i==expressao.length-1 ? null : expressao[i+1]
-		if (el instanceof Operador && ["!", "%", "²", "³"].indexOf(el.valor) != -1) {
+		if (el instanceof Operador && ["!", "!!", "%", "²", "³"].indexOf(el.valor) != -1) {
 			if (elAntes && !(elAntes instanceof Operador) && (elDepois == null || elDepois instanceof Operador)) {
 				expressao.splice(i-1, 2, new Funcao(el.valor == "!" ? "factorial" : el.valor, [elAntes]))
 				i--

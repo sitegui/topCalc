@@ -155,7 +155,7 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 	var r, i
 	if (eNumerico(a)) {
 		a = getNum(a)
-		if (eIntSeguro(a) && a>=0 && a<1e6) {
+		if (eIntSeguro(a) && a>=0 && a<=1e6) {
 			r = new Fracao(1, 1)
 			for (i=2; i<=a; i++)
 				r = multiplicar(r, new Fracao(i, 1))
@@ -163,6 +163,21 @@ Funcao.registrar("factorial", "n!\nRetorna o resultado de n*(n-1)*...*1", functi
 		}
 	} else if (eDeterminado(a))
 		throw 0
+}, true)
+
+Funcao.registrar("!!", "n!!\nRetorna o resultado de n*(n-2)*...*1", function (a) {
+	var r, i
+	if (!eDeterminado(a))
+		return
+	if (!eNumerico(a))
+		throw 0
+	a = getNum(a)
+	if (eIntSeguro(a) && a>=0 && a<=1e6) {
+		r = new Fracao(1, 1)
+		for (i=a%2 ? 1 : 2; i<=a; i+=2)
+			r = multiplicar(r, new Fracao(i, 1))
+		return r
+	}
 }, true)
 
 Funcao.registrar("=", "x=... ou f(x)=... ou 1_x=... ou {x,y}=... ou [x,y]=...\nDefine ou redefine uma variável, função ou unidade", function (a, b) {

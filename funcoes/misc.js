@@ -86,7 +86,7 @@ operadores: "Os operadores são internamente tratados como funções normais\n"+
 	"- aritméticos: @a+b@, @a-b@, @a*b@, @a/b@, @a^b@ (elevado), @a%b@ (resto da divisão), @a\u2A2Fb@ (produto vetorial), @+n@, @-n@, @n²@, @n³@, @\u221An@\n"+
 	"- comparação: @a<b@, @a>b@, @a<=b@, @a>=b@, @a==b@, @a!=b@ (diferente)\n"+
 	"- lógicos: @!a@ (not), @a&&b@ (e), @a||b@ (ou)\n"+
-	"- outros: @n!@ (fatorial), @n%@ (porcentagem, @v[n]@ (entrada do vetor), @m[i, j]@ (entrada da matriz), @a_b@ (aplicador de unidade)\n"+
+	"- outros: @n!@ (fatorial), @n!!@ (dobro fatorial), @n%@ (porcentagem, @v[n]@ (entrada do vetor), @m[i, j]@ (entrada da matriz), @a_b@ (aplicador de unidade)\n"+
 	"- atribuições: @a=b@, @a+=b@, @a-=b@, @a*=b@, @a/=b@, @a%=b@, @a^=b@, @a&&=b@, @a||=b@, @a_=b@\n"+
 	"- pós-execução: @f(x) = x*'random()@ (só executa random() quando executar a função f)",
 variaveis: "Variáveis são definidas na forma @x=valor@ (como @x=2@ ou @x=a+1@)\n"+
