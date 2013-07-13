@@ -89,16 +89,22 @@ Fracao.prototype.atan2 = function (outro) {
 	return this.getNum().atan2(outro.getNum())
 }
 Fracao.prototype.pow = function (outro) {
-	if (this.getNum() == 0)
-		if (outro.getNum() == 0)
+	var intPow, tn, td, mod, pot, rn, rd, r
+	
+	// Trata os casos de zero
+	if (this.n == 0)
+		if (outro.n == 0)
 			throw "0^0 é indefinido"
-		else if (outro.getNum() > 0)
+		else if (outro.n > 0)
 			return new Fracao(0, 1, this.base)
 		else
 			return Infinity
-	if (outro.getNum() == 0)
+	if (outro.n == 0)
 		return new Fracao(1, 1, this.base)
-	var intPow = function (x, f) {
+	
+	// Calcula x^(f.n/f.d) com x, f.n, f.d inteiros positivos
+	// Caso o resultado não seja inteiro, retorna null
+	intPow = function (x, f) {
 		var fatores, i, r, j
 		fatores = fatorar(x)
 		r = 1
@@ -117,31 +123,43 @@ Fracao.prototype.pow = function (outro) {
 			}
 		return r
 	}
-	var tn, td, pn, pd, pot
-	if (outro.n < 0) {
-		tn = this.n<0 ? -this.d : this.d
-		td = Math.abs(this.n)
-	} else {
-		tn = this.n
-		td = this.d
-	}
-	pot = outro.abs()
-	if (tn < 0 && pot.d != 2 && pot.d%2 == 0)
-		return toComplexo(this).pow(toComplexo(outro))
-	pn = intPow(tn, pot)
-	pd = intPow(td, pot)
-	if (pn === null || pd === null)
-		if (tn < 0)
-			if (pot.d%2 == 1)
-				return subtrair(0, this.abs().getNum().pow(outro.getNum()))
-			else
-				return new Complexo(0, this.abs().getNum().pow(outro.getNum()))
+	
+	// Trata o caso de expoente negativo
+	if (outro.n < 0)
+		if (this.n < 0)
+			tn = -this.d, td = -this.n
 		else
-			return this.getNum().pow(outro.getNum())
-	if (tn < 0 && pot.d == 2)
-		return new Complexo(new Fracao(0, 1, this.base), new Fracao(-pn, pd, this.base))
+			tn = this.d, td = this.n
 	else
-		return new Fracao(pn, pd, this.base)
+		tn = this.n, td = this.d
+	pot = outro.abs()
+	
+	// Trata o caso de base negativa
+	if (tn < 0) {
+		mod = pot.modulo(new Fracao(2, 1))
+		if (mod.n == 0) mod = 0 // 1
+		else if (mod.n == 1 && mod.d == 2) mod = 1 // i
+		else if (mod.n == 1 && mod.d == 1) mod = 2 // -1
+		else if (mod.n == 3 && mod.d == 2) mod = 3 // -i
+		else return toComplexo(this).pow(toComplexo(outro))
+		tn = -tn
+	} else
+		mod = 0
+	
+	// Calcula o numerador e denominador da resposta
+	if ((rn = intPow(tn, pot)) === null || (rd = intPow(td, pot)) == null)
+		// Resultado não exato
+		r = (tn/td).pow(pot.getNum())
+	else
+		r = new Fracao(rn, rd, this.base)
+	
+	// Retorna o resultado
+	switch (mod) {
+	case 0: return r
+	case 1: return new Complexo(new Fracao(0, 1), r)
+	case 2: return subtrair(new Fracao(0, 1), r)
+	case 3: return new Complexo(new Fracao(0, 1), subtrair(new Fracao(0, 1), r))
+	}
 }
 Fracao.prototype.log = function (base) {
 	var tnum, bnum, ft, fb, i, r, sinalok
