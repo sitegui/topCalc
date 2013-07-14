@@ -46,11 +46,19 @@ Variavel.prototype.toMathString = function (mathML) {
 // Retorna o valor de uma variável
 // vars contém uma lista de variáveis que devem ser tidas como indefinidas
 Variavel.prototype.get = function (vars) {
+	var r, antes
+	
 	vars = vars===undefined ? [] : vars
 	if (vars.indexOf(this.nome) == -1 && this.nome in Variavel.valores) {
+		antes = executar.preExecutar
 		vars = vars.clonar()
 		vars.push(this.nome)
-		return executar(Variavel.valores[this.nome], vars)
+		if (antes == 1)
+			executar.preExecutar = 0
+		r = executar(Variavel.valores[this.nome], vars)
+		if (antes == 1)
+			executar.preExecutar = 1
+		return r
 	} else
 		return this.clonar()
 }

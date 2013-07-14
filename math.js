@@ -374,6 +374,8 @@ function executar(expressao /*, escopo*/) {
 		else if (obj instanceof Parenteses) {
 			if (obj.expressoes.length == 0)
 				throw "Parênteses vazio inesperado"
+			if (executar.preExecutar == 2)
+				return new Parenteses(obj.expressoes.map(calc))
 			return obj.expressoes.map(calc).slice(-1)[0]
 		} else if (obj instanceof Lista)
 			return new Lista(obj.expressoes.map(calc))
