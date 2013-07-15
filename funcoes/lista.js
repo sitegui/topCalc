@@ -3,7 +3,7 @@
 // Funções para listas
 
 Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna uma lista dos valores da expressão executada para os diferentes valores da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao, passo) {
-	var lista, i, antes, max, min, exato
+	var lista, i, antes, max, min, exato, valor, inicio2, fim2, passo2
 	
 	// Trata os argumentos
 	if (this.args.length != 4 && this.args.length != 5)
@@ -20,18 +20,23 @@ Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna
 		passo = new Fracao(1, 1)
 	
 	if (eNumerico(inicio) && eNumerico(fim) && eNumerico(passo)) {
-		inicio = getNum(inicio)
-		fim = getNum(fim)
-		passo = getNum(passo)
+		exato = inicio instanceof Fracao && fim instanceof Fracao && passo instanceof Fracao
+		inicio2 = getNum(inicio)
+		fim2 = getNum(fim)
+		passo2 = getNum(passo)
 		lista = new Lista
-		max = Math.max(inicio, fim)
-		min = Math.min(inicio, fim)
-		exato = eIntSeguro(inicio) && eIntSeguro(fim) && eIntSeguro(passo)
+		max = Math.max(inicio2, fim2)
+		min = Math.min(inicio2, fim2)
 		antes = Variavel.backup(variavel)
 		
 		try {
-			for (i=inicio; i>=min && i<=max; i+=passo) {
-				Variavel.valores[variavel] = exato ? new Fracao(i, 1) : i
+			valor = inicio
+			for (i=inicio2; i>=min && i<=max; i+=passo2) {
+				if (exato) {
+					Variavel.valores[variavel] = valor
+					valor = somar(valor, passo)
+				} else
+					Variavel.valores[variavel] = i
 				lista.expressoes.push(this.executarNoEscopo(expressao, null, [variavel]))
 			}
 		} finally {

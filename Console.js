@@ -20,6 +20,7 @@ function ir(a) {
 // Armazena o histórico de comandos
 Console.historico = []
 Console.pos = 0
+Console.atual = null
 
 addEventListener("load", function () {
 	var mX, mY

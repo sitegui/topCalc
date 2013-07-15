@@ -21,7 +21,7 @@ Funcao.registrar("+", "+a ou a+b\nRetorna o valor ou a soma de dois valores", fu
 Funcao.registrar("-", "-a ou a-b\nRetorna o oposto do valor ou a diferença entre dois valores", function (a, b) {
 	if (b === undefined) {
 		if (eNumerico(a))
-			return subtrair(new Fracao(0, 1), a)
+			return multiplicar(new Fracao(-1, 1), a)
 		else if (a instanceof Vetor || a instanceof Matriz)
 			return a.oposto()
 		else if (eDeterminado(a))

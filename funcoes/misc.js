@@ -9,13 +9,13 @@ Funcao.registrar("get", "get(x) ou get(f())\nRetorna o valor de uma variável ou
 		valor = variavel.getDireto()
 		if (valor !== null) {
 			Console.echoInfo(valor.toMathString(false), true)
-			return null
+			return new Fracao(1, 1)
 		}
 	} else if (variavel instanceof Funcao) {
 		valor = variavel.getDefinicao()
 		if (valor !== null) {
 			Console.echoInfo("Módulo "+Funcao.funcoes[variavel.nome].modulo+"\n"+valor, true)
-			return null
+			return new Fracao(1, 1)
 		}
 	} else if (eDeterminado(variavel))
 		throw 0
@@ -37,17 +37,17 @@ Funcao.registrar("if", "if(oq, casoSim, casoNao)\nRetorna um valor ou outro depe
 Funcao.registrar("unset", "unset(x) ou unset(f()) ou unset(1_x)\nExclui uma variável, função ou unidade", function (variavel) {
 	if (variavel instanceof Variavel) {
 		delete Variavel.valores[variavel.nome]
-		return null
+		return new Fracao(1, 1)
 	} else if (variavel instanceof Funcao && variavel.nome == "_") {
 		if (!(variavel.args[0] instanceof Fracao) || variavel.args[0].n != 1 || variavel.args[0].d != 1)
 			throw 0
 		if (!(variavel.args[1] instanceof Variavel))
 			throw 0
 		delete Unidade.unidades[variavel.args[1].nome]
-		return null
+		return new Fracao(1, 1)
 	} else if (variavel instanceof Funcao) {
 		delete Funcao.funcoes[variavel.nome]
-		return null
+		return new Fracao(1, 1)
 	} else if (eDeterminado(variavel))
 		throw 0
 }, true, true)
@@ -56,7 +56,6 @@ Funcao.registrar("unset", "unset(x) ou unset(f()) ou unset(1_x)\nExclui uma vari
 var ajudaInfo = {
 "": "Essa é uma calculadora feita para ser rápida de se usar e bem ampla\n"+
 	"Basta digitar a expressão que deseja executar, como @(1/8)^(-1/3)@\n"+
-	"Essa calculadora não é simbólica, ou seja, não executa simplificações sobre símbolos (como @x+x@ → 2x)\n"+
 	"Acesse o código fonte: https://github.com/sitegui/topCalc/\n"+
 	"Para entrar em contato, use o comando @feedback()@\n\n"+
 	"Para obter mais ajuda sobre um dos temas abaixo, use help(tema)\n"+
@@ -68,7 +67,8 @@ var ajudaInfo = {
 	"- @help(vetores)@\n"+
 	"- @help(matrizes)@\n"+
 	"- @help(graficos)@\n"+
-	"- @help(unidades)@",
+	"- @help(unidades)@\n"+
+	"- @help(caracteres)@",
 numeros: "Os valores numéricos são representados de 4 formas:\n"+
 	"- Fracao: um valor racional exato, com numerador e denominador inteiros\n"+
 	"- Number: um valor real aproximado, armazenado como double\n"+
@@ -93,7 +93,9 @@ variaveis: "Variáveis são definidas na forma @x=valor@ (como @x=2@ ou @x=a+1@)
 	"Algumas variáveis já existem por padrão, como @pi@, @e@, @inf@, @i@, etc\n"+
 	"Para pegar o valor direto de uma variável, use @get(x)@\n"+
 	"Para remover uma variável, use @unset(x)@\n"+
-	"Para ver a lista de todas as variáveis definidas, use @vars()@",
+	"Para ver a lista de todas as variáveis definidas, use @vars()@\n"+
+	"Ao fazer @b=a+1@, se a estiver definido (por exemplo, @a=2@), o resultado será salvo em b (no caso, 3).\n"+
+	"Para forçar a dependência de b em relação a a, use @b:a=a+1@, assim o valor será sempre recalculado com o valor atual de a",
 funcoes: "Funções podem ser definidas na forma @f(x)=valor@ (como @f(x)=x^2@ ou @g(a,b)=a!/b!@)\n"+
 	"Várias funções já existem por padrão, como os operadores, @sqrt(x)@, @for(var,ini,fim,exp)@, @num(valor)@\n"+
 	"Para pegar a definição de uma função, use @get(f())@\n"+
@@ -127,7 +129,10 @@ unidades: "Unidades são escritas na forma valor_unidade, exemplos:\n"+
 	"O operador _ aplica e transforma unidades, por exemplo: @20_ºC_ºF@ → 68_ºF\n"+
 	"Para ver todas as unidades e prefixos disponíveis, use @units()@\n"+
 	"Você pode definir novas unidades, exemplo: @1_x = (17/27)_m@\n"+
-	"Para excluir uma unidade, use @unset(1_x)@"
+	"Para excluir uma unidade, use @unset(1_x)@",
+caracteres: "Podem ser utilizados vários caracteres especiais (como letras gregas) nos nomes das variáveis e funções\n"+
+	"Para entrar com um desses caracteres, use uma sequência de escape, exemplos: @\\alpha@ (letra grega), @\\v/@ (raiz), @\\x@ (produto vetorial)\n"+
+	"Para ver todas as disponíveis, use @chars()@"
 }
 Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 	if (tema) {
@@ -144,13 +149,24 @@ Funcao.registrar("help", "help(tema)\nEsse você já sabe!", function (tema) {
 		setTimeout(function () {
 			Console.echoInfo(Console.escaparHTML(ajudaInfo[""]), true)
 		}, 250)
-	return null
+	return new Fracao(1, 1)
 }, false, true, true)
 Variavel.valores["help"] = new Funcao("help", [])
 
 Funcao.registrar("feedback", "feedback()\nAbre uma janela para nos enviar uma mensagem", function () {
 	window.open('/fale_conosco/?assunto=topCalc', 'janelaFaleConosco', 'width=500,height=500')
-	return null
+	return new Fracao(1, 1)
+})
+
+Funcao.registrar("chars", "chars()\nMostra uma lista de todos as sequências de escape para entrar com caracteres especiais", function () {
+	var i, chars = [], str
+	for (i=0; i<ConsoleInput.tabelaChars.length; i++) {
+		str = ConsoleInput.tabelaChars[i][0].toString().replace(/\\\//g, "/")
+		if (str.substr(0, 3) == "/\\\\")
+			chars.push(str.substr(2, str.length-4)+" → "+ConsoleInput.tabelaChars[i][1])
+	}
+	Console.echoInfo(chars.sort().join("\n"))
+	return new Fracao(1, 1)
 })
 
 // Exibe as variáveis definidas
@@ -161,7 +177,7 @@ Funcao.registrar("vars", "vars()\nMostra uma lista de todas as variáveis defini
 			vars.push(i+": "+Variavel.valores[i].toMathString(false))
 		Console.echoInfo(vars.sort().join("\n"), true)
 	}, 250)
-	return null
+	return new Fracao(1, 1)
 })
 
 // Exibe as variáveis definidas
@@ -190,7 +206,7 @@ Funcao.registrar("funcs", "funcs() ou funcs(modulo)\nMostra uma lista de todas a
 			Console.echoInfo(itens.sort().join("\n"))
 		}, 250)
 	}
-	return null
+	return new Fracao(1, 1)
 }, false, true, true)
 
 Funcao.registrar("setConfig", "setConfig(nome, valor)\nDefine um novo valor para uma configuração. Para saber a lista de configurações disponíveis, use configs()", function (nome, valor) {
@@ -198,7 +214,7 @@ Funcao.registrar("setConfig", "setConfig(nome, valor)\nDefine um novo valor para
 	if (nome instanceof Variavel) {
 		nome = nome.nome
 		Config.set(nome, valor)
-		return null
+		return new Fracao(1, 1)
 	} else if (eDeterminado(nome))
 		throw 0
 }, false, true)
@@ -212,7 +228,7 @@ Funcao.registrar("getConfig", "getConfig(nome)\nMostra o valor atual de uma conf
 			Console.echoErro("Configuração "+nome+" não existe")
 		else
 			Console.echo(valor)
-		return null
+		return new Fracao(1, 1)
 	} else if (eDeterminado(nome))
 		throw 0
 }, false, true)
@@ -221,7 +237,7 @@ Funcao.registrar("resetConfig", "resetConfig(nome)\nVolta a configuração ao se
 	if (nome instanceof Variavel) {
 		nome = nome.nome
 		Config.reset(nome)
-		return null
+		return new Fracao(1, 1)
 	} else if (eDeterminado(nome))
 		throw 0
 }, false, true)
@@ -234,13 +250,13 @@ Funcao.registrar("configs", "configs()\nMostra todas configurações disponívei
 	}
 	configs.sort()
 	Console.echo(configs.join("\n"))
-	return null
+	return new Fracao(1, 1)
 })
 
 // Limpa o console
 Funcao.registrar("clear", "clear()\nLimpa o console", function () {
 	setTimeout(Console.limpar, 250)
-	return null
+	return new Fracao(1, 1)
 })
 
 Funcao.registrar("units", "units()\nMostra todas as unidades e prefixos válidos", function () {
@@ -262,7 +278,7 @@ Funcao.registrar("units", "units()\nMostra todas as unidades e prefixos válidos
 		str += i+" → "+Unidade.unidades[i][1].toMathString(false)+(base ? "*"+base : "")+"\n"
 	}
 	Console.echoInfo(str)
-	return null
+	return new Fracao(1, 1)
 })
 
 Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
@@ -300,7 +316,7 @@ Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
 			backup.funcoes[i] = Funcao.funcoes[i]
 		for (i in Variavel.valores)
 			backup.variaveis[i] = Variavel.valores[i]
-		return null
+		return new Fracao(1, 1)
 	})
 	Funcao.registrar("restaurar", "restaurar()\nRestaura o estado do backup", function () {
 		var i
@@ -309,7 +325,7 @@ Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
 		Funcao.funcoes = backup.funcoes
 		Variavel.valores = backup.variaveis
 		backup = null
-		return null
+		return new Fracao(1, 1)
 	})
 })()
 

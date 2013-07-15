@@ -256,7 +256,7 @@ Simplificar.somarTermo = function (soma, termo, hash) {
 			soma.termos[hash] = somar(termo, termo2)
 		else {
 			if (termo2 instanceof Simplificar.Produto)
-				p = termo2
+				p = termo2.clonar()
 			else {
 				p = new Simplificar.Produto
 				p.num = new Fracao(1, 1)
@@ -281,7 +281,7 @@ Simplificar.multiplicarTermo = function (produto, termo, hash) {
 		// Agrupa dois termos
 		termo2 = produto.termos[hash]
 		if (termo2 instanceof Simplificar.Potencia)
-			p = termo2
+			p = termo2.clonar()
 		else {
 			p = new Simplificar.Potencia
 			p.base = termo2

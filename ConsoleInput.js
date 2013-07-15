@@ -59,7 +59,10 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 			ConsoleInput.executar()
 		evento.preventDefault()
 	} else if (evento.keyCode == 38) {
+		// Seta para cima
 		if (Console.pos > 0) {
+			if (Console.pos == Console.historico.length)
+				Console.atual = ConsoleInput.input.textContent
 			Console.pos--
 			ConsoleInput.input.textContent = Console.historico[Console.pos]
 			Console.focar()
@@ -68,9 +71,10 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 		evento.preventDefault()
 		return
 	} else if (evento.keyCode == 40) {
+		// Seta para baixo
 		if (Console.pos < Console.historico.length) {
 			Console.pos++
-			ConsoleInput.input.textContent = Console.pos==Console.historico.length ? "" : Console.historico[Console.pos]
+			ConsoleInput.input.textContent = Console.pos==Console.historico.length ? Console.atual : Console.historico[Console.pos]
 			Console.focar()
 			focarUltimo()
 		}
@@ -79,7 +83,8 @@ ConsoleInput.input.addEventListener("keydown", function (evento) {
 	} else if (evento.keyCode == 9) {
 		evento.preventDefault()
 		return
-	}
+	} else
+		Console.pos = Console.historico.length
 	intervalo = setTimeout(ConsoleInput.pintar, 100)
 })
 

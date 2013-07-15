@@ -330,7 +330,7 @@ Funcao.registrar("listPlot", "listPlot(A1, A2, ...)\nPlota os valores de uma ou 
 	div = document.createElement("div")
 	div.appendChild(canvas)
 	Console.echoDiv(div)
-	return null
+	return new Fracao(1, 1)
 }, false, false, true)
 
 /*
