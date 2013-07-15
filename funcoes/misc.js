@@ -312,3 +312,7 @@ Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
 		return null
 	})
 })()
+
+Funcao.registrar("simplify", "simplify(exp)\nRetorna uma versão simplificada da expressão", function (exp) {
+	return Simplificar(exp)
+})

@@ -124,6 +124,19 @@ function eZero(x) {
 	return x == 0
 }
 
+// Retorna se o valor numérico é negativo (<0)
+function eNegativo(x) {
+	if (x instanceof Fracao)
+		return x.n<0
+	if (x instanceof BigNum)
+		return !x.zero && x.negativo
+	if (x instanceof Complexo)
+		return eNegativo(x.a)
+	if (x instanceof ValorComUnidade)
+		return eNegativo(x.valor)
+	return x<0
+}
+
 // Retorna se o valor dado é 1
 function eUm(x) {
 	if (typeof x == "number")

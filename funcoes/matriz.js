@@ -13,7 +13,7 @@ Funcao.registrar("det", "det(m)\nRetorna o determinante de uma matriz quadrada",
 			return new Fracao(0, 1)
 		for (i=0; i<info.fatores.length; i++) {
 			if (i < info.fatores.length-1 && !eNumerico(info.fatores[i]))
-				Console.echoInfo("Assumindo "+info.fatores[i]+" não nulo", true)
+				Console.echoInfo("Assumindo "+info.fatores[i].toMathString(false)+" não nulo", true)
 			if (i)
 				det = Funcao.executar("*", [det, info.fatores[i]])
 			else
