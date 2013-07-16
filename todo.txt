@@ -3,3 +3,7 @@ b = 2.5+x
 c = 0.7-0.6*x
 plot(x, 0, 2, {a+b+c, 7})
 (o problema e nos ticks do eixo y)
+
+bestfit()
+
+solve([a, b], {a+b-2}, [1, 1])

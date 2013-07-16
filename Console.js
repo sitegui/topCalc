@@ -79,7 +79,7 @@ Console.carregarCore = function () {
 Console.carregarFuncoes = function () {
 	var includes, pos, carregar
 	
-	includes = ["lista", "matriz", "misc", "num", "operadores", "plot", "solver", "vetor"]
+	includes = ["lista", "matriz", "misc", "num", "operadores", "plot", "solver", "vetor", "fitData"]
 	pos = 0
 	carregar = function () {
 		var script, include, div
