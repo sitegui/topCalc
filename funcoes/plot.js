@@ -461,35 +461,32 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		antes = Variavel.backup(variavel)
 		complexo = false
 		
-		try {
-			// Executa a expressão para cada valor de x e salva os resultados
-			for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
-				Variavel.valores[variavel] = x
-				try {
-					y = that.executarNoEscopo(exp, null, [variavel])
-					if (eNumerico(y)) {
-						if (y instanceof Complexo) {
-							xsC.push(x)
-							ysC.push(getNum(y.b))
-							y = y.a
-							complexo = true
-						} else {
-							xsC.push(x)
-							ysC.push(0)
-						}
-						xs.push(x)
-						ys.push(getNum(y))
+		// Executa a expressão para cada valor de x e salva os resultados
+		for (x=xMin; x<=xMax; x+=(xMax-xMin)/passos) {
+			Variavel.valores[variavel] = x
+			try {
+				y = that.executarNoEscopo(exp, null, [variavel])
+				if (eNumerico(y)) {
+					if (y instanceof Complexo) {
+						xsC.push(x)
+						ysC.push(getNum(y.b))
+						y = y.a
+						complexo = true
+					} else {
+						xsC.push(x)
+						ysC.push(0)
 					}
-				} catch (e) {
+					xs.push(x)
+					ys.push(getNum(y))
 				}
+			} catch (e) {
 			}
-			if (!complexo) {
-				xsC = []
-				ysC = []
-			}
-		} finally {
-			Variavel.restaurar(antes)
 		}
+		if (!complexo) {
+			xsC = []
+			ysC = []
+		}
+		Variavel.restaurar(antes)
 		
 		// Escolhe a escala vertical
 		ys2 = []
@@ -563,9 +560,15 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 	cntxt.fillStyle = "black"
 	cntxt.fillRect(0, 0, w, h)
 	
-	// Desenha os eixos
+	// Desenha o eixo horizontal
 	cntxt.strokeStyle = "white"
+	cntxt.fillStyle = "white"
+	cntxt.textAlign = "center"
+	cntxt.font = "12px sans-serif"
 	cntxt.lineWidth = 1
+	ticks = dX/7
+	ticks = Math.pow(10, Math.floor(Math.log(ticks)/Math.LN10))
+	ticks = Math.round(dX/(7*ticks))*ticks
 	if (yMin<0 && yMax>0) {
 		cntxt.beginPath()
 		y = h*yMax/(yMax-yMin)
@@ -575,13 +578,24 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		cntxt.lineTo(w, y)
 		cntxt.moveTo(w-5, y+5)
 		cntxt.lineTo(w, y)
-		ticks = Math.exp(Math.floor(Math.log(xMax-xMin)-2))
-		for (x=Math.ceil(xMin/ticks)*ticks; x<=xMax; x+=ticks) {
-			cntxt.moveTo((x-xMin)*w/(xMax-xMin), y-3)
-			cntxt.lineTo((x-xMin)*w/(xMax-xMin), y+3)
-		}
-		cntxt.stroke()
+	} else if (yMax < 0)
+		y = 10
+	else
+		y = h-10
+	for (x=Math.ceil(xMin/ticks)*ticks; x<=xMax; x+=ticks) {
+		cntxt.moveTo((x-xMin)*w/(xMax-xMin), y-3)
+		cntxt.lineTo((x-xMin)*w/(xMax-xMin), y+3)
+		cntxt.strokeText(x.toPrecision(2), (x-xMin)*w/(xMax-xMin), h-y<20 ? y-15 : y+15)
+		if (x+ticks == x)
+			// Para ticks muito pequenos
+			break
 	}
+	cntxt.stroke()
+	
+	// Desenha o eixo vertical
+	ticks = dY/7
+	ticks = Math.pow(10, Math.floor(Math.log(ticks)/Math.LN10))
+	ticks = Math.round(dY/(7*ticks))*ticks
 	if (xMin<0 && xMax>0) {
 		cntxt.beginPath()
 		x = -w*xMin/(xMax-xMin)
@@ -591,13 +605,19 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		cntxt.lineTo(x, 0)
 		cntxt.moveTo(x+5, 5)
 		cntxt.lineTo(x, 0)
-		ticks = Math.exp(Math.floor(Math.log(yMax-yMin)-2))
-		for (y=Math.ceil(yMin/ticks)*ticks; y<=yMax; y+=ticks) {
-			cntxt.moveTo(x-3, (y-yMax)*h/(yMin-yMax))
-			cntxt.lineTo(x+3, (y-yMax)*h/(yMin-yMax))
-		}
-		cntxt.stroke()
+	} else if (xMax < 0)
+		x = 10
+	else
+		x = w-10
+	for (y=Math.ceil(yMin/ticks)*ticks; y<=yMax; y+=ticks) {
+		cntxt.moveTo(x-3, (y-yMax)*h/(yMin-yMax))
+		cntxt.lineTo(x+3, (y-yMax)*h/(yMin-yMax))
+		cntxt.strokeText(y.toPrecision(2), w-x<20 ? x-15 : x+15, (y-yMax)*h/(yMin-yMax))
+		if (y+ticks == y)
+			// Para ticks muito pequenos
+			break
 	}
+	cntxt.stroke()
 	
 	// Desenha a curva
 	cntxt.lineWidth = 3
