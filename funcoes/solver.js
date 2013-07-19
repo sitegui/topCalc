@@ -91,7 +91,7 @@ Funcao.registrar("findZero", "findZero(variavel, expressao, chute)\nEncontra um 
 	try {
 		// Cria o sub-escopo
 		antes = Variavel.backup(variavel)
-		return Funcao.aplicarNasListas(function (expressao, chute) {
+		return Funcao.aplicarNasListas(function (varVar, expressao, chute) {
 			var i, h, x, fx, fxh, x2
 			if (eNumerico(chute)) {
 				x = getNum(chute)
@@ -100,6 +100,11 @@ Funcao.registrar("findZero", "findZero(variavel, expressao, chute)\nEncontra um 
 					h = epsD*(Math.abs(x)+1)
 					Variavel.valores[variavel] = x
 					fx = getNum(this.executarNoEscopo(expressao, null, [variavel]))
+					
+					// Verifica a condição de parada
+					if (Math.abs(fx) < eps)
+						break
+					
 					Variavel.valores[variavel] = x+h
 					fxh = getNum(this.executarNoEscopo(expressao, null, [variavel]))
 					x2 = x-(h*fx)/(fxh-fx)
@@ -107,7 +112,7 @@ Funcao.registrar("findZero", "findZero(variavel, expressao, chute)\nEncontra um 
 						throw "Erro ao calcular a derivada, tente outro valor inicial"
 					
 					// Verifica a condição de parada
-					if (Math.abs(x2-x) < eps || Math.abs(fx) < eps)
+					if (Math.abs(x2-x) < eps)
 						break
 					x = x2
 				}
@@ -118,7 +123,7 @@ Funcao.registrar("findZero", "findZero(variavel, expressao, chute)\nEncontra um 
 				return x
 			} else if (eDeterminado(chute))
 				throw 0
-		}, this, [expressao, chute])
+		}, this, [this.args[0], expressao, chute])
 	} finally {
 		Variavel.restaurar(antes)
 	}
@@ -151,7 +156,7 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 		antes = Variavel.backup(vars)
 		
 		// Aplica a cada combinação de listas
-		return Funcao.aplicarNasListas(function (exps, chute) {
+		return Funcao.aplicarNasListas(function (vecVars, exps, chute) {
 			var xs, i, jacob, fsx, dsx, j, mapa, deltas, indeps, deps, jacob2, fsx2
 			
 			// Trata as expressões
@@ -181,6 +186,10 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 				fsx = []
 				jacob = Solver.calcularJacobiana(vars, exps, xs, fsx, that)
 				
+				// Condição de parada
+				if (Solver.getModuloQuadrado(fsx) < eps)
+					break
+				
 				// Faz uma cópia dos valores para caso seja necessário utiliza-los novamente
 				jacob2 = jacob.map(clonar)
 				fsx2 = fsx.clonar()
@@ -199,7 +208,7 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 					xs[j] += deltas[j]
 				
 				// Condição de parada
-				if (Solver.getModuloQuadrado(deltas) < eps || Solver.getModuloQuadrado(fsx) < eps)
+				if (Solver.getModuloQuadrado(deltas) < eps)
 					break
 			}
 				
@@ -207,7 +216,7 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 			if (i == maxI)
 				Console.echoErro("Número máximo de iterações atingido (o resultado pode não fazer sentido)")
 			return new Vetor(xs)
-		}, this, [exps, chute])
+		}, this, [this.args[0], exps, chute])
 	} finally {
 		Variavel.restaurar(antes)
 	}
@@ -230,7 +239,7 @@ Funcao.registrar("findComplexZero", "findComplexZero(variavel, expressao, chute)
 	try {
 		// Cria o sub-escopo
 		antes = Variavel.backup(variavel)
-		return Funcao.aplicarNasListas(function (expressao, chute) {
+		return Funcao.aplicarNasListas(function (varVar, expressao, chute) {
 			var i, fsx, jacob, mapa, indeps, deps, deltas, xs
 			
 			// Extrai a parte real e imaginária do chute inicial
@@ -246,15 +255,19 @@ Funcao.registrar("findComplexZero", "findComplexZero(variavel, expressao, chute)
 			for (i=0; i<maxI; i++) {
 				fsx = []
 				jacob = Solver.calcularJacobianaComplexa([variavel], [expressao], xs, fsx, that)
-				mapa = Solver.eliminarNumericamente(jacob, fsx)
-				indeps = Solver.determinarIndependentes(jacob, fsx, mapa)
-				deps = Solver.determinarDependentes(jacob, fsx, mapa, indeps)
-				deltas = Solver.ordenarVars(mapa, deps, indeps)
-				xs[0].a += deltas[0]
-				xs[0].b += deltas[1]
 				
 				// Condição de parada
-				if (Solver.getModuloQuadrado(deltas) < eps || Solver.getModuloQuadrado(fsx) < eps)
+				if (fsx[0]*fsx[0]+fsx[1]*fsx[1] < eps)
+					break
+				
+				mapa = Solver.eliminarNumericamente(jacob, fsx)
+				if (!mapa || mapa.i.length != mapa.j.length)
+					throw "Falha ao tentar resolver, tente outro chute inicial"
+				xs[0].a += fsx[0]
+				xs[0].b += fsx[1]
+				
+				// Condição de parada
+				if (fsx[0]*fsx[0]+fsx[1]*fsx[1] < eps)
 					break
 			}
 				
@@ -262,7 +275,7 @@ Funcao.registrar("findComplexZero", "findComplexZero(variavel, expressao, chute)
 			if (i == maxI)
 				Console.echoErro("Número máximo de iterações atingido (o resultado pode não fazer sentido)")
 			return xs[0]
-		}, this, [expressao, chute])
+		}, this, [this.args[0], expressao, chute])
 	} finally {
 		Variavel.restaurar(antes)
 	}
@@ -295,7 +308,7 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 		antes = Variavel.backup(vars)
 		
 		// Aplica a cada combinação de listas
-		return Funcao.aplicarNasListas(function (exps, chute) {
+		return Funcao.aplicarNasListas(function (vecVars, exps, chute) {
 			var xs, i, jacob, fsx, dsx, j, mapa, deltas, indeps, deps, temp
 			
 			// Trata as expressões
@@ -326,6 +339,10 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 				fsx = []
 				jacob = Solver.calcularJacobianaComplexa(vars, exps, xs, fsx, that)
 				
+				// Condição de parada
+				if (Solver.getModuloQuadrado(fsx) < eps)
+					break
+				
 				// Faz uma cópia dos valores para caso seja necessário utiliza-los novamente
 				jacob2 = jacob.map(clonar)
 				fsx2 = fsx.clonar()
@@ -346,7 +363,7 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 				}
 				
 				// Condição de parada
-				if (Solver.getModuloQuadrado(deltas) < eps || Solver.getModuloQuadrado(fsx) < eps)
+				if (Solver.getModuloQuadrado(deltas) < eps)
 					break
 			}
 				
@@ -354,7 +371,7 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 			if (i == maxI)
 				Console.echoErro("Número máximo de iterações atingido (o resultado pode não fazer sentido)")
 			return new Vetor(xs)
-		}, this, [exps, chute])
+		}, this, [this.args[0], exps, chute])
 	} finally {
 		Variavel.restaurar(antes)
 	}
