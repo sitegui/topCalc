@@ -91,7 +91,7 @@ Funcao.registrar("\u2A2F", "a\u2A2Fb\nRetorna o produto vetorial de dois vetores
 		throw 0
 }, true)
 Funcao.registrar("/", "a/b\nRetorna a razão entre dois valores", function (a, b) {
-	var info
+	var info, i
 	if (eNumerico(a) && eNumerico(b))
 		return dividir(a, b)
 	else if (a instanceof Vetor && eNumerico(b))
