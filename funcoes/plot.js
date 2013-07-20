@@ -74,6 +74,7 @@ Funcao.registrar("animate", "animate(variavel, inicio, fim, variavelX, inicioX, 
 				canvas = plot2canvas(that, variavelX, xMin, xMax, funcs2)
 				canvas.getContext("2d").fillStyle = "white"
 				canvas.getContext("2d").font = "15px sans-serif"
+				canvas.getContext("2d").textAlign = "start"
 				canvas.getContext("2d").fillText(variavel+" = "+i.toPrecision(3), 7, 15)
 				datas.push(canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height))
 			}

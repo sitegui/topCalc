@@ -47,7 +47,7 @@ Console.carregarCore = function () {
 		"Config", "ConsoleInput", "ConsoleDicas", // Interface
 		"Fracao", "Number", "BigNum", "Complexo", "ValorComUnidade", "nums", // Objetos numéricos
 		"Variavel", "Operador", "Parenteses", "Lista", "Vetor", "Funcao", "Matriz", "Unidade", // Objetos core
-		"Simplificar", // Tratamento simbólico
+		"Simplificar", "Solver", // Tratamento simbólico
 		"math" // Interpretador
 	]
 	iniciados = terminados = 0
