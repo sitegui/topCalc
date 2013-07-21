@@ -332,3 +332,9 @@ Funcao.registrar("time", "time()\nRetorna o horário atual", function () {
 Funcao.registrar("simplify", "simplify(exp)\nRetorna uma versão simplificada da expressão", function (exp) {
 	return Simplificar(exp)
 })
+
+// Define a derivada o if
+Funcao.funcoes["if"].derivar = function (derivar, manter) {
+	// if'(oq, casoSim, casoNao) = if(oq, casoSim', casoNao')
+	return new Funcao("if", [manter(0), derivar(1), derivar(2)])
+}

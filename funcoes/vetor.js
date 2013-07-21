@@ -51,3 +51,12 @@ Funcao.registrar("ang", "ang(a,b)\nRetorna o ângulo entre os vetores a e b", fu
 	} else if (eDeterminado(a) && eDeterminado(b))
 		throw 0
 }, true)
+
+// Define a derivada para algumas funções
+Funcao.funcoes.cross.derivar = function (derivar, manter) {
+	return Funcao.funcoes["\u2A2F"].derivar(derivar, manter)
+}
+Funcao.funcoes.dot.derivar = function (derivar, manter) {
+	// dot'(a, b) = dot(a', b)+dot(a, b')
+	return new Funcao("+", [new Funcao("dot", [derivar(0), manter(1)]), new Funcao("dot", [manter(0), derivar(1)])])
+}

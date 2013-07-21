@@ -3,6 +3,56 @@
 // Fornece vários algoritmos para a resolução numérica e simbólica de expressões
 var Solver = {}
 
+// Deriva simbolicamente uma expressão numa dada variável
+// exp é um objeto matemático qualquer
+// variavel é uma string
+// derivarFolha é a função que será executada para derivar uma sub-expressão que não tenha uma derivada simbólica definida
+// Retorna uma expressão não simplificada (use Simplificar() para isso)
+// Exemplo: "2*x^2" => "0*x^2+2*(1*x^(2-1)*2+0*x^2*ln(x))" => "4*x" após simplificado
+// Obs: a expressão retornada pode manter referências à antiga (que não será modificada),
+// mas a expressão retornada não terá referências duplicadas (várias aparições de um mesmo objeto)
+// As funções deriváveis deverão ter uma propriedade chamada "derivar" (ex: Funcao.funcoes.sin.derivar)
+// Essa propriedade é uma função na forma function (derivar, manter) {...}
+// derivar e manter são funções que recebem o índice do argumento a ser derivado/mantido e retornam essa expressão
+// Exemplo para (ln(x))' = x'/x:
+// Funcao.funcoes.ln.derivar = function (derivar, manter) {return new Funcao("/", [derivar(0), manter(0)])}
+// Nessa função, this se refere ao objeto Funcao e ela pode retornar undefined para indicar que a derivada não é definida
+Solver.derivar = function (exp, variavel, derivarFolha) {
+	var copias, r
+	if (exp instanceof Parenteses || exp instanceof Lista || exp instanceof Vetor)
+		return new exp.constructor(exp.expressoes.map(function (exp) {
+			return Solver.derivar(exp, variavel, derivarFolha)
+		}))
+	else if (exp instanceof Matriz)
+		return new Matriz(exp.expressoes.map(function (exp) {
+			return Solver.derivar(exp, variavel, derivarFolha)
+		}), exp.colunas)
+	else if (exp instanceof Funcao) {
+		if (exp.nome in Funcao.funcoes && "derivar" in Funcao.funcoes[exp.nome]) {
+			// No primeiro derivar()/manter() retorna a própria expressão, nos demais retorna uma cópia completa
+			copias = []
+			
+			r = Funcao.funcoes[exp.nome].derivar.call(exp, function (n) {
+				if (copias.indexOf(n) != -1)
+					return Solver.derivar(clonarTudo(exp.args[n]), variavel, derivarFolha)
+				copias.push(n)
+				return Solver.derivar(exp.args[n], variavel, derivarFolha)
+			}, function (n) {
+				if (copias.indexOf(n) != -1)
+					return clonarTudo(exp.args[n])
+				copias.push(n)
+				return exp.args[n]
+			})
+			if (r !== undefined)
+				return r
+		}
+		return derivarFolha(exp)
+	} else if (exp instanceof Variavel && exp.nome == variavel)
+		return new Fracao(1, 1)
+	else
+		return new Fracao(0, 1)
+}
+
 // Calcula a matriz Jacobinada de um conjunto de expressões
 // vars é uma Array de strings com os nomes das variáveis
 // exps é uma Array com as expressões do sistema

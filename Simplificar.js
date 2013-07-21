@@ -4,6 +4,8 @@
 // Recebe um objeto matemático e retorna sua versão simplificada
 // Obs: o novo objeto pode conter referências para o antigo
 var Simplificar = function (exp) {
+	var r
+	
 	// Traduz a árvore para o novo formato, já aplicando as simplificações, no sentido bottom-up
 	var traduzir = function (exp) {
 		if (exp instanceof Parenteses || exp instanceof Lista || exp instanceof Vetor || exp instanceof Matriz)
@@ -15,20 +17,23 @@ var Simplificar = function (exp) {
 			else if (exp.nome == "+" && exp.args.length == 2)
 				return Simplificar.somar(exp.args[0], exp.args[1])
 			else if (exp.nome == "-" && exp.args.length == 1)
-				return Simplificar.multiplicar(new Fracao(-1, 1), exp.args[0])
+				return Simplificar.multiplicar(new Fracao(-1), exp.args[0])
 			else if (exp.nome == "-" && exp.args.length == 2)
-				return Simplificar.somar(exp.args[0], Simplificar.multiplicar(new Fracao(-1, 1), exp.args[1]))
+				return Simplificar.somar(exp.args[0], Simplificar.multiplicar(new Fracao(-1), exp.args[1]))
 			else if (exp.nome == "*")
 				return Simplificar.multiplicar(exp.args[0], exp.args[1])
 			else if (exp.nome == "/")
-				return Simplificar.multiplicar(exp.args[0], Simplificar.elevar(exp.args[1], new Fracao(-1, 1)))
+				return Simplificar.multiplicar(exp.args[0], Simplificar.elevar(exp.args[1], new Fracao(-1)))
 			else if (exp.nome == "^")
 				return Simplificar.elevar(exp.args[0], exp.args[1])
 		}
 		return exp
 	}
 	
-	return Simplificar.destraduzir(traduzir(exp))
+	r = Simplificar.destraduzir(traduzir(exp))
+	if (r === null)
+		return new Fracao(0)
+	return r
 }
 
 // Executa a soma de dois valores
@@ -125,7 +130,7 @@ Simplificar.elevar = function (a, b) {
 	} else if (a instanceof Simplificar.Potencia && (b instanceof Fracao || typeof b == "number") && eIntSeguro(getNum(b))) {
 		r = new Simplificar.Potencia
 		r.base = a.base
-		r.expoente = Funcao.executar("*", [b, a.expoente])
+		r.expoente = Simplificar.multiplicar(b, a.expoente)
 		return r
 	} else {
 		r = new Simplificar.Potencia
@@ -287,7 +292,7 @@ Simplificar.multiplicarTermo = function (produto, termo, hash) {
 			p.base = termo2
 			p.expoente = new Fracao(1, 1)
 		}
-		p.expoente = Funcao.executar("+", [p.expoente, termo instanceof Simplificar.Potencia ? termo.expoente : new Fracao(1, 1)])
+		p.expoente = Simplificar.somar(p.expoente, termo instanceof Simplificar.Potencia ? termo.expoente : new Fracao(1, 1))
 		produto.termos[hash] = p
 	} else {
 		produto.termos[hash] = termo

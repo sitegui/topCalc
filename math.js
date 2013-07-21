@@ -35,6 +35,17 @@ Object.defineProperty(Array.prototype, "clonar", {value: function () {
 	return this.slice(0)
 }})
 
+// Clona completamente (recursivamente) um objeto matemático
+function clonarTudo(obj) {
+	if (obj instanceof Parenteses || obj instanceof Lista || obj instanceof Vetor)
+		return new obj.constructor(obj.expressoes.map(clonarTudo))
+	if (obj instanceof Matriz)
+		return new Matriz(obj.expressoes.map(clonarTudo), obj.colunas)
+	if (obj instanceof Funcao)
+		return new Funcao(obj.nome, obj.args.map(clonarTudo))
+	return obj.clonar()
+}
+
 // Define a configuração de ativação do debug
 Config.registrar("debug", "Define se a execução está no modo debug (0 = desligado, 1 = ligado, 2 = passo-a-passo)", 0, Config.setters.int)
 

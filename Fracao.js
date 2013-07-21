@@ -19,7 +19,7 @@ Operações não definidas (como 0/0) lançam exceções
 // Cria uma nova fração com numerador e denominador dados
 function Fracao(n, d, base) {
 	this.n = n
-	this.d = d
+	this.d = d===undefined ? 1 : d
 	this.base = base===undefined ? 10 : base
 }
 

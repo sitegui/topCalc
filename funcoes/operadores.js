@@ -540,3 +540,56 @@ Funcao.funcoes["="].preExecucao = function () {
 		}
 	}
 }
+
+// Define a derivada para vários operadores
+Funcao.funcoes["+"].derivar = function (derivar, manter) {
+	// (+a)' = a', (a+b)' = a'+b'
+	if (this.args.length == 1)
+		return new Funcao("+", [derivar(0)])
+	return new Funcao("+", [derivar(0), derivar(1)])
+}
+Funcao.funcoes["-"].derivar = function (derivar, manter) {
+	// (-a)' = -a', (a-b)' = a'-b'
+	if (this.args.length == 1)
+		return new Funcao("-", [derivar(0)])
+	return new Funcao("-", [derivar(0), derivar(1)])
+}
+Funcao.funcoes["%"].derivar = function (derivar, manter) {
+	// (a%)' = a'%
+	if (this.args.length == 1)
+		return new Funcao("%", [derivar(0)])
+}
+Funcao.funcoes["*"].derivar = function (derivar, manter) {
+	// (a*b)' = a'*b+a*b'
+	return new Funcao("+", [new Funcao("*", [derivar(0), manter(1)]), new Funcao("*", [manter(0), derivar(1)])])
+}
+Funcao.funcoes["/"].derivar = function (derivar, manter) {
+	// (a/b)' = (a'*b-a*b')/b²
+	var numerador = new Funcao("-", [new Funcao("*", [derivar(0), manter(1)]), new Funcao("*", [manter(0), derivar(1)])])
+	return new Funcao("/", [numerador, new Funcao("^", [manter(1), new Fracao(2)])])
+}
+Funcao.funcoes["^"].derivar = function (derivar, manter) {
+	// (a^b)' = a'*a^(b-1)*b+b'*a^b*ln(a)
+	var a, b
+	a = new Funcao("^", [manter(0), new Funcao("-", [manter(1), new Fracao(1)])])
+	a = new Funcao("*", [new Funcao("*", [derivar(0), a]), manter(1)])
+	b = new Funcao("*", [derivar(1), new Funcao("^", [manter(0), manter(1)])])
+	b = new Funcao("*", [b, new Funcao("ln", [manter(0)])])
+	return new Funcao("+", [a, b])
+}
+Funcao.funcoes["²"].derivar = function (derivar, manter) {
+	// (a²)' = 2*a*a'
+	return new Funcao("*", [new Funcao("*", [new Fracao(2), manter(0)]), derivar(0)])
+}
+Funcao.funcoes["³"].derivar = function (derivar, manter) {
+	// (a³)' = 3*a^2*a'
+	return new Funcao("*", [new Funcao("*", [new Fracao(3), new Funcao("^", [manter(0), new Fracao(2)])]), derivar(0)])
+}
+Funcao.funcoes["\u2A2F"].derivar = function (derivar, manter) {
+	// (a\xb)' = a'\xb+a\xb'
+	return new Funcao("+", [new Funcao("\u2A2F", [derivar(0), manter(1)]), new Funcao("\u2A2F", [manter(0), derivar(1)])])
+}
+Funcao.funcoes["\u221A"].derivar = function (derivar, manter) {
+	// (\v/a)' = a'/(2*\v/a)
+	return new Funcao("/", [derivar(0), new Funcao("*", [new Fracao(2), new Funcao("\u221A", [manter(0)])])])
+}

@@ -463,6 +463,98 @@ Funcao.registrar("d", "d(x)\nRetorna um valor relativamente pequeno (dx) em comp
 		throw 0
 }, true)
 
+// Define a derivada para as funções
+Funcao.funcoes.acos.derivar = function (derivar, manter) {
+	// acos'(x) = -x'/sqrt(1-x²)
+	var raiz = new Funcao("-", [new Fracao(1), new Funcao("^", [manter(0), new Fracao(2)])])
+	return new Funcao("/", [new Funcao("-", [derivar(0)]), new Funcao("\u221A", [raiz])])
+}
+Funcao.funcoes.acosh.derivar = function (derivar, manter) {
+	// acosh'(x) = x'/sqrt((x-1)*(x+1))
+	var raiz = new Funcao("*", [new Funcao("-", [manter(0), new Fracao(1)]), new Funcao("+", [manter(0), new Fracao(1)])])
+	return new Funcao("/", [derivar(0), new Funcao("\u221A", [raiz])])
+}
+Funcao.funcoes.asin.derivar = function (derivar, manter) {
+	// asin'(x) = x'/sqrt(1-x²)
+	var raiz = new Funcao("-", [new Fracao(1), new Funcao("^", [manter(0), new Fracao(2)])])
+	return new Funcao("/", [derivar(0), new Funcao("\u221A", [raiz])])
+}
+Funcao.funcoes.asinh.derivar = function (derivar, manter) {
+	// asinh'(x) = x'/sqrt(x²+1)
+	var raiz = new Funcao("+", [new Funcao("^", [manter(0), new Fracao(2)]), new Fracao(1)])
+	return new Funcao("/", [derivar(0), new Funcao("\u221A", [raiz])])
+}
+Funcao.funcoes.atan.derivar = function (derivar, manter) {
+	// atan'(x) = x'/(x²+1)
+	return new Funcao("/", [derivar(0), new Funcao("+", [new Funcao("^", [manter(0), new Fracao(2)]), new Fracao(1)])])
+}
+Funcao.funcoes.atan2.derivar = function (derivar, manter) {
+	// atan2'(a, b) = (a'*b-a*b')/(a²+b²)
+	var num = new Funcao("-", [new Funcao("*", [derivar(0), manter(1)]), new Funcao("*", [manter(0), derivar(1)])])
+	var den = new Funcao("+", [new Funcao("^", [manter(0), new Fracao(2)]), new Funcao("^", [manter(1), new Fracao(2)])])
+	return new Funcao("/", [num, den])
+}
+Funcao.funcoes.atanh.derivar = function (derivar, manter) {
+	// atanh'(x) = x'/(1-x²)
+	return new Funcao("/", [derivar(0), new Funcao("-", [new Fracao(1), new Funcao("^", [manter(0), new Fracao(2)])])])
+}
+Funcao.funcoes.cis.derivar = function (derivar, manter) {
+	// cis'(x) = x'*i*cis(x)
+	return new Funcao("*", [new Funcao("*", [derivar(0), new Complexo(new Fracao(0), new Fracao(1))]), new Funcao("cis", [manter(0)])])
+}
+Funcao.funcoes.cos.derivar = function (derivar, manter) {
+	// cos'(x) = -x'*sin(x)
+	return new Funcao("*", [new Funcao("-", [derivar(0)]), new Funcao("sin", [manter(0)])])
+}
+Funcao.funcoes.cosh.derivar = function (derivar, manter) {
+	// cosh'(x) = x'*sinh(x)
+	return new Funcao("*", [derivar(0), new Funcao("sinh", [manter(0)])])
+}
+Funcao.funcoes.exp.derivar = function (derivar, manter) {
+	// exp'(x) = x'*exp(x)
+	return new Funcao("*", [derivar(0), new Funcao("exp", [manter(0)])])
+}
+Funcao.funcoes.ln.derivar = function (derivar, manter) {
+	// ln'(x) = x'/x
+	return new Funcao("/", [derivar(0), manter(0)])
+}
+Funcao.funcoes.log.derivar = function (derivar, manter) {
+	// log'(a, b) = (a'/a*ln(b)-b'/b*ln(a))/ln(b)²
+	var a = new Funcao("*", [new Funcao("/", [derivar(0), manter(0)]), new Funcao("ln", [manter(1)])])
+	var b = new Funcao("*", [new Funcao("/", [derivar(1), manter(1)]), new Funcao("ln", [manter(0)])])
+	return new Funcao("/", [new Funcao("-", [a, b]), new Funcao("^", [new Funcao("ln", [manter(1)]), new Fracao(2)])])
+}
+Funcao.funcoes.log10.derivar = function (derivar, manter) {
+	// log10'(x) = x'/(x*ln(10))
+	return new Funcao("/", [derivar(0), new Funcao("*", [manter(0), new Funcao("ln", [new Fracao(10)])])])
+}
+Funcao.funcoes.pow.derivar = function (derivar, manter) {
+	return Funcao.funcoes["^"].derivar(derivar, manter)
+}
+Funcao.funcoes.q.derivar = function (derivar, manter) {
+	// q'(x) = x'
+	return derivar(0)
+}
+Funcao.funcoes.sin.derivar = function (derivar, manter) {
+	// sin'(x) = x'*cos(x)
+	return new Funcao("*", [derivar(0), new Funcao("cos", [manter(0)])])
+}
+Funcao.funcoes.sinh.derivar = function (derivar, manter) {
+	// sinh'(x) = x'*cosh(x)
+	return new Funcao("*", [derivar(0), new Funcao("cosh", [manter(0)])])
+}
+Funcao.funcoes.sqrt.derivar = function (derivar, manter) {
+	return Funcao.funcoes["\u221A"].derivar(derivar, manter)
+}
+Funcao.funcoes.tan.derivar = function (derivar, manter) {
+	// tan'(x) = x'/cos(x)²
+	return new Funcao("/", [derivar(0), new Funcao("^", [new Funcao("cos", [manter(0)]), new Fracao(2)])])
+}
+Funcao.funcoes.tanh.derivar = function (derivar, manter) {
+	// tanh'(x) = x'/cosh(x)²
+	return new Funcao("/", [derivar(0), new Funcao("^", [new Funcao("cosh", [manter(0)]), new Fracao(2)])])
+}
+
 // Constantes
 Variavel.valores.e = Math.E
 Variavel.valores.ln2 = Math.LN2
