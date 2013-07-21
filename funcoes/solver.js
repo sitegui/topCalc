@@ -5,68 +5,89 @@ Config.registrar("epsDerivada", "Passo usado para calcular a derivada de uma exp
 Config.registrar("epsilon", "Precisão buscada pelos métodos numéricos", 1e-14, Config.setters.double)
 Config.registrar("maxPassos", "Número máximo de iterações feitas pelos métodos numéricos", 100, Config.setters.int)
 
-Funcao.registrar("derivate", "derivate(variavel, expressao) ou derivate(variavel, expressao, ponto)\n"+
-"Retorna a derivada da expressão na variavel e, se dado, no ponto desejado", function (variavel, expressao, ponto) {
-	var epsD, antes
+Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a derivada simbólica da expressão num dado ponto", function (variavel, expressao, ponto) {
+	var antes
 	
 	if (Funcao.funcoes.derivate.derivando)
+		// Evita recursão infinita
 		return
 	
 	// Trata os argumentos
-	if (this.args.length != 2 && this.args.length != 3)
-		throw 0
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
-	expressao = this.preExecutarNoEscopo(expressao, [variavel])
+	this.args[1] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
+	this.args[2] = ponto = this.executarNoEscopo(ponto)
 	
-	// Derivada "indefinida", calcula simbolicamente
-	if (ponto === undefined)
-		return Simplificar(Solver.derivar(expressao, variavel, function (exp) {
-			// Simplesmente deixa indicado
-			return new Funcao("derivate", [new Variavel(variavel), exp])
-		}))
-	
-	ponto = this.executarNoEscopo(ponto)
-	epsD = Config.get("epsDerivada")
-	antes = Variavel.backup(variavel)
-	Funcao.funcoes.derivate.derivando = true // Evita recursão infinita em casos como derivate(x, f(x), p)
 	try {
-		return Funcao.aplicarNasListas(function (vVar, exp, ponto) {
-			var derivarFolha, h, that = this
-			
-			// Gera a função para derivar os ramos sem derivada simbólica definida
-			if (eNumerico(ponto)) {
-				h = multiplicar(epsD, somar(abs(ponto), 1))
-				derivarFolha = function (exp) {
-					// Derivada numérica aproximada
-					var x, fx, fxh
-					Variavel.valores[variavel] = ponto
-					fx = that.executarNoEscopo(exp, null, [variavel])
-					Variavel.valores[variavel] = somar(ponto, h)
-					fxh = that.executarNoEscopo(exp, null, [variavel])
-					return Funcao.executar("/", [Funcao.executar("-", [fxh, fx]), h])
-				}
-			} else if (eDeterminado(ponto))
-				throw 0
-			else
-				derivarFolha = function (exp) {
-					// Deixa indicado
-					return new Funcao("derivate", [vVar, exp, ponto])
-				}
-			
-			// Calcula a derivada simbolicamente+numericamente
-			exp = Simplificar(Solver.derivar(exp, variavel, derivarFolha))
-			
-			// Aplica no ponto
+		// Cria o subescopo
+		antes = Variavel.backup(variavel)
+		Funcao.funcoes.derivate.derivando = true
+		return Funcao.aplicarNasListas(function (vVar, expressao, ponto) {
+			expressao = Simplificar(Solver.derivar(expressao, variavel, function (expressao) {
+				// Deixa indicado
+				return new Funcao("derivate", [vVar, expressao, ponto])
+			}))
 			Variavel.valores[variavel] = ponto
-			return this.executarNoEscopo(exp, null, [variavel])
+			return this.executarNoEscopo(expressao, null, [variavel])
 		}, this, [new Variavel(variavel), expressao, ponto])
 	} finally {
 		Variavel.restaurar(antes)
 		delete Funcao.funcoes.derivate.derivando
 	}
-}, false, true, true)
+}, false, true)
+
+Funcao.registrar("derivateNum", "derivateNum(variavel, expressao, ponto)\nRetorna a derivada aproximada da expressão num dado ponto", function (variavel, expressao, ponto) {
+	var antes, epsD, derivarFolha
+	
+	if (Funcao.funcoes.derivateNum.derivando)
+		// Evita recursão infinita
+		return
+	
+	// Trata os argumentos
+	if (!(variavel instanceof Variavel))
+		throw 0
+	variavel = variavel.nome
+	this.args[1] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
+	this.args[2] = ponto = this.executarNoEscopo(ponto)
+	epsD = Config.get("epsDerivada")
+	
+	try {
+		// Cria o subescopo
+		antes = Variavel.backup(variavel)
+		Funcao.funcoes.derivateNum.derivando = true
+		return Funcao.aplicarNasListas(function (vVar, expressao, ponto) {
+			var h, that = this
+			
+			// Define como as expressões não deriváveis simbolicamente serão tratadas
+			if (eNumerico(ponto)) {
+				h = multiplicar(epsD, somar(abs(ponto), 1))
+				derivarFolha = function (expressao) {
+					// Derivada aproximada
+					var x, fx, fxh
+					Variavel.valores[variavel] = ponto
+					fx = that.executarNoEscopo(expressao, null, [variavel])
+					Variavel.valores[variavel] = somar(ponto, h)
+					fxh = that.executarNoEscopo(expressao, null, [variavel])
+					return Funcao.executar("/", [Funcao.executar("-", [fxh, fx]), h])
+				}
+			} else if (eDeterminado(ponto))
+				throw 0
+			else
+				derivarFolha = function (expressao) {
+					// Deixa indicado
+					return new Funcao("derivateNum", [vVar, expressao, ponto])
+				}
+				
+			expressao = Simplificar(Solver.derivar(expressao, variavel, derivarFolha))
+			Variavel.valores[variavel] = ponto
+			return this.executarNoEscopo(expressao, null, [variavel])
+		}, this, [new Variavel(variavel), expressao, ponto])
+	} finally {
+		Variavel.restaurar(antes)
+		delete Funcao.funcoes.derivateNum.derivando
+	}
+}, false, true)
 
 Funcao.registrar("derivate2", "derivate2(variavel, expressao, ponto)\nRetorna a segunda derivada aproximada da expressão num dado ponto", function (variavel, expressao, valor) {
 	var antes, epsD
@@ -409,6 +430,7 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 
 // Define os comportamentos de pre-execução
 Funcao.funcoes.derivate.preExecucao = 
+Funcao.funcoes.derivateNum.preExecucao = 
 Funcao.funcoes.derivate2.preExecucao = 
 Funcao.funcoes.findComplexZero.preExecucao = 
 Funcao.funcoes.findZero.preExecucao = Funcao.gerarPreExecucao([0], 1)
