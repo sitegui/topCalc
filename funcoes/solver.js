@@ -213,7 +213,7 @@ Funcao.registrar("solve", "solve(vars, exps, chute)\nResolve um conjunto de m ex
 		
 		// Aplica a cada combinação de listas
 		return Funcao.aplicarNasListas(function (vecVars, exps, chute) {
-			var xs, i, jacob, fsx, dsx, j, mapa, deltas, indeps, deps, jacob2, fsx2
+			var xs, i, jacob, fsx, j, mapa, deltas, indeps, deps, jacob2, fsx2
 			
 			// Trata as expressões
 			if (!eDeterminado(exps))
@@ -296,7 +296,7 @@ Funcao.registrar("findComplexZero", "findComplexZero(variavel, expressao, chute)
 		// Cria o sub-escopo
 		antes = Variavel.backup(variavel)
 		return Funcao.aplicarNasListas(function (varVar, expressao, chute) {
-			var i, fsx, jacob, mapa, indeps, deps, deltas, xs
+			var i, fsx, jacob, mapa, indeps, deps, deltas, xs, jacob2, fsx2
 			
 			// Extrai a parte real e imaginária do chute inicial
 			if (!eDeterminado(chute))
@@ -316,14 +316,25 @@ Funcao.registrar("findComplexZero", "findComplexZero(variavel, expressao, chute)
 				if (fsx[0]*fsx[0]+fsx[1]*fsx[1] < eps)
 					break
 				
+				// Faz uma cópia dos valores para caso seja necessário utiliza-los novamente
+				jacob2 = jacob.map(clonar)
+				fsx2 = fsx.clonar()
+				
 				mapa = Solver.eliminarNumericamente(jacob, fsx)
-				if (!mapa || mapa.i.length != mapa.j.length)
-					throw "Falha ao tentar resolver, tente outro chute inicial"
-				xs[0].a += fsx[0]
-				xs[0].b += fsx[1]
+				if (mapa) {
+					// Infinitas soluções ou 1 solução
+					indeps = Solver.determinarIndependentes(jacob, fsx, mapa)
+					deps = Solver.determinarDependentes(jacob, fsx, mapa, indeps)
+					deltas = Solver.ordenarVars(mapa, deps, indeps)
+				} else
+					// Nenhuma solução, busca pela melhor pseudo-solução
+					deltas = Solver.determinarPseudoSolucao(jacob2, fsx2)
+				
+				xs[0].a += deltas[0]
+				xs[0].b += deltas[1]
 				
 				// Condição de parada
-				if (fsx[0]*fsx[0]+fsx[1]*fsx[1] < eps)
+				if (deltas[0]*deltas[0]+deltas[1]*deltas[1] < eps)
 					break
 			}
 				
@@ -365,7 +376,7 @@ Funcao.registrar("solveComplex", "solveComplex(vars, exps, chute)\nResolve um co
 		
 		// Aplica a cada combinação de listas
 		return Funcao.aplicarNasListas(function (vecVars, exps, chute) {
-			var xs, i, jacob, fsx, dsx, j, mapa, deltas, indeps, deps, temp
+			var xs, i, temp, fsx, jacob, jacob2, fsx2, mapa, indeps, deps, deltas, j
 			
 			// Trata as expressões
 			if (!eDeterminado(exps))
