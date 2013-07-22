@@ -220,7 +220,16 @@ Funcao.prototype.toMathString = function (mathML) {
 		if (mathML)
 			return strA+"<mrow><mo>[</mo>"+strB+(this.args.length==3 ? "<mo>,</mo> "+this.args[2].toMathString(true) : "")+"<mo>]</mo></mrow>"
 		return strA+"["+strB+(this.args.length==3 ? ", "+this.args[2].toMathString(false) : "")+"]"
-	}
+	} else if (this.nome == "\u03A3" && this.args.length == 4 && mathML)
+		// Somatório
+		return "<munderover><mo>\u2211</mo><mrow>"+this.args[0].toMathString(true)+"<mo>=</mo>"+
+			this.args[1].toMathString(true)+"</mrow><mrow>"+this.args[2].toMathString(true)+"</mrow></munderover><mrow>"+
+			"<mo>(</mo>"+this.args[3].toMathString(true)+"<mo>)</mo></mrow>"
+	else if (this.nome == "\u03A0" && this.args.length == 4 && mathML)
+		// Produtório
+		return "<munderover><mo>\u220F</mo><mrow>"+this.args[0].toMathString(true)+"<mo>=</mo>"+
+			this.args[1].toMathString(true)+"</mrow><mrow>"+this.args[2].toMathString(true)+"</mrow></munderover><mrow>"+
+			"<mo>(</mo>"+this.args[3].toMathString(true)+"<mo>)</mo></mrow>"
 	args = []
 	for (i=0; i<this.args.length; i++)
 		args.push(this.args[i].toMathString(mathML))

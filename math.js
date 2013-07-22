@@ -78,7 +78,7 @@ Config.registrar("usarMathML", "Indica se as expressões devem ser impressas no 
 function math2str(obj) {
 	var mathML = Config.get("usarMathML"), str = obj.toMathString(mathML)
 	if (str)
-		return mathML ? "<math><mrow>"+str+"</mrow></math>" : str
+		return mathML ? "<math display='block'><mrow>"+str+"</mrow></math>" : str
 	return ""
 }
 

@@ -2,20 +2,56 @@
 
 // Funções para listas
 
-Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna uma lista dos valores da expressão executada para os diferentes valores da variável entre o início e fim (incluindo extremos)", function (variavel, inicio, fim, expressao, passo) {
-	var lista, i, antes, max, min, exato, valor, inicio2, fim2, passo2
+Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna uma lista dos valores da expressão executada para os diferentes valores da variável entre o início e fim (incluindo extremos)", function () {
+	var r = new Lista
+	if (auxFor(this, function (valor) {
+		r.expressoes.push(valor)
+	}))
+		return r
+}, true, true, true)
+
+Funcao.registrar("range", "range(max) ou range(inicio, fim)\nRetorna uma lista de 1 até max ou de inicio até fim", function () {
+	if (this.args.length == 1)
+		return Funcao.executar("for", [new Variavel("i"), new Fracao(1), this.args[0], new Variavel("i")])
+	else if (this.args.length == 2)
+		return Funcao.executar("for", [new Variavel("i"), this.args[0], this.args[1], new Variavel("i")])
+	throw 0
+}, true, false, true)
+
+Funcao.registrar("\u03A3", "\u03A3(variavel, inicio, fim, expressao, passo=1)\nO mesmo que sum(for(variavel, inicio, fim, expressao, passo)), só que otimizado", function () {
+	var r = null
+	if (auxFor(this, function (valor) {
+		r = r===null ? valor : Funcao.executar("+", [r, valor])
+	}))
+		return r===null ? new Fracao(0) : r
+}, true, true, true)
+
+Funcao.registrar("\u03A0", "\u03A0(variavel, inicio, fim, expressao, passo=1)\nO mesmo que product(for(variavel, inicio, fim, expressao, passo)), só que otimizado", function () {
+	var r = null
+	if (auxFor(this, function (valor) {
+		r = r===null ? valor : Funcao.executar("*", [r, valor])
+	}))
+		return r===null ? new Fracao(1) : r
+}, true, true, true)
+
+// Função de apoio para for, somatório e produtório
+// that é a o this dentro dessa funções
+// processar é uma função que será chamada para dar o tratamento correto para cada valor gerado
+// Retorna true caso o processo tenha sido concluído com sucesso
+function auxFor(that, processar) {
+	var variavel, inicio, fim, expressao, passo, i, antes, max, min, exato, valor, inicio2, fim2, passo2
 	
 	// Trata os argumentos
-	if (this.args.length != 4 && this.args.length != 5)
-		throw "Número inválido de argumentos para for()"
-	if (!(variavel instanceof Variavel))
+	if (that.args.length != 4 && that.args.length != 5)
+		throw "Número inválido de argumentos"
+	if (!(that.args[0] instanceof Variavel))
 		throw 0
-	this.args[1] = inicio = this.executarNoEscopo(inicio)
-	this.args[2] = fim = this.executarNoEscopo(fim)
-	variavel = variavel.nome
-	this.args[3] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
-	if (this.args.length == 5)
-		this.args[4] = passo = this.executarNoEscopo(passo)
+	inicio = that.args[1] = that.executarNoEscopo(that.args[1])
+	fim = that.args[2] = that.executarNoEscopo(that.args[2])
+	variavel = that.args[0].nome
+	expressao = that.args[3] = that.preExecutarNoEscopo(that.args[3], [variavel])
+	if (that.args.length == 5)
+		passo = that.args[4] = that.executarNoEscopo(that.args[4])
 	else
 		passo = new Fracao(1, 1)
 	
@@ -24,7 +60,6 @@ Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna
 		inicio2 = getNum(inicio)
 		fim2 = getNum(fim)
 		passo2 = getNum(passo)
-		lista = new Lista
 		max = Math.max(inicio2, fim2)
 		min = Math.min(inicio2, fim2)
 		antes = Variavel.backup(variavel)
@@ -37,16 +72,16 @@ Funcao.registrar("for", "for(variavel, inicio, fim, expressao, passo=1)\nRetorna
 					valor = somar(valor, passo)
 				} else
 					Variavel.valores[variavel] = i
-				lista.expressoes.push(this.executarNoEscopo(expressao, null, [variavel]))
+				processar(that.executarNoEscopo(expressao, null, [variavel]))
 			}
 		} finally {
 			Variavel.restaurar(antes)
 		}
 		
-		return lista
+		return true
 	} else if (eDeterminado(inicio) && eDeterminado(fim) && eDeterminado(passo))
 		throw 0
-}, true, true, true)
+}
 
 Funcao.registrar("length", "length(lista) ou length(matriz)\nRetorna o tamanho de uma lista/vetor ou matriz", function (lista) {
 	if (lista instanceof Lista || lista instanceof Vetor)

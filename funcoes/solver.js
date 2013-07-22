@@ -5,7 +5,7 @@ Config.registrar("epsDerivada", "Passo usado para calcular a derivada de uma exp
 Config.registrar("epsilon", "Precisão buscada pelos métodos numéricos", 1e-14, Config.setters.double)
 Config.registrar("maxPassos", "Número máximo de iterações feitas pelos métodos numéricos", 100, Config.setters.int)
 
-Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a derivada simbólica da expressão num dado ponto", function (variavel, expressao, ponto) {
+Funcao.registrar("derivate", "derivate(variavel, expressao, ponto=variavel)\nRetorna a derivada simbólica da expressão num dado ponto", function (variavel, expressao, ponto) {
 	var antes
 	
 	if (Funcao.funcoes.derivate.derivando)
@@ -13,11 +13,16 @@ Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a de
 		return
 	
 	// Trata os argumentos
+	if (this.args.length != 2 && this.args.length != 3)
+		throw 0
 	if (!(variavel instanceof Variavel))
 		throw 0
 	variavel = variavel.nome
 	this.args[1] = expressao = this.preExecutarNoEscopo(expressao, [variavel])
-	this.args[2] = ponto = this.executarNoEscopo(ponto)
+	if (this.args.length == 3)
+		this.args[2] = ponto = this.executarNoEscopo(ponto)
+	else
+		ponto = new Variavel(variavel)
 	
 	try {
 		// Cria o subescopo
@@ -35,7 +40,7 @@ Funcao.registrar("derivate", "derivate(variavel, expressao, ponto)\nRetorna a de
 		Variavel.restaurar(antes)
 		delete Funcao.funcoes.derivate.derivando
 	}
-}, false, true)
+}, false, true, true)
 
 Funcao.registrar("derivateNum", "derivateNum(variavel, expressao, ponto)\nRetorna a derivada aproximada da expressão num dado ponto", function (variavel, expressao, ponto) {
 	var antes, epsD, derivarFolha
