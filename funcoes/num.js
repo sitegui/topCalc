@@ -254,7 +254,7 @@ Funcao.registrar("prevPrime", "prevPrime(n)\nRetorna o maior primo menor que n",
 }, true)
 
 Funcao.registrar("factor", "factor(n)\nRetorna a fatoração da fração n", function (n) {
-	var fatores, i, r, grupo
+	var fatores, i, r, termo, negativo = false
 	if (eNumerico(n)) {
 		if (eZero(n))
 			throw 0
@@ -264,15 +264,17 @@ Funcao.registrar("factor", "factor(n)\nRetorna a fatoração da fração n", fun
 				throw 0
 			n = new Fracao(n, 1)
 		}
-		fatores = n.fatorar()
-		r = new Lista
-		for (i in fatores) {
-			grupo = new Lista
-			grupo.expressoes.push(new Fracao(i, 1))
-			grupo.expressoes.push(new Fracao(fatores[i], 1))
-			r.expressoes.push(grupo)
+		if (n.n < 0) {
+			negativo = true
+			n.n = -n.n
 		}
-		return r
+		fatores = n.fatorar()
+		r = negativo ? new Fracao(-1) : null
+		for (i in fatores) {
+			termo = fatores[i]==1 ? new Fracao(i) : new Funcao("^", [new Fracao(i), new Fracao(fatores[i])])
+			r = r===null ? termo : new Funcao("*", [r, termo])
+		}
+		return r===null ? new Fracao(1) : r
 	} else if (eDeterminado(n))
 		throw 0
 }, true)

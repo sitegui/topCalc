@@ -13,7 +13,7 @@ Console.oninput = function (input) {
 				r = executar(x)
 				if (r !== null) {
 					Variavel.valores["ans"] = r
-					Console.echo(math2str(r), true)
+					Console.echo(math2html(r), true)
 				}
 			} catch (e) {
 				Console.echoErro(e)
@@ -73,13 +73,41 @@ Config.registrar("usarMathML", "Indica se as expressões devem ser impressas no 
 	document.body.removeChild(div)
 })()
 
-// Transforma o objeto matemático em string
+// Transforma o objeto matemático em string HTML
 // Olha para a configuração usarMathML para retornar no melhor formato
-function math2str(obj) {
-	var mathML = Config.get("usarMathML"), str = obj.toMathString(mathML)
-	if (str)
-		return mathML ? "<math display='block'><mrow>"+str+"</mrow></math>" : str
+function math2html(obj) {
+	var str = obj.toMathString(false), str2
+	if (str) {
+		if (Config.get("usarMathML")) {
+			str2 = obj.toMathString(true)
+			return "<div title='Clique duas vezes para copiar' onDblClick='mathOnDblClick(this)' style='cursor:pointer'>"+
+			"<div><math display='block'><mrow>"+str2+"</mrow></math></div>"+
+			"<div style='display:none;text-align:center'>"+str+"</div>"+
+			"</div>"
+		}
+		return str
+	}
 	return ""
+}
+
+// Controla a interface do HTML gerador por math2html
+function mathOnDblClick(div) {
+	var range
+	if (div.style.cursor == "pointer") {
+		div.childNodes[0].style.display = "none"
+		div.childNodes[1].style.display = ""
+		div.style.cursor = ""
+		div.title = "Clique duas vezes para voltar"
+		range = document.createRange()
+		range.selectNode(div.childNodes[1])
+		window.getSelection().removeAllRanges()
+		window.getSelection().addRange(range)
+	} else {
+		div.childNodes[0].style.display = ""
+		div.childNodes[1].style.display = "none"
+		div.style.cursor = "pointer"
+		div.title = "Clique duas vezes para copiar"
+	}
 }
 
 // Infla uma string, retorna um objeto Parenteses

@@ -338,57 +338,16 @@ Fracao.toFracao = function (num, base) {
 
 */
 
-// Calcula o mmc entre dois inteiros seguros
+// Calcula o mmc entre dois inteiros seguros e positivos (>0)
+// Não necessariamente o resultado será um inteiro seguro
 function mmc(a, b) {
-	var r = 1, i = 3
-	
-	if (!eIntSeguro(a) || !eIntSeguro(b) || a == 0 || b == 0)
-		return null
-	
-	a = Math.abs(a)
-	b = Math.abs(b)
-	
-	if (a*b == 0)
-		return 0
-	
-	while (a+b != 2)
-		if (a%2 == 0) {
-			r *= 2
-			a /= 2
-			if (b%2 == 0)
-				b /= 2
-		} else if (b%2 == 0) {
-			r *= 2
-			b /= 2
-		} else
-			break
-	
-	while (a+b != 2) {
-		if (a%i == 0) {
-			r *= i
-			a /= i
-			if (b%i == 0)
-				b /= i
-			if (a == 1 || b == 1)
-				return r*a*b
-		} else if (b%i == 0) {
-			r *= i
-			b /= i
-			if (a == 1 || b == 1)
-				return r*a*b
-		} else
-			i += 2
-	}
-	
-	return r
+	// Usa da propriedade de que MDC(a,b)*MMC(a,b) = a*b
+	return Math.round((a/mdc(a, b))*b)
 }
 
 // Calcula o mdc entre dois inteiros seguros não nulos
 function mdc(a, b) {
 	var D, r, d
-	
-	if (!eIntSeguro(a) || !eIntSeguro(b) || a == 0 || b == 0)
-		return null
 	
 	a = Math.abs(a)
 	b = Math.abs(b)
@@ -404,7 +363,7 @@ function mdc(a, b) {
 
 // Retorna a fatoração em fatores primos de um inteiro não nulo
 function fatorar(n) {
-	var i = 3, fatores = {}
+	var i = 3, fatores = {}, max
 	var put = function (fact) {
 		if (fact in fatores)
 			fatores[fact]++
@@ -421,11 +380,14 @@ function fatorar(n) {
 			put(2)
 		} else
 			break
-	while (n != 1)
+	max = Math.round(Math.sqrt(n))
+	while (n != 1 && i < max)
 		if (n%i == 0) {
 			n /= i
 			put(i)
 		} else
 			i += 2
+	if (n != 1)
+		put(n)
 	return fatores
 }
