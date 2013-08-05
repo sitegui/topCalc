@@ -454,7 +454,7 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 	// Calcula os valores para uma função
 	// Retorna [xs, ys, xsC, ysC, yMax, yMin]
 	var calcularValores = function (exp) {
-		var xs, ys, x, y, ys2, i, salto, yMax, yMin, antes, xsC, ysC, complexo
+		var xs, ys, x, y, ys2, i, salto, yMax, yMin, antes, xsC, ysC, complexo, n
 		xs = []
 		ys = []
 		xsC = []
@@ -490,29 +490,13 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		Variavel.restaurar(antes)
 		
 		// Escolhe a escala vertical
-		ys2 = []
-		for (i=1; i<ys.length; i++) {
-			salto = (ys[i]-ys[i-1])/(xs[i]-xs[i-1])
-			if (Math.abs(salto) < 1e3) {
-				if (i==0)
-					ys2.push(ys[0])
-				ys2.push(ys[i])
-			}
-		}
-		for (i=1; i<ysC.length; i++) {
-			salto = (ysC[i]-ysC[i-1])/(xsC[i]-xsC[i-1])
-			if (Math.abs(salto) < 1e3) {
-				if (i==0)
-					ys2.push(ysC[0])
-				ys2.push(ysC[i])
-			}
-		}
-		yMax = ys2.reduce(function (a, b) {
-			return Math.max(a, b)
-		}, -Infinity)
-		yMin = ys2.reduce(function (a, b) {
-			return Math.min(a, b)
-		}, Infinity)
+		ys2 = ys.concat(ysC)
+		ys2.sort(function (a, b) {
+			return a-b
+		})
+		n = Math.round(passos/100)
+		yMin = ys2.length ? ys2[Math.min(n-1, ys2.length-1)] : 0
+		yMax = ys2.length ? ys2[Math.max(ys2.length-n, 0)] : 0
 		return [xs, ys, xsC, ysC, yMax, yMin]
 	}
 	

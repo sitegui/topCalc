@@ -85,7 +85,7 @@ function math2html(obj) {
 			"<div style='display:none;text-align:center'>"+str+"</div>"+
 			"</div>"
 		}
-		return str
+		return "<div style='text-align:center'>"+str+"</div>"
 	}
 	return ""
 }

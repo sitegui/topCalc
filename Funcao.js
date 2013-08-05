@@ -274,27 +274,39 @@ Funcao.prototype.executar = function (vars) {
 // exp é a expressão a ser executada
 // escopo é uma Array com os nomes das variáveis a serem incluídas no escopo (opcional)
 // antiEscopo é uma Array com os nomes das variáveis a serem excluídas do escopo (opcional)
+// antiEscopo é usado quando se executa uma expressão num for, plot, etc
 Funcao.prototype.executarNoEscopo = function (exp, escopo, antiEscopo) {
-	var debug, r, subescopo, i
+	var debug, r, subescopo, i, antes
 	
-	// Desativa o debug caso não se deseje saber passo-a-passo
-	debug = Config.get("debug")
-	if (debug == 1 && antiEscopo)
-		Config.set("debug", 0, true)
-	
+	// Adiciona as variáveis no escopo
 	escopo = escopo ? this.escopo.concat(escopo) : this.escopo
+	
 	if (antiEscopo) {
+		// Remove as variáveis do escopo
 		subescopo = []
 		for (i=0; i<escopo.length; i++)
 			if (antiEscopo.indexOf(escopo[i]) == -1)
 				subescopo.push(escopo[i])
+		
+		// Desativa o modo de pré-execução para casos como f(x) = for(i, 1, 2, 'random())
+		antes = executar.preExecutar
+		executar.preExecutar = 0
+		
+		// Desativa o debug caso não se deseje saber passo-a-passo
+		debug = Config.get("debug")
+		if (debug == 1)
+			Config.set("debug", 0, true)
 	} else
 		subescopo = escopo
 	
 	r = executar(exp, subescopo)
 	
-	if (debug == 1 && antiEscopo)
-		Config.set("debug", 1, true)
+	if (antiEscopo) {
+		// Volta as configurações anteriores
+		executar.preExecutar = antes
+		if (debug == 1)
+			Config.set("debug", 1, true)
+	}
 	
 	return r
 }
