@@ -132,7 +132,7 @@ Vetor.prototype.absSqr = function () {
 	if (this.expressoes.length == 0)
 		return new Fracao(0, 1)
 	for (i=0; i<this.expressoes.length; i++) {
-		termo = Funcao.executar("^", [this.expressoes[i], new Fracao(2, 1)])
+		termo = Funcao.executar("*", [this.expressoes[i], Funcao.executar("conj", [this.expressoes[i]])])
 		if (i)
 			soma = Funcao.executar("+", [soma, termo])
 		else
