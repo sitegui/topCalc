@@ -50,35 +50,44 @@ function auxFor(that, processar) {
 	fim = that.args[2] = that.executarNoEscopo(that.args[2])
 	variavel = that.args[0].nome
 	expressao = that.args[3] = that.preExecutarNoEscopo(that.args[3], [variavel])
-	if (that.args.length == 5)
-		passo = that.args[4] = that.executarNoEscopo(that.args[4])
-	else
-		passo = new Fracao(1, 1)
 	
-	if (eNumerico(inicio) && eNumerico(fim) && eNumerico(passo)) {
-		exato = inicio instanceof Fracao && fim instanceof Fracao && passo instanceof Fracao
+	if (eNumerico(inicio) && eNumerico(fim)) {
 		inicio2 = getNum(inicio)
 		fim2 = getNum(fim)
-		passo2 = getNum(passo)
-		max = Math.max(inicio2, fim2)
-		min = Math.min(inicio2, fim2)
-		antes = Variavel.backup(variavel)
 		
-		try {
-			valor = inicio
-			for (i=inicio2; i>=min && i<=max; i+=passo2) {
-				if (exato) {
-					Variavel.valores[variavel] = valor
-					valor = somar(valor, passo)
-				} else
-					Variavel.valores[variavel] = i
-				processar(that.executarNoEscopo(expressao, null, [variavel]))
+		if (that.args.length == 5)
+			passo = that.args[4] = that.executarNoEscopo(that.args[4])
+		else
+			passo = fim2>=inicio2 ? new Fracao(1) : new Fracao(-1)
+		
+		if (eNumerico(passo)) {
+			exato = inicio instanceof Fracao && fim instanceof Fracao && passo instanceof Fracao
+			passo2 = getNum(passo)
+			max = Math.max(inicio2, fim2)
+			min = Math.min(inicio2, fim2)
+			antes = Variavel.backup(variavel)
+			
+			try {
+				valor = inicio
+				for (i=inicio2; i>=min && i<=max; i+=passo2) {
+					if (exato) {
+						Variavel.valores[variavel] = valor
+						valor = somar(valor, passo)
+					} else
+						Variavel.valores[variavel] = i
+					processar(that.executarNoEscopo(expressao, null, [variavel]))
+				}
+			} finally {
+				Variavel.restaurar(antes)
 			}
-		} finally {
-			Variavel.restaurar(antes)
-		}
-		
-		return true
+			
+			return true
+		} else if (eDeterminado(passo))
+			throw 0
+	} else if (eDeterminado(inicio) && eDeterminado(fim))
+		throw 0
+	
+	if (eNumerico(inicio) && eNumerico(fim) && eNumerico(passo)) {
 	} else if (eDeterminado(inicio) && eDeterminado(fim) && eDeterminado(passo))
 		throw 0
 }
