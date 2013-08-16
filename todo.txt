@@ -1,4 +1,2 @@
-derivadas:
-if'(oq, casoSim, casoNao) = if(oq, casoSim', casoNao')
-cross'(a, b) = cross(a', b)+cross(a, b')
-dot'(a, b) = dot(a', b)+dot(a, b')
+- integrateNum
+- limit

@@ -591,9 +591,9 @@ function plot2canvas(that, variavel, xMin, xMax, funcs) {
 		cntxt.moveTo(x+5, 5)
 		cntxt.lineTo(x, 0)
 	} else if (xMax < 0)
-		x = 10
-	else
 		x = w-10
+	else
+		x = 10
 	for (y=Math.ceil(yMin/ticks)*ticks; y<=yMax; y+=ticks) {
 		cntxt.moveTo(x-3, (y-yMax)*h/(yMin-yMax))
 		cntxt.lineTo(x+3, (y-yMax)*h/(yMin-yMax))
