@@ -323,7 +323,7 @@ function interpretar(expressao) {
 		elAntes = i==0 ? null : expressao[i-1]
 		elDepois = i==expressao.length-1 ? null : expressao[i+1]
 		if (el instanceof Operador && ["!", "!!", "%", "²", "³"].indexOf(el.valor) != -1) {
-			if (elAntes && !(elAntes instanceof Operador) && (elDepois == null || elDepois instanceof Operador)) {
+			if (elAntes !== null && !(elAntes instanceof Operador) && (elDepois === null || elDepois instanceof Operador)) {
 				expressao.splice(i-1, 2, new Funcao(el.valor == "!" ? "factorial" : el.valor, [elAntes]))
 				i--
 			}
@@ -336,12 +336,12 @@ function interpretar(expressao) {
 		elAntes = i==0 ? null : expressao[i-1]
 		elDepois = i==expressao.length-1 ? null : expressao[i+1]
 		if (el instanceof Operador && ["!", "+", "-", "\u221A", "'"].indexOf(el.valor) != -1) {
-			if (elDepois && !(elDepois instanceof Operador) && (elAntes == null || elAntes instanceof Operador)) {
+			if (elDepois !== null && !(elDepois instanceof Operador) && (elAntes === null || elAntes instanceof Operador)) {
 				expressao.splice(i, 2, new Funcao(el.valor, [elDepois]))
 				i++
 			}
 		} else if (el instanceof Operador && el.valor == "^") {
-			if (elAntes && !(elAntes instanceof Operador) && elDepois && !(elDepois instanceof Operador)) {
+			if (elAntes !== null && !(elAntes instanceof Operador) && elDepois !== null && !(elDepois instanceof Operador)) {
 				expressao.splice(i-1, 3, new Funcao(el.valor, [elAntes, elDepois]))
 				i++
 			} else
@@ -356,7 +356,7 @@ function interpretar(expressao) {
 			elAntes = j==0 ? null : expressao[j-1]
 			elDepois = j==expressao.length-1 ? null : expressao[j+1]
 			if (el instanceof Operador && ops.indexOf(el.valor) != -1) {
-				if (elAntes && !(elAntes instanceof Operador) && elDepois && !(elDepois instanceof Operador)) {
+				if (elAntes !== null && !(elAntes instanceof Operador) && elDepois !== null && !(elDepois instanceof Operador)) {
 					expressao.splice(j-1, 3, new Funcao(el.valor, [elAntes, elDepois]))
 					i--
 				} else
