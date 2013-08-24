@@ -57,7 +57,7 @@ Funcao.aplicarNasListas = function (funcao, that, args) {
 				if (args[j] instanceof Lista)
 					args2.push(args[j].expressoes[i])
 				else
-					args2.push(args[j])
+					args2.push(args[j].clonar())
 			temp = funcao.apply(that, args2)
 			temp = temp===undefined ? new Funcao(that.nome, args2) : temp
 			retorno.expressoes.push(temp)

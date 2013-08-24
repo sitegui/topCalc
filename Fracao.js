@@ -381,7 +381,7 @@ function fatorar(n) {
 		} else
 			break
 	max = Math.round(Math.sqrt(n))
-	while (n != 1 && i < max)
+	while (n != 1 && i <= max)
 		if (n%i == 0) {
 			n /= i
 			put(i)

@@ -307,30 +307,36 @@ Funcao.registrar("getAt", "lista[i] ou matriz[i, j]\nRetorna o elemento na posiÃ
 	if (lista instanceof Lista || lista instanceof Vetor) {
 		if (j !== undefined)
 			throw 0
-		if (eNumerico(i)) {
-			i = getNum(i)
-			if (eIntSeguro(i) && i > 0 && i <= lista.expressoes.length)
-				return lista.expressoes[i-1]
-			else if (eIntSeguro(i) && i < 0 && i >= -lista.expressoes.length)
-				return lista.expressoes[lista.expressoes.length+i]
-			throw 0
-		} else if (eDeterminado(i))
-			throw 0
+		return Funcao.aplicarNasListas(function (i) {
+			if (eNumerico(i)) {
+				i = getNum(i)
+				if (eIntSeguro(i) && i > 0 && i <= lista.expressoes.length)
+					return lista.expressoes[i-1].clonar()
+				else if (eIntSeguro(i) && i < 0 && i >= -lista.expressoes.length)
+					return lista.expressoes[lista.expressoes.length+i].clonar()
+				throw 0
+			} else if (eDeterminado(i))
+				throw 0
+			return new Funcao("getAt", [lista.clonar(), i])
+		}, this, [i])
 	} else if (lista instanceof Matriz) {
 		if (j === undefined)
 			throw 0
-		if (eNumerico(i) && eNumerico(j)) {
-			i = getNum(i)
-			j = getNum(j)
-			if (i < 0)
-				i += lista.linhas+1
-			if (j < 0)
-				j += lista.colunas+1
-			if (eIntSeguro(i) && i > 0 && i <= lista.linhas && j > 0 && j <= lista.colunas)
-				return lista.get(i, j)
-			throw 0
-		} else if (eDeterminado(i) && eDeterminado(j))
-			throw 0
+		return Funcao.aplicarNasListas(function (i, j) {
+			if (eNumerico(i) && eNumerico(j)) {
+				i = getNum(i)
+				j = getNum(j)
+				if (i < 0)
+					i += lista.linhas+1
+				if (j < 0)
+					j += lista.colunas+1
+				if (eIntSeguro(i) && i > 0 && i <= lista.linhas && j > 0 && j <= lista.colunas)
+					return lista.get(i, j).clonar()
+				throw 0
+			} else if (eDeterminado(i) && eDeterminado(j))
+				throw 0
+			return new Funcao("getAt", [lista.clonar(), i, j])
+		}, this, [i, j])
 	} else if (eNumerico(lista)) {
 		// Trata o caso ambÃ­guo de pi[2] = pi*[2]
 		if (j === undefined)
