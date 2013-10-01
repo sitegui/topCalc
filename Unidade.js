@@ -170,6 +170,9 @@ Unidade.interpretar = function (expressao) {
 			if (!eNumerico(arg1))
 				throw "Expoente inválido"
 			return arg0.pow(arg1)
+		} else if (expressao.nome == "²" || expressao.nome == "³") {
+			arg0 = Unidade.interpretar(expressao.args[0])
+			return arg0.pow(new Fracao(expressao.nome=="²" ? 2 : 3))
 		} else
 			throw "Expressão inválida para a unidade"
 	} else if (expressao instanceof Variavel) {
