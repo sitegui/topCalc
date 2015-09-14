@@ -118,9 +118,9 @@ Unidade.unidades = {
 	"ºF": [{θ: 1}, new Fracao(5, 9)],
 	"R": [{θ: 1}, new Fracao(5, 9)],
 	// Massa
-	lb: [{M: 1}, new Fracao(45359237, 100000)],
-	oz: [{M: 1}, new Fracao(45359237, 1600000)],
-	slug: [{M: 1}, 14593.903],
+	lb: [{M: 1}, new Fracao(45359237, 100000000)],
+	oz: [{M: 1}, new Fracao(45359237, 1600000000)],
+	slug: [{M: 1}, 14.593903],
 	lbt: [{M: 1}, new Fracao(58319019, 156250)],
 	ton: [{M: 1}, new Fracao(45359237, 50)],
 	tonUK: [{M: 1}, new Fracao(635029318, 625)],
@@ -129,6 +129,8 @@ Unidade.unidades = {
 	kt: [{M: 1}, 0.205196548333],
 	gr: [{M: 1}, new Fracao(6479891, 100000000)],
 	u: [{M: 1}, 1.66053873e-27],
+	// Força
+	lbf: [{M: 1, L: 1, T: -2}, 4.448222],
 	// Tempo
 	min: [{T: 1}, new Fracao(60, 1)],
 	h: [{T: 1}, new Fracao(3600, 1)],
@@ -140,11 +142,14 @@ Unidade.unidades = {
 	// Pressão
 	atm: [{M: 1, L: -1, T: -2}, new Fracao(101325, 1)],
 	bar: [{M: 1, L: -1, T: -2}, new Fracao(100000, 1)],
+	psi: [{M: 1, L: -1, T: -2}, 6894.758],
 	mmHg: [{M: 1, L: -1, T: -2}, 133.3224],
 	// Energia
 	BTU: [{M: 1, L: 2, T: -2}, 1.05505585262e3],
 	cal: [{M: 1, L: 2, T: -2}, new Fracao(10467, 2500)],
 	eV: [{M: 1, L: 2, T: -2}, 1.60217733e-19],
+	// Potência
+	HP: [{M: 1, L: 2, T: -3}, 745.69987158227],
 	// Informação
 	B: [{}, new Fracao(8, 1)],
 	b: [{}, new Fracao(1, 1)]

@@ -571,7 +571,7 @@ Variavel.valores.g = (function () {
 	var u = new Unidade
 	u.unidades["m"] = {"": new Fracao(1, 1)}
 	u.unidades["s"] = {"": new Fracao(-2, 1)}
-	return new ValorComUnidade(9.807, u)
+	return new ValorComUnidade(9.80665, u)
 })()
 Variavel.valores.c = (function () {
 	var u = new Unidade
