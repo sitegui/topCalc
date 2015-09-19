@@ -244,9 +244,15 @@ Simplificar.destraduzir = function (exp) {
 		}
 		return new Funcao("^", [termo, termo2])
 	} else if (exp instanceof Parenteses || exp instanceof Lista || exp instanceof Vetor || exp instanceof Matriz)
-		exp.expressoes = exp.expressoes.map(Simplificar.destraduzir)
+		exp.expressoes = exp.expressoes.map(function (each) {
+			var r = Simplificar.destraduzir(each)
+			return r === null ? new Fracao(0) : r
+		})
 	else if (exp instanceof Funcao)
-		exp.args = exp.args.map(Simplificar.destraduzir)
+		exp.args = exp.args.map(function (each) {
+			var r = Simplificar.destraduzir(each)
+			return r === null ? new Fracao(0) : r
+		})
 	return exp
 }
 
